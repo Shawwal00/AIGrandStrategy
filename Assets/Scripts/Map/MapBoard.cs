@@ -6,9 +6,6 @@ using UnityEngine;
 
 public class MapBoard : MonoBehaviour
 {
-  //Scripts
-  [SerializeField] public Cursor cursorScript;
-  
   //Variables
   [SerializeField] public MapTile boardPiece;
   [SerializeField] public int boardLengthX;
@@ -33,21 +30,23 @@ public class MapBoard : MonoBehaviour
   //Creates the map board 
   public void CreateMap()
   {
+    int tileNumber = 1;
     for (int i = 0; i < boardLengthX; i++)
-    {
-      for (int j = 0; j < boardLengthY; j++)
-      {
-        copyBoardPiece = Instantiate(boardPiece, startLocation.transform.position, startLocation.transform.rotation);
-        startLocation.transform.position = new Vector3(startLocation.transform.position.x, 
-          startLocation.transform.position.y + pieceRenderer.bounds.size.y, startLocation.transform.position.z );
-        allBoardPieces.Add(copyBoardPiece);
-      }
-      startLocation.transform.position = new Vector3(startLocation.transform.position.x + pieceRenderer.bounds.size.x,
-        startLocation.transform.position.y - pieceRenderer.bounds.size.y * boardLengthY, 
-        startLocation.transform.position.z);
-    }
-    AddAllConnections(allBoardPieces, boardLengthX, boardLengthY);
-
+        {
+            for (int j = 0; j < boardLengthY; j++)
+            {
+                copyBoardPiece = Instantiate(boardPiece, startLocation.transform.position, startLocation.transform.rotation);
+                startLocation.transform.position = new Vector3(startLocation.transform.position.x, 
+                startLocation.transform.position.y + pieceRenderer.bounds.size.y, startLocation.transform.position.z );
+                allBoardPieces.Add(copyBoardPiece);
+                copyBoardPiece.SetTileNumber(tileNumber);
+                tileNumber++;
+            }
+            startLocation.transform.position = new Vector3(startLocation.transform.position.x + pieceRenderer.bounds.size.x,
+            startLocation.transform.position.y - pieceRenderer.bounds.size.y * boardLengthY, 
+            startLocation.transform.position.z);
+        }
+        AddAllConnections(allBoardPieces, boardLengthX, boardLengthY);
         Debug.Log(allBoardPieces);
   }
 
@@ -94,4 +93,9 @@ public class MapBoard : MonoBehaviour
       completeList[i].AddConnectionTile(completeList[i - x]);
     }
   }
+
+    public List<MapTile> returnTileList()
+    {
+        return allBoardPieces;
+    }
 }

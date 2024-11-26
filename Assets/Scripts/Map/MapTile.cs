@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,9 @@ public class MapTile : MonoBehaviour
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
     private int tileCost; // The cost to travel to the tile 
+    private int tileNumber; // This is what tile number the map is.
+
+    private int owner = 0; // 0 is neutral, //1 - 4 is ai
 
     private void Awake()
     {
@@ -50,5 +54,21 @@ public class MapTile : MonoBehaviour
     public int ReturnTileCost()
     {
         return tileCost;
+    }
+
+    //Returns the tile number of the tile
+    public int ReturnTileNumber()
+    {
+        return tileNumber;
+    }
+
+    public void SetTileNumber(int number)
+    {
+        tileNumber = number;
+    }
+
+    public void SetOwner(int newOwner)
+    {
+        owner = newOwner;
     }
 }
