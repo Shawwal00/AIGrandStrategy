@@ -24,9 +24,9 @@ public class MapTile : MonoBehaviour
     }
 
     //Add tiles to which units can move towards
-    public void AddConnectionTile(MapTile newConnection)
+    public void AddConnectionTile(MapTile _newConnection)
     {
-        allConnectedTiles.Add(newConnection);
+        allConnectedTiles.Add(_newConnection);
     }
 
     //This return all the adjacent tiles
@@ -45,9 +45,9 @@ public class MapTile : MonoBehaviour
     }
 
     //Sets the tile cost
-    public void SetTileCost(int costValue)
+    public void SetTileCost(int _costValue)
     {
-        tileCost = costValue;
+        tileCost = _costValue;
     }
 
     //Returns the tile cost
@@ -62,13 +62,19 @@ public class MapTile : MonoBehaviour
         return tileNumber;
     }
 
-    public void SetTileNumber(int number)
+    // Sets the tile number which is the position of the tile on the grid
+    public void SetTileNumber(int _number)
     {
-        tileNumber = number;
+        tileNumber = _number;
     }
 
-    public void SetOwner(int newOwner)
+    //Sets the owner of the tile which will always be one of the AIs
+    public void SetOwner(int _newOwner)
     {
-        owner = newOwner;
+        owner = _newOwner;
+        if (owner == 1)
+        {
+            GetComponent<MeshRenderer>().material.color = Color.red;
+        }
     }
 }

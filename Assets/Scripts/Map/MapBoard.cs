@@ -11,6 +11,8 @@ public class MapBoard : MonoBehaviour
   [SerializeField] public int boardLengthX;
   [SerializeField] public int boardLengthY;
   [SerializeField] public GameObject startLocation;
+
+  [SerializeField] public List<Material> allMaterials;
   
   //Used in Other Scripts
   private List<MapTile>  allBoardPieces;
@@ -47,7 +49,6 @@ public class MapBoard : MonoBehaviour
             startLocation.transform.position.z);
         }
         AddAllConnections(allBoardPieces, boardLengthX, boardLengthY);
-        Debug.Log(allBoardPieces);
   }
 
   public void AddAllConnections(List<MapTile> completeList, int x, int y)
