@@ -30,7 +30,7 @@ public class MapTile : MonoBehaviour
     }
 
     //This return all the adjacent tiles
-    public List<MapTile> ReturnAllConnectedTiles()
+    public List<MapTile> GetAllConnectedTiles()
     {
         return allConnectedTiles;
     }
@@ -51,13 +51,13 @@ public class MapTile : MonoBehaviour
     }
 
     //Returns the tile cost
-    public int ReturnTileCost()
+    public int GetTileCost()
     {
         return tileCost;
     }
 
     //Returns the tile number of the tile
-    public int ReturnTileNumber()
+    public int GetTileNumber()
     {
         return tileNumber;
     }
@@ -76,5 +76,10 @@ public class MapTile : MonoBehaviour
         {
             GetComponent<MeshRenderer>().material.color = Color.red;
         }
+    }
+
+    public int GetOwner()
+    {
+        return owner;
     }
 }
