@@ -19,6 +19,9 @@ public class EmpireClass : MonoBehaviour
 
     private int EmpireNumber = 0;
 
+    private int troopNumber = 0;
+    private float updateTroopNumberTime = 0;
+
     private void Awake()
     {
         allTilesList = new List<MapTile>();
@@ -28,6 +31,28 @@ public class EmpireClass : MonoBehaviour
         MapBoardScript = GameManager.GetComponent<MapBoard>();
     }
 
+    private void Update()
+    {
+        UpdateAllTroopCount();
+    }
+
+    //This gets all the tiles owned by the empire and adds to the total empire troop count.
+    private void UpdateAllTroopCount()
+    {
+        updateTroopNumberTime += Time.deltaTime;
+        if (ownedTiles.Count > 0)
+        {
+            if (updateTroopNumberTime > 1)
+            {
+                for (int i = 0; i < ownedTiles.Count; i++)
+                {
+                    AddToTroopNumber(ownedTiles[i].GetTroopAdding());
+                }
+                updateTroopNumberTime = 0;
+            }
+        }
+    }
+
     //The below function is used when the AI captures a new tile
     public void ConquerTerritory()
     {
@@ -35,7 +60,29 @@ public class EmpireClass : MonoBehaviour
         int randomNumber = Random.Range(0, expandingTiles.Count);
         if (expandingTiles.Count > 0)
         {
-            expandingTiles[randomNumber].SetOwner(EmpireNumber);
+            MapTile lowestTile = null;
+            foreach (MapTile tile in expandingTiles)
+            {
+                if (lowestTile == null)
+                {
+                    lowestTile = tile;
+                }
+                else
+                {
+                    if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                    {
+                        lowestTile = tile;
+                    }
+                }
+            }
+            if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber)
+            {
+                Debug.Log(troopNumber);
+                Debug.Log(lowestTile.GetTroopPresent());
+                expandingTiles[randomNumber].SetOwner(EmpireNumber);
+                SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
+                Debug.Log(troopNumber);
+            }
         }
     }
 
@@ -81,5 +128,17 @@ public class EmpireClass : MonoBehaviour
     public int GetEmpireNumber()
     {
         return EmpireNumber;
+    }
+
+    //This will add to the empires troop number
+    public void AddToTroopNumber(int _addTroopNumber)
+    {
+        troopNumber += _addTroopNumber;
+    }
+
+    //The below will set the empires troop number
+    public void SetTroopNumber(int _setTroopNumber)
+    {
+        troopNumber = _setTroopNumber;
     }
 }

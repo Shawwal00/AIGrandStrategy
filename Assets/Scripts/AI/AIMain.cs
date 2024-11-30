@@ -51,7 +51,7 @@ public class AIMain : MonoBehaviour
                 allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.returnTileList(), allAIEmpireClasses[j].GetEmpireNumber());
             }
         }
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.1f);
         startAI = true;
     }
 

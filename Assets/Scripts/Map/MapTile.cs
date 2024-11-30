@@ -18,6 +18,9 @@ public class MapTile : MonoBehaviour
 
     private int owner = 0; // 0 is neutral, //1 - 4 is ai
 
+    private int troopPresent = 0; // This is how many troops are present within the territory
+    private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
+
     private void Awake()
     {
         allConnectedTiles = new List<MapTile>();
@@ -78,8 +81,33 @@ public class MapTile : MonoBehaviour
         }
     }
 
+    //Gets the current empire owner of the tile
     public int GetOwner()
     {
         return owner;
+    }
+
+    //Sets the amount of troop on the tile
+    public void SetTroopPresent(int _troopPresent)
+    {
+        troopPresent = _troopPresent;
+    }
+
+    //Gets the amount of troop on the tile
+    public int GetTroopPresent()
+    {
+        return troopPresent;
+    }
+
+    //Sets the amount of troops that will be added to the controlling empire.
+    public void SetTroopAdding(int _troopAdding)
+    {
+        troopAdding = _troopAdding;
+    }
+
+    //Gets the amount of troops that will be added to the empire.
+    public int GetTroopAdding()
+    {
+        return troopAdding;
     }
 }
