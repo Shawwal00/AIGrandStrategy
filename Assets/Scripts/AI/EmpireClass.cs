@@ -61,27 +61,38 @@ public class EmpireClass : MonoBehaviour
         if (expandingTiles.Count > 0)
         {
             MapTile lowestTile = null;
+
             foreach (MapTile tile in expandingTiles)
             {
                 if (lowestTile == null)
                 {
-                    lowestTile = tile;
+                    if (tile.GetOwner() == 0)
+                    {
+                        lowestTile = tile;
+                    }
                 }
                 else
                 {
-                    if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                    if (tile.GetOwner() == 0)
                     {
-                        lowestTile = tile;
+                        if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                        {
+                            lowestTile = tile;
+                        }
                     }
                 }
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber)
             {
-                Debug.Log(troopNumber);
-                Debug.Log(lowestTile.GetTroopPresent());
-                expandingTiles[randomNumber].SetOwner(EmpireNumber);
+                if (EmpireNumber == 1)
+                {
+                    Debug.Log(lowestTile.GetTileNumber());
+                }
+                // Debug.Log(troopNumber);
+                // Debug.Log(lowestTile.GetTroopPresent());
+                lowestTile.SetOwner(EmpireNumber);
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
-                Debug.Log(troopNumber);
+               // Debug.Log(troopNumber);
             }
         }
     }

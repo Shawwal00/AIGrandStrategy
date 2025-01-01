@@ -79,6 +79,10 @@ public class MapTile : MonoBehaviour
         {
             GetComponent<MeshRenderer>().material.color = Color.red;
         }
+        else if (owner == 2)
+        {
+            GetComponent<MeshRenderer>().material.color = Color.blue;
+        }
     }
 
     //Gets the current empire owner of the tile

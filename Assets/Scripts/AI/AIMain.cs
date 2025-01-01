@@ -34,25 +34,30 @@ public class AIMain : MonoBehaviour
     {
         if (startAI == true)
         {
-           StartCoroutine(ConquerRegion());
+            for (int i = 0; i < allAIEmpireClasses.Count; i++)
+            {
+                StartCoroutine(MainLoop(allAIEmpireClasses[i]));
+            }
         }
     }
 
 
     //The below function is used to make the AI's expand to another region.
-    private IEnumerator ConquerRegion()
+    private IEnumerator MainLoop(EmpireClass _currentEmpire)
     {
         startAI = false;
-        for (int i = 0; i < allAIEmpireClasses.Count; i++)
-        {
-            allAIEmpireClasses[i].ConquerTerritory();
-            for (int j = 0; j < allAIEmpireClasses.Count; j++)
-            {
-                allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.returnTileList(), allAIEmpireClasses[j].GetEmpireNumber());
-            }
-        }
+        ConquerRegion(_currentEmpire);
         yield return new WaitForSeconds(0.1f);
         startAI = true;
+    }
+
+    private void ConquerRegion(EmpireClass _currentEmpire)
+    {
+        _currentEmpire.ConquerTerritory();
+        for (int j = 0; j < allAIEmpireClasses.Count; j++)
+        {
+            allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.returnTileList(), allAIEmpireClasses[j].GetEmpireNumber());
+        }
     }
 
 }
