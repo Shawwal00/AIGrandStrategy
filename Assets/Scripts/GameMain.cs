@@ -11,13 +11,13 @@ using UnityEngine.Serialization;
 public class GameMain : MonoBehaviour
 {
     //Scripts
-    [SerializeField] public MapBoard board;
-    [SerializeField] public SetUpEmpire empireSetUp;
+    [SerializeField] public MapBoard Board;
+    [SerializeField] public SetUpEmpire EmpireSetUp;
 
     private void Start()
     {
-        board.CreateMap();
-        empireSetUp.SpawnEmpires();
+        Board.CreateMap();
+        EmpireSetUp.SpawnEmpires();
     }
 
     private void Update()

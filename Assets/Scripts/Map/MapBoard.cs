@@ -42,11 +42,6 @@ public class MapBoard : MonoBehaviour
                 allBoardPieces.Add(copyBoardPiece);
                 copyBoardPiece.SetTileNumber(tileNumber);
 
-                int randomNumber = Random.Range(10, 50);
-                copyBoardPiece.SetTroopPresent(randomNumber);
-
-                randomNumber = Random.Range(1, 10);
-                copyBoardPiece.SetTroopAdding(randomNumber);
                 tileNumber++;
             }
             startLocation.transform.position = new Vector3(startLocation.transform.position.x + pieceRenderer.bounds.size.x,

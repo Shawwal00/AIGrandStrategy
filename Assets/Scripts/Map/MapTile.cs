@@ -11,9 +11,13 @@ using UnityEngine.Serialization;
 
 public class MapTile : MonoBehaviour
 {
+    private GameObject GameManager;
+
+    //Scripts
+    private TileData TileData;
+
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
-    private int tileCost; // The cost to travel to the tile 
     private int tileNumber; // This is what tile number the map is.
 
     private int owner = 0; // 0 is neutral, //1 - 4 is ai
@@ -24,6 +28,8 @@ public class MapTile : MonoBehaviour
     private void Awake()
     {
         allConnectedTiles = new List<MapTile>();
+        GameManager = GameObject.Find("GameManager");
+        TileData = GameManager.GetComponent<TileData>();
     }
 
     //Add tiles to which units can move towards
@@ -38,37 +44,20 @@ public class MapTile : MonoBehaviour
         return allConnectedTiles;
     }
 
-    //Sets the tile costs off all the adjacent tiles
-    public void SetConnectionTileCosts()
-    {
-        for (int i = 0; i < allConnectedTiles.Count; i++)
-        {
-            allConnectedTiles[i].tileCost = tileCost + 1;
-        }
-    }
-
-    //Sets the tile cost
-    public void SetTileCost(int _costValue)
-    {
-        tileCost = _costValue;
-    }
-
-    //Returns the tile cost
-    public int GetTileCost()
-    {
-        return tileCost;
-    }
-
     //Returns the tile number of the tile
     public int GetTileNumber()
     {
         return tileNumber;
     }
 
-    // Sets the tile number which is the position of the tile on the grid
+    // Sets the tile number which is the position of the tile on the grid also sets up the tile data using the TileData script
     public void SetTileNumber(int _number)
     {
         tileNumber = _number;
+        Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
+        SetTroopPresent(allTileData[tileNumber]["Present"]);
+        SetTroopAdding(allTileData[tileNumber]["Replenish"]);
+
     }
 
     //Sets the owner of the tile which will always be one of the AIs
