@@ -7,7 +7,8 @@ public class TileData : MonoBehaviour
     // Start is called before the first frame update
 
     private Dictionary<int, Dictionary<string, int>> allTileData = new Dictionary<int, Dictionary<string, int>>();
-    void Start()
+
+    private void Awake()
     {
         allTileData[1] = new Dictionary<string, int>();
         allTileData[1]["Present"] = 25;

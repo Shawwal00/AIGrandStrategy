@@ -12,7 +12,7 @@ public class GameMain : MonoBehaviour
 {
     //Scripts
     [SerializeField] public MapBoard Board;
-    [SerializeField] public SetUpEmpire EmpireSetUp;
+    [SerializeField] public SetUpEmpires EmpireSetUp;
 
     private void Start()
     {

@@ -7,7 +7,7 @@ using UnityEngine;
  * This script is responsible for spawning in the empires when the game starts. 
 */
 
-public class SetUpEmpire : MonoBehaviour
+public class SetUpEmpires : MonoBehaviour
 {
     //Scripts
     [SerializeField] public MapBoard MapBoardScript;
@@ -45,5 +45,18 @@ public class SetUpEmpire : MonoBehaviour
                 }
             }
         }
+    }
+
+    public EmpireClass GetSpecificEmpireClassBasedOnOwner(int _empireWanted)
+    {
+        foreach (var empire in empiresInGame)
+        {
+            if (empire.GetEmpireNumber() == _empireWanted)
+            {
+                return empire;
+            }
+        }
+
+        return null;
     }
 }

@@ -22,7 +22,6 @@ public class AIMain : MonoBehaviour
     //The below function will add an empire to the list 
     public void AddEmpireToList(EmpireClass _empireToAdd)
     {
-        Debug.Log("Adding Empire");
         allAIEmpireClasses.Add(_empireToAdd);
         if (startAI == false)
         {

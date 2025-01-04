@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /*
@@ -12,6 +13,7 @@ public class EmpireClass : MonoBehaviour
 
     private GameObject GameManager;
     private MapBoard MapBoardScript;
+    private SetUpEmpires SetUpEmpires;
 
     private List<MapTile> allTilesList; //All the tiles on the board
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
@@ -22,13 +24,19 @@ public class EmpireClass : MonoBehaviour
     private int troopNumber = 0;
     private float updateTroopNumberTime = 0;
 
+   // private bool boarderingEmpire = false;
+
+    private List<EmpireClass> boarderingEmpires;
+
     private void Awake()
     {
         allTilesList = new List<MapTile>();
         ownedTiles = new List<MapTile>();
         expandingTiles = new List<MapTile>();
+        boarderingEmpires = new List<EmpireClass>();
         GameManager = GameObject.Find("GameManager");
         MapBoardScript = GameManager.GetComponent<MapBoard>();
+        SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
     }
 
     private void Update()
@@ -92,10 +100,39 @@ public class EmpireClass : MonoBehaviour
                 // Debug.Log(lowestTile.GetTroopPresent());
                 lowestTile.SetOwner(EmpireNumber);
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
-               // Debug.Log(troopNumber);
+
+                List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();
+                foreach (MapTile tile in mapTiles)
+                {
+                    if (tile.GetOwner() != 0)
+                    {
+                        bool empireFound = false;
+                        foreach (var empire in boarderingEmpires)
+                        {
+                            if (empire.EmpireNumber == tile.GetOwner())
+                            {
+                                empireFound = true;
+                            }
+                        }
+                        if (empireFound == false)
+                        {
+                            boarderingEmpires.Add(SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()));
+                            Debug.Log("Working");
+                        }
+                        break;
+                    }
+                }
+                // Debug.Log(troopNumber);
             }
         }
     }
+
+    //The below function is used to check if the AI should go to war with a neighbouring faction
+    public void GoToWarCheck()
+    {
+
+    }
+
 
     //The below function is used to get a list of all the tiles when the map is set up and also set the empire number.
     public void SetAllTilesList(List<MapTile> _newTileList, int _empireNumber)
@@ -151,5 +188,11 @@ public class EmpireClass : MonoBehaviour
     public void SetTroopNumber(int _setTroopNumber)
     {
         troopNumber = _setTroopNumber;
+    }
+
+    //The below function will return the boardering empire value
+    public List<EmpireClass> GetBoarderingEmpire()
+    {
+        return boarderingEmpires;
     }
 }
