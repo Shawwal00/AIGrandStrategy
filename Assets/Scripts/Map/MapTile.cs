@@ -55,7 +55,6 @@ public class MapTile : MonoBehaviour
     {
         tileNumber = _number;
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
-        Debug.Log(allTileData);
         SetTroopPresent(allTileData[tileNumber]["Present"]);
         SetTroopAdding(allTileData[tileNumber]["Replenish"]);
 

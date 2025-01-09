@@ -59,6 +59,7 @@ public class EmpireClass : MonoBehaviour
             {
                 for (int i = 0; i < ownedTiles.Count; i++)
                 {
+                   // Debug.Log(ownedTiles[i].GetTroopAdding());
                     AddToTroopNumber(ownedTiles[i].GetTroopAdding());
                 }
                 updateTroopNumberTime = 0;
@@ -157,12 +158,17 @@ public class EmpireClass : MonoBehaviour
     public void UpdateThreatRating( EmpireClass _otherEmpire)
     {
         int newThreatRating = 0;
-        if (_otherEmpire.troopNumber > troopNumber * 1.1)
+        Debug.Log(empireNumber);
+        Debug.Log(_otherEmpire.troopNumber);
+        Debug.Log(_otherEmpire.troopNumber * 1.1);
+        Debug.Log(troopNumber);
+        if (_otherEmpire.troopNumber * 1.1 > troopNumber)
         {
             newThreatRating = 1;
         }
         else
         {
+            Debug.Log("Not a threat");
             newThreatRating = -1;
         }
         threatRatings[_otherEmpire] = newThreatRating;
@@ -230,6 +236,7 @@ public class EmpireClass : MonoBehaviour
     public void AddToTroopNumber(int _addTroopNumber)
     {
         troopNumber += _addTroopNumber;
+        Debug.Log("sad");
     }
 
     //The below will set the empires troop number
@@ -243,6 +250,7 @@ public class EmpireClass : MonoBehaviour
         {
             troopNumber = _setTroopNumber;
         }
+        Debug.Log("sad");
     }
 
     public int GetTroopNumber()
