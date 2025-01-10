@@ -56,7 +56,6 @@ public class SetUpEmpires : MonoBehaviour
                 return empire;
             }
         }
-
         return null;
     }
 }

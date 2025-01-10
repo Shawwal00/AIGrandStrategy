@@ -20,11 +20,14 @@ public class EmpireClass : MonoBehaviour
     private List<MapTile> expandingTiles; // All the tiles that this empire can expand to
 
     private int empireNumber = 0;
+    private bool empireDefeated = false;
+    private float armyDestroyedTime = 0;
+    private EmpireClass empireThatDefeatedYou;
 
     private int troopNumber = 0;
     private float updateTroopNumberTime = 0;
 
-   // private bool boarderingEmpire = false;
+    // private bool boarderingEmpire = false;
 
     private List<EmpireClass> boarderingEmpires;
     private List<EmpireClass> AtWarEmpires;
@@ -47,6 +50,17 @@ public class EmpireClass : MonoBehaviour
     private void Update()
     {
         UpdateAllTroopCount();
+
+        if (empireDefeated == true)
+        {
+            armyDestroyedTime += Time.deltaTime;
+            if (armyDestroyedTime > 2)
+            {
+                empireDefeated = false;
+                armyDestroyedTime = 0;
+                empireThatDefeatedYou.RemoveEmpireFromeDefeatedList(this);
+            }
+        }
     }
 
     //This gets all the tiles owned by the empire and adds to the total empire troop count.
@@ -59,7 +73,7 @@ public class EmpireClass : MonoBehaviour
             {
                 for (int i = 0; i < ownedTiles.Count; i++)
                 {
-                   // Debug.Log(ownedTiles[i].GetTroopAdding());
+                    // Debug.Log(ownedTiles[i].GetTroopAdding());
                     AddToTroopNumber(ownedTiles[i].GetTroopAdding());
                 }
                 updateTroopNumberTime = 0;
@@ -78,28 +92,16 @@ public class EmpireClass : MonoBehaviour
 
             foreach (MapTile tile in expandingTiles)
             {
-                bool canConquerTile = false;
-                if (empiresDefeatedInBattle.Count > 0)
-                {
-                    foreach (var empire in empiresDefeatedInBattle)
-                    {
-                        if (tile.GetOwner() == empire.empireNumber)
-                        {
-                            Debug.Log("True");
-                            canConquerTile = true;
-                        }
-                    }
-                }
                 if (lowestTile == null)
                 {
-                    if (tile.GetOwner() == 0 || canConquerTile == true)
+                    if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).GetEmpireDefeated() == true)
                     {
                         lowestTile = tile;
                     }
                 }
                 else
                 {
-                    if (tile.GetOwner() == 0 || canConquerTile == true)
+                    if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).GetEmpireDefeated() == true)
                     {
                         if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
                         {
@@ -110,8 +112,8 @@ public class EmpireClass : MonoBehaviour
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber)
             {
-                Debug.Log("Conquer");
                 lowestTile.SetOwner(empireNumber);
+                lowestTile.SetTroopPresent(10);
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
 
                 List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();
@@ -155,20 +157,15 @@ public class EmpireClass : MonoBehaviour
     }
 
     //The below function will update the threat rating of another empire
-    public void UpdateThreatRating( EmpireClass _otherEmpire)
+    public void UpdateThreatRating(EmpireClass _otherEmpire)
     {
         int newThreatRating = 0;
-        Debug.Log(empireNumber);
-        Debug.Log(_otherEmpire.troopNumber);
-        Debug.Log(_otherEmpire.troopNumber * 1.1);
-        Debug.Log(troopNumber);
         if (_otherEmpire.troopNumber * 1.1 > troopNumber)
         {
             newThreatRating = 1;
         }
         else
         {
-            Debug.Log("Not a threat");
             newThreatRating = -1;
         }
         threatRatings[_otherEmpire] = newThreatRating;
@@ -177,16 +174,29 @@ public class EmpireClass : MonoBehaviour
     //The below function is used to check if the AI should go to war with a neighbouring faction
     public EmpireClass GoToWarCheck()
     {
-        foreach (var empire in boarderingEmpires)
+        if (troopNumber > 100)
         {
-            if (threatRatings[empire] == -1)
+            foreach (var empire in boarderingEmpires)
             {
-                return empire;
+                if (threatRatings[empire] == -1)
+                {
+                    return empire;
+                }
             }
         }
         return null;
     }
 
+    public void MakePeace()
+    {
+        foreach (var otherEmpire in AtWarEmpires)
+        {
+            if (otherEmpire.troopNumber > troopNumber)
+            {
+                //Attempt to make peace they have more troops.
+            }
+        }
+    }
 
     //The below function is used to get a list of all the tiles when the map is set up and also set the empire number.
     public void SetAllTilesList(List<MapTile> _newTileList, int _empireNumber)
@@ -236,7 +246,6 @@ public class EmpireClass : MonoBehaviour
     public void AddToTroopNumber(int _addTroopNumber)
     {
         troopNumber += _addTroopNumber;
-        Debug.Log("sad");
     }
 
     //The below will set the empires troop number
@@ -250,7 +259,6 @@ public class EmpireClass : MonoBehaviour
         {
             troopNumber = _setTroopNumber;
         }
-        Debug.Log("sad");
     }
 
     public int GetTroopNumber()
@@ -276,9 +284,28 @@ public class EmpireClass : MonoBehaviour
         return empiresDefeatedInBattle;
     }
 
+    // Removes the empire from the defeated list.
+    public void RemoveEmpireFromeDefeatedList(EmpireClass _empireToRemove)
+    {
+        empiresDefeatedInBattle.Remove(_empireToRemove);
+    }
+
     // The below function is for when you have defeated an empire in battle allowing you to occupy thier territory
     public void AddToDefeatedEmpires(EmpireClass _defeatedEmpire)
     {
         empiresDefeatedInBattle.Add(_defeatedEmpire);
+    }
+
+    //Set the empireDefeated variable to true when the ai has lost a fight and set the empire that has defeated you.
+    public void SetEmpireDefeatedTrue(EmpireClass _newEmpireThatDefeatedYou)
+    {
+        empireDefeated = true;
+        empireThatDefeatedYou = _newEmpireThatDefeatedYou;
+    }
+
+    //Returns if the empire has been defeated
+    public bool GetEmpireDefeated()
+    {
+        return empireDefeated;
     }
 }

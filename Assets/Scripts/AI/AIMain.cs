@@ -83,47 +83,52 @@ public class AIMain : MonoBehaviour
         {
             foreach (var empire in _currentEmpire.GetAtWarEmpires())
             {
-                bool empireAlreadyDefeated = false;
-                if (_currentEmpire.GetDefeatedEmpires().Count > 0)
+                if (empire.GetEmpireDefeated() == false)
                 {
-                    foreach (var defeatedEmpire in _currentEmpire.GetDefeatedEmpires())
+                    bool empireAlreadyDefeated = false;
+                    if (_currentEmpire.GetDefeatedEmpires().Count > 0)
                     {
-                        if (defeatedEmpire == empire)
+                        foreach (var defeatedEmpire in _currentEmpire.GetDefeatedEmpires())
                         {
-                            empireAlreadyDefeated = true;   
+                            if (defeatedEmpire == empire)
+                            {
+                                empireAlreadyDefeated = true;
+                            }
                         }
                     }
-                }
 
-                if (empire.GetDefeatedEmpires().Count > 0)
-                {
-                    foreach (var defeatedEmpire in empire.GetDefeatedEmpires())
+                    if (empire.GetDefeatedEmpires().Count > 0)
                     {
-                        if (defeatedEmpire == _currentEmpire)
+                        foreach (var defeatedEmpire in empire.GetDefeatedEmpires())
                         {
-                            empireAlreadyDefeated = true;
+                            if (defeatedEmpire == _currentEmpire)
+                            {
+                                empireAlreadyDefeated = true;
+                            }
                         }
                     }
-                }
 
-                if (empireAlreadyDefeated == false)
-                {
-                    Debug.Log("Once");
-                    Debug.Log(_currentEmpire.GetTroopNumber());
-                    Debug.Log(empire.GetTroopNumber());
-                    int newCurrentTroopNumber = _currentEmpire.GetTroopNumber() - empire.GetTroopNumber();
-                    int otherEmpireTroopNumber = empire.GetTroopNumber() - _currentEmpire.GetTroopNumber();
+                    if (empireAlreadyDefeated == false)
+                    {
+                        Debug.Log("Once");
+                        Debug.Log(_currentEmpire.GetTroopNumber());
+                        Debug.Log(empire.GetTroopNumber());
+                        int newCurrentTroopNumber = _currentEmpire.GetTroopNumber() - empire.GetTroopNumber();
+                        int otherEmpireTroopNumber = empire.GetTroopNumber() - _currentEmpire.GetTroopNumber();
 
-                    if (newCurrentTroopNumber > otherEmpireTroopNumber)
-                    {
-                        _currentEmpire.AddToDefeatedEmpires(empire);
+                        if (newCurrentTroopNumber > otherEmpireTroopNumber)
+                        {
+                            _currentEmpire.AddToDefeatedEmpires(empire);
+                            empire.SetEmpireDefeatedTrue(_currentEmpire);
+                        }
+                        else
+                        {
+                            empire.AddToDefeatedEmpires(_currentEmpire);
+                            _currentEmpire.SetEmpireDefeatedTrue(empire);
+                        }
+                        _currentEmpire.SetTroopNumber(newCurrentTroopNumber);
+                        empire.SetTroopNumber(otherEmpireTroopNumber);
                     }
-                    else
-                    {
-                        empire.AddToDefeatedEmpires(_currentEmpire);
-                    }
-                    _currentEmpire.SetTroopNumber(newCurrentTroopNumber);
-                    empire.SetTroopNumber(otherEmpireTroopNumber);
                 }
             }
         }
