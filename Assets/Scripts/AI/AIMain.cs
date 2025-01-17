@@ -110,7 +110,8 @@ public class AIMain : MonoBehaviour
 
                     if (empireAlreadyDefeated == false)
                     {
-                        Debug.Log("Once");
+                        Debug.Log("Empires Fighting");
+                        Debug.Log(_currentEmpire.GetEmpireNumber());
                         Debug.Log(_currentEmpire.GetTroopNumber());
                         Debug.Log(empire.GetTroopNumber());
                         int newCurrentTroopNumber = _currentEmpire.GetTroopNumber() - empire.GetTroopNumber();

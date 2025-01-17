@@ -55,8 +55,16 @@ public class MapTile : MonoBehaviour
     {
         tileNumber = _number;
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
-        SetTroopPresent(allTileData[tileNumber]["Present"]);
-        SetTroopAdding(allTileData[tileNumber]["Replenish"]);
+        if (allTileData.ContainsKey(tileNumber) == false)
+        {
+            SetTroopPresent(25);
+            SetTroopAdding(5);
+        }
+        else 
+        {
+            SetTroopPresent(allTileData[tileNumber]["Present"]);
+            SetTroopAdding(allTileData[tileNumber]["Replenish"]);
+        }
 
     }
 
