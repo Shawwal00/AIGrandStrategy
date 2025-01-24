@@ -14,6 +14,7 @@ public class EmpireClass : MonoBehaviour
     private GameObject GameManager;
     private MapBoard MapBoardScript;
     private SetUpEmpires SetUpEmpires;
+    private AIMain aiMain;
 
     private List<MapTile> allTilesList; //All the tiles on the board
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
@@ -30,7 +31,7 @@ public class EmpireClass : MonoBehaviour
     // private bool boarderingEmpire = false;
 
     private List<EmpireClass> boarderingEmpires;
-    private List<EmpireClass> AtWarEmpires;
+    private List<EmpireClass> atWarEmpires;
     private List<EmpireClass> empiresDefeatedInBattle;
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
 
@@ -46,7 +47,8 @@ public class EmpireClass : MonoBehaviour
         GameManager = GameObject.Find("GameManager");
         MapBoardScript = GameManager.GetComponent<MapBoard>();
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
-        AtWarEmpires = new List<EmpireClass>();
+        aiMain = GameManager.GetComponent<AIMain>();
+        atWarEmpires = new List<EmpireClass>();
         empiresDefeatedInBattle = new List<EmpireClass>();
     }
 
@@ -146,6 +148,23 @@ public class EmpireClass : MonoBehaviour
         }
     }
 
+    // This function is called when another empire has been defeated and all refrences to it should be destroyed
+    public void OtherEmpireDied(EmpireClass _deadEmpire)
+    {
+        if (empiresDefeatedInBattle.Contains(_deadEmpire))
+        {
+           empiresDefeatedInBattle.Remove(_deadEmpire);
+        }
+        if (atWarEmpires.Contains(_deadEmpire))
+        {
+            atWarEmpires.Remove(_deadEmpire);
+        }
+        if (boarderingEmpires.Contains(_deadEmpire))
+        {
+            boarderingEmpires.Remove(_deadEmpire);
+        }
+    }
+
     //The below function will occur if another empire has conqured a tile on the map
     public void OtherEmpireConquredNewTile(EmpireClass _newBoarderingEmpire)
     {
@@ -156,7 +175,7 @@ public class EmpireClass : MonoBehaviour
     //The below function occurs when an empire has declared war on war
     public void EmpireAtWarWith(EmpireClass _empireThatDeclaredWar)
     {
-        AtWarEmpires.Add(_empireThatDeclaredWar);
+        atWarEmpires.Add(_empireThatDeclaredWar);
     }
 
     //The below function will update the threat rating of another empire
@@ -192,7 +211,7 @@ public class EmpireClass : MonoBehaviour
 
     public void MakePeace()
     {
-        foreach (var otherEmpire in AtWarEmpires)
+        foreach (var otherEmpire in atWarEmpires)
         {
             if (otherEmpire.troopNumber > troopNumber)
             {
@@ -218,6 +237,10 @@ public class EmpireClass : MonoBehaviour
             {
                 ownedTiles.Add(allTilesList[i]);
             }
+        }
+        if (ownedTiles.Count == 0)
+        {
+            aiMain.EmpireDestroyed(this);
         }
     }
 
@@ -283,7 +306,7 @@ public class EmpireClass : MonoBehaviour
     //The below function will return all the at war Empires
     public List<EmpireClass> GetAtWarEmpires()
     {
-        return AtWarEmpires;
+        return atWarEmpires;
     }
 
     //The below function will return all the defeated Empires

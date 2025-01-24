@@ -76,6 +76,16 @@ public class AIMain : MonoBehaviour
         }
     }
 
+    public void EmpireDestroyed(EmpireClass _destroyedEmpire)
+    {
+        foreach (var empire in allAIEmpireClasses)
+        {
+            empire.OtherEmpireDied(_destroyedEmpire);
+        }
+
+        allAIEmpireClasses.Remove(_destroyedEmpire);
+    }
+
     //The below function is used to fight another enemy empire AI
     private void FightOtherEmpire(EmpireClass _currentEmpire)
     {
@@ -110,10 +120,10 @@ public class AIMain : MonoBehaviour
 
                     if (empireAlreadyDefeated == false)
                     {
-                        Debug.Log("Empires Fighting");
-                        Debug.Log(_currentEmpire.GetEmpireNumber());
-                        Debug.Log(_currentEmpire.GetTroopNumber());
-                        Debug.Log(empire.GetTroopNumber());
+                        //Debug.Log("Empires Fighting");
+                        //Debug.Log(_currentEmpire.GetEmpireNumber());
+                        //Debug.Log(_currentEmpire.GetTroopNumber());
+                        //Debug.Log(empire.GetTroopNumber());
                         int newCurrentTroopNumber = _currentEmpire.GetTroopNumber() - empire.GetTroopNumber();
                         int otherEmpireTroopNumber = empire.GetTroopNumber() - _currentEmpire.GetTroopNumber();
 
