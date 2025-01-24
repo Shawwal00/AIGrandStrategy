@@ -34,6 +34,9 @@ public class EmpireClass : MonoBehaviour
     private List<EmpireClass> empiresDefeatedInBattle;
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
 
+    private Color empireColor = Color.white;
+    private bool alive = true;
+
     private void Awake()
     {
         allTilesList = new List<MapTile>();
@@ -198,11 +201,10 @@ public class EmpireClass : MonoBehaviour
         }
     }
 
-    //The below function is used to get a list of all the tiles when the map is set up and also set the empire number.
-    public void SetAllTilesList(List<MapTile> _newTileList, int _empireNumber)
+    //The below function is used to get a list of all the tiles when the map is set up.
+    public void SetAllTilesList(List<MapTile> _newTileList)
     {
         allTilesList = _newTileList;
-        empireNumber = _empireNumber;
         GetOwnedTiles();
     }
 
@@ -234,6 +236,12 @@ public class EmpireClass : MonoBehaviour
                 }
             }
         }
+    }
+
+    // This function will set the new empire number
+    public void SetEmpireNumber(int _newEmpireNumber)
+    {
+        empireNumber = _newEmpireNumber;
     }
 
     //Return the empire number
@@ -307,5 +315,17 @@ public class EmpireClass : MonoBehaviour
     public bool GetEmpireDefeated()
     {
         return empireDefeated;
+    }
+
+    //The below function will set the empire color for the tiles
+    public void SetEmpireColor(Color newEmpireColor)
+    {
+        empireColor = newEmpireColor;
+    }
+
+    //The below function will return the empire color used for the tiles
+    public Color GetEmpireColor()
+    {
+        return empireColor;
     }
 }

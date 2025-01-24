@@ -1,4 +1,4 @@
-using System;
+
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +15,7 @@ public class MapTile : MonoBehaviour
 
     //Scripts
     private TileData TileData;
+    private SetUpEmpires SetUpEmpires;
 
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
@@ -30,6 +31,7 @@ public class MapTile : MonoBehaviour
         allConnectedTiles = new List<MapTile>();
         GameManager = GameObject.Find("GameManager");
         TileData = GameManager.GetComponent<TileData>();
+        SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
     }
 
     //Add tiles to which units can move towards
@@ -57,8 +59,8 @@ public class MapTile : MonoBehaviour
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
         if (allTileData.ContainsKey(tileNumber) == false)
         {
-            SetTroopPresent(25);
-            SetTroopAdding(5);
+            SetTroopPresent(Random.Range(15, 25));
+            SetTroopAdding(Random.Range(3, 5));
         }
         else 
         {
@@ -72,13 +74,33 @@ public class MapTile : MonoBehaviour
     public void SetOwner(int _newOwner)
     {
         owner = _newOwner;
-        if (owner == 1)
+        EmpireClass empire = SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(owner);
+        if (empire.GetEmpireColor() == Color.white)
         {
-            GetComponent<MeshRenderer>().material.color = Color.red;
+            if (owner == 1)
+            {
+                GetComponent<MeshRenderer>().material.color = Color.red;
+                empire.SetEmpireColor(Color.red);
+            }
+            else if (owner == 2)
+            {
+                GetComponent<MeshRenderer>().material.color = Color.blue;
+                empire.SetEmpireColor(Color.blue);
+            }
+            else if (owner == 3)
+            {
+                GetComponent<MeshRenderer>().material.color = Color.black;
+                empire.SetEmpireColor(Color.black);
+            }
+            else if (owner == 4)
+            {
+                GetComponent<MeshRenderer>().material.color = Color.green;
+                empire.SetEmpireColor(Color.green);
+            }
         }
-        else if (owner == 2)
+        else
         {
-            GetComponent<MeshRenderer>().material.color = Color.blue;
+            GetComponent<MeshRenderer>().material.color = empire.GetEmpireColor();
         }
     }
 

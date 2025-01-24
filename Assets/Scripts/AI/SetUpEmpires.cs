@@ -37,10 +37,11 @@ public class SetUpEmpires : MonoBehaviour
                 if (allTilesList[j].GetTileNumber() == spawnPositions[i])
                 {
                     copyEmpirePiece = Instantiate(EmpireMangerPrefab, new Vector3(1000,1000,1000),new Quaternion(0,0,0,0));
+                    AIMain.AddEmpireToList(copyEmpirePiece);
+                    copyEmpirePiece.SetEmpireNumber(curerntAIOwner);
                     empiresInGame.Add(copyEmpirePiece);
                     allTilesList[j].SetOwner(curerntAIOwner);
-                    copyEmpirePiece.SetAllTilesList(allTilesList, curerntAIOwner);
-                    AIMain.AddEmpireToList(copyEmpirePiece);
+                    copyEmpirePiece.SetAllTilesList(allTilesList);
                     curerntAIOwner++;
                 }
             }

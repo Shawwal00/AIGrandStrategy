@@ -387,7 +387,7 @@ MonoBehaviour:
   MapBoardScript: {fileID: 1945516726}
   EmpireMangerPrefab: {fileID: 4897236774969801223, guid: 2cb7e0052a0c73940a887321d5b6564c, type: 3}
   AIMain: {fileID: 1945516730}
-  spawnPositions: 0b00000014000000
+  spawnPositions: 01000000050000001500000019000000
 --- !u!114 &1945516730
 MonoBehaviour:
   m_ObjectHideFlags: 0
