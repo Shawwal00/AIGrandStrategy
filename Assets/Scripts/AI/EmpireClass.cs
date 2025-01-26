@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /*
@@ -14,7 +15,8 @@ public class EmpireClass : MonoBehaviour
     private GameObject GameManager;
     private MapBoard MapBoardScript;
     private SetUpEmpires SetUpEmpires;
-    private AIMain aiMain;
+    private AIMain AiMain;
+    public DiplomacyModule DiplomacyModule;
 
     private List<MapTile> allTilesList; //All the tiles on the board
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
@@ -36,7 +38,6 @@ public class EmpireClass : MonoBehaviour
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
 
     private Color empireColor = Color.white;
-    private bool alive = true;
 
     private void Awake()
     {
@@ -47,9 +48,11 @@ public class EmpireClass : MonoBehaviour
         GameManager = GameObject.Find("GameManager");
         MapBoardScript = GameManager.GetComponent<MapBoard>();
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
-        aiMain = GameManager.GetComponent<AIMain>();
+        AiMain = GameManager.GetComponent<AIMain>();
         atWarEmpires = new List<EmpireClass>();
         empiresDefeatedInBattle = new List<EmpireClass>();
+
+        DiplomacyModule = this.AddComponent<DiplomacyModule>();
     }
 
     private void Update()
@@ -240,7 +243,7 @@ public class EmpireClass : MonoBehaviour
         }
         if (ownedTiles.Count == 0)
         {
-            aiMain.EmpireDestroyed(this);
+            AiMain.EmpireDestroyed(this);
         }
     }
 
