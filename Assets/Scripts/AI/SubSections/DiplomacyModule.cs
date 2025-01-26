@@ -39,7 +39,7 @@ public class DiplomacyModule : MonoBehaviour
     }
 
     //This is so the script knows which empire it is.
-    private void SetThisEmpire(EmpireClass _thisEmpire)
+    public void SetThisEmpire(EmpireClass _thisEmpire)
     {
         thisEmpire = _thisEmpire;
     }

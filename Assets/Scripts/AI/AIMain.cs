@@ -46,11 +46,11 @@ public class AIMain : MonoBehaviour
         startAI = false;
         ConquerRegion(_currentEmpire);
         UpdateAllThreatRatings(_currentEmpire);
-        EmpireClass warCheck = _currentEmpire.GoToWarCheck();
+        EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
         if (warCheck != null)
         {
-            warCheck.EmpireAtWarWith(_currentEmpire);
-            _currentEmpire.EmpireAtWarWith(warCheck);
+            warCheck.WarModule.EmpireAtWarWith(_currentEmpire);
+            _currentEmpire.WarModule.EmpireAtWarWith(warCheck);
         }
         FightOtherEmpire(_currentEmpire);
         yield return new WaitForSeconds(0.1f);
@@ -60,7 +60,7 @@ public class AIMain : MonoBehaviour
     //The below function will attempt to conquer a region on the map
     private void ConquerRegion(EmpireClass _currentEmpire)
     {
-        _currentEmpire.ConquerTerritory();
+        _currentEmpire.WarModule.ConquerTerritory();
         for (int j = 0; j < allAIEmpireClasses.Count; j++)
         {
             allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.returnTileList());
@@ -70,9 +70,9 @@ public class AIMain : MonoBehaviour
     //The below function will update all the threat ratings of the empires
     private void UpdateAllThreatRatings(EmpireClass _currentEmpire)
     {
-        foreach (var empire in _currentEmpire.GetBoarderingEmpires())
+        foreach (var empire in _currentEmpire.WarModule.GetBoarderingEmpires())
         {
-            _currentEmpire.UpdateThreatRating(empire);
+            _currentEmpire.WarModule.UpdateThreatRating(empire);
         }
     }
 
@@ -80,7 +80,7 @@ public class AIMain : MonoBehaviour
     {
         foreach (var empire in allAIEmpireClasses)
         {
-            empire.OtherEmpireDied(_destroyedEmpire);
+            empire.WarModule.OtherEmpireDied(_destroyedEmpire);
         }
 
         allAIEmpireClasses.Remove(_destroyedEmpire);
@@ -89,16 +89,16 @@ public class AIMain : MonoBehaviour
     //The below function is used to fight another enemy empire AI
     private void FightOtherEmpire(EmpireClass _currentEmpire)
     {
-        if (_currentEmpire.GetAtWarEmpires().Count > 0) // Only occur if at war with an empire
+        if (_currentEmpire.WarModule.GetAtWarEmpires().Count > 0) // Only occur if at war with an empire
         {
-            foreach (var empire in _currentEmpire.GetAtWarEmpires())
+            foreach (var empire in _currentEmpire.WarModule.GetAtWarEmpires())
             {
-                if (empire.GetEmpireDefeated() == false)
+                if (empire.WarModule.GetEmpireDefeated() == false)
                 {
                     bool empireAlreadyDefeated = false;
-                    if (_currentEmpire.GetDefeatedEmpires().Count > 0)
+                    if (_currentEmpire.WarModule.GetDefeatedEmpires().Count > 0)
                     {
-                        foreach (var defeatedEmpire in _currentEmpire.GetDefeatedEmpires())
+                        foreach (var defeatedEmpire in _currentEmpire.WarModule.GetDefeatedEmpires())
                         {
                             if (defeatedEmpire == empire)
                             {
@@ -107,9 +107,9 @@ public class AIMain : MonoBehaviour
                         }
                     }
 
-                    if (empire.GetDefeatedEmpires().Count > 0)
+                    if (empire.WarModule.GetDefeatedEmpires().Count > 0)
                     {
-                        foreach (var defeatedEmpire in empire.GetDefeatedEmpires())
+                        foreach (var defeatedEmpire in empire.WarModule.GetDefeatedEmpires())
                         {
                             if (defeatedEmpire == _currentEmpire)
                             {
@@ -124,21 +124,21 @@ public class AIMain : MonoBehaviour
                         //Debug.Log(_currentEmpire.GetEmpireNumber());
                         //Debug.Log(_currentEmpire.GetTroopNumber());
                         //Debug.Log(empire.GetTroopNumber());
-                        int newCurrentTroopNumber = _currentEmpire.GetTroopNumber() - empire.GetTroopNumber();
-                        int otherEmpireTroopNumber = empire.GetTroopNumber() - _currentEmpire.GetTroopNumber();
+                        int newCurrentTroopNumber = _currentEmpire.WarModule.GetTroopNumber() - empire.WarModule.GetTroopNumber();
+                        int otherEmpireTroopNumber = empire.WarModule.GetTroopNumber() - _currentEmpire.WarModule.GetTroopNumber();
 
                         if (newCurrentTroopNumber > otherEmpireTroopNumber)
                         {
-                            _currentEmpire.AddToDefeatedEmpires(empire);
-                            empire.SetEmpireDefeatedTrue(_currentEmpire);
+                            _currentEmpire.WarModule.AddToDefeatedEmpires(empire);
+                            empire.WarModule.SetEmpireDefeatedTrue(_currentEmpire);
                         }
                         else
                         {
-                            empire.AddToDefeatedEmpires(_currentEmpire);
-                            _currentEmpire.SetEmpireDefeatedTrue(empire);
+                            empire.WarModule.AddToDefeatedEmpires(_currentEmpire);
+                            _currentEmpire.WarModule.SetEmpireDefeatedTrue(empire);
                         }
-                        _currentEmpire.SetTroopNumber(newCurrentTroopNumber);
-                        empire.SetTroopNumber(otherEmpireTroopNumber);
+                        _currentEmpire.WarModule.SetTroopNumber(newCurrentTroopNumber);
+                        empire.WarModule.SetTroopNumber(otherEmpireTroopNumber);
                     }
                 }
             }
