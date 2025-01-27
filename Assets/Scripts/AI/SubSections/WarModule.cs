@@ -10,7 +10,7 @@ using UnityEngine;
 public class WarModule : MonoBehaviour
 {
     private GameObject GameManager;
-    private SetUpEmpires SetUpEmpires;
+    private SetUpEmpires SetUpEmpires; // This script sets up the inital empires
 
     private EmpireClass thisEmpire;
     private List<EmpireClass> boarderingEmpires;
@@ -19,17 +19,21 @@ public class WarModule : MonoBehaviour
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
 
     private bool empireDefeated = false;
-    private float armyDestroyedTime = 0;
-    private EmpireClass empireThatDefeatedYou;
+    private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
+    private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
 
-    private int troopNumber = 0;
+    private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
 
     private void Awake()
     {
+        //Gameobject
         GameManager = GameObject.Find("GameManager");
+
+        //Scripts
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
 
+        //Lists
         boarderingEmpires = new List<EmpireClass>();
         atWarEmpires = new List<EmpireClass>();
         empiresDefeatedInBattle = new List<EmpireClass>();
@@ -40,6 +44,7 @@ public class WarModule : MonoBehaviour
     {
         UpdateAllTroopCount();
 
+        //The below is if you have been defeated then check to see if your army can be restored
         if (empireDefeated == true)
         {
             armyDestroyedTime += Time.deltaTime;
@@ -52,13 +57,18 @@ public class WarModule : MonoBehaviour
         }
     }
 
-    //This is so the script knows which empire it is.
+    /*
+     * This is so the script knows which empire it is.
+     * @param EmpireClass _thisEmpire This is a refrence to the this empire
+     */
     public void SetThisEmpire(EmpireClass _thisEmpire)
     {
         thisEmpire = _thisEmpire;
     }
 
-    //This gets all the tiles owned by the empire and adds to the total empire troop count.
+    /*
+     * This gets all the tiles owned by the empire and adds to the total empire troop count.
+     */
     private void UpdateAllTroopCount()
     {
         updateTroopNumberTime += Time.deltaTime;
@@ -76,7 +86,9 @@ public class WarModule : MonoBehaviour
         }
     }
 
-    //The below function is used when the AI captures a new tile
+    /*
+     * The below function is used when the AI captures a new tile
+     */
     public void ConquerTerritory()
     {
        thisEmpire.GetExpandingTilesOfTile();
@@ -139,7 +151,10 @@ public class WarModule : MonoBehaviour
     }
 
 
-    // This function is called when another empire has been defeated and all refrences to it should be destroyed
+    /*
+     * This function is called when another empire has been defeated and all refrences to it should be destroyed
+     * @param EmpireClass _deadEmpire This is the empire that has died
+     */
     public void OtherEmpireDied(EmpireClass _deadEmpire)
     {
         if (empiresDefeatedInBattle.Contains(_deadEmpire))
@@ -156,20 +171,29 @@ public class WarModule : MonoBehaviour
         }
     }
 
-    //The below function will occur if another empire has conqured a tile on the map
+    /*
+     * The below function will occur if another empire has conqured a tile on the map
+     * @param EmpireClass _newBoarderingEmpire The newly encountered empire
+     */
     public void OtherEmpireConquredNewTile(EmpireClass _newBoarderingEmpire)
     {
         boarderingEmpires.Add(_newBoarderingEmpire);
         UpdateThreatRating(_newBoarderingEmpire);
     }
 
-    //The below function occurs when an empire has declared war on war
+    /*
+     * The below function occurs when an empire has declared war on war
+     * @param EmpireClass _empireThatDeclaredWar The empire that has declared war on you
+     */
     public void EmpireAtWarWith(EmpireClass _empireThatDeclaredWar)
     {
         atWarEmpires.Add(_empireThatDeclaredWar);
     }
 
-    //The below function will update the threat rating of another empire
+    /*
+     * The below function will update the threat rating of another empire
+     * @param EmpireClass _otherEmpire The empires whos threat rating you are updating
+     */
     public void UpdateThreatRating(EmpireClass _otherEmpire)
     {
         int newThreatRating = 0;
@@ -184,7 +208,9 @@ public class WarModule : MonoBehaviour
         threatRatings[_otherEmpire] = newThreatRating;
     }
 
-    //The below function is used to check if the AI should go to war with a neighbouring faction
+    /*
+     * The below function is used to check if the AI should go to war with a neighbouring faction
+     */
     public EmpireClass GoToWarCheck()
     {
         if (troopNumber > 100)
@@ -200,6 +226,9 @@ public class WarModule : MonoBehaviour
         return null;
     }
 
+    /*
+     * This function is used to make peace with another empire
+     */ 
     public void MakePeace()
     {
         foreach (var otherEmpire in atWarEmpires)
@@ -211,44 +240,74 @@ public class WarModule : MonoBehaviour
         }
     }
 
+    /*
+     * Set the empireDefeated variable to true when the ai has lost a fight and set the empire that has defeated you.
+     * @param EmpireClass _newEmpireThatDefeatedYou This is the empire that defeated you in battle
+     */
+    public void SetEmpireDefeatedTrue(EmpireClass _newEmpireThatDefeatedYou)
+    {
+        empireDefeated = true;
+        empireThatDefeatedYou = _newEmpireThatDefeatedYou;
+    }
 
-    //The below function will return the boardering empire value
+    /*
+     * The below function will return the boardering empire value
+     * @return List<EmpireClass> boarderingEmpires This is a list of all boardering empires
+     */
     public List<EmpireClass> GetBoarderingEmpires()
     {
         return boarderingEmpires;
     }
 
-    //The below function will return all the at war Empires
+    /*
+     * The below function will return all the at war Empires
+     * @return List<EmpireClass> atWarEmpires These are all the empires you are at war with
+     */
     public List<EmpireClass> GetAtWarEmpires()
     {
         return atWarEmpires;
     }
 
-    //The below function will return all the defeated Empires
+    /*
+     * The below function will return all the defeated Empires
+     * @return List<EmpireClass> empiresDefeatedInBattle These are the empires you have defeated
+     */
     public List<EmpireClass> GetDefeatedEmpires()
     {
         return empiresDefeatedInBattle;
     }
 
-    // Removes the empire from the defeated list.
+    /*
+     * Removes the empire from the defeated list.
+     * @param EmpireClass _empireToRemove This is that empire that will be removed
+     */
     public void RemoveEmpireFromeDefeatedList(EmpireClass _empireToRemove)
     {
         empiresDefeatedInBattle.Remove(_empireToRemove);
     }
 
-    // The below function is for when you have defeated an empire in battle allowing you to occupy thier territory
+    /*
+     * The below function is for when you have defeated an empire in battle allowing you to occupy thier territory
+     * @param EmpireClass _defeatedEmpire This is the empire that you have defeated in battle
+     */
     public void AddToDefeatedEmpires(EmpireClass _defeatedEmpire)
     {
         empiresDefeatedInBattle.Add(_defeatedEmpire);
     }
 
-    //This will add to the empires troop number
+    /*
+     * This will add to the empires troop number
+     * @param int _addTroopNumber The amount of new troops you will be adding
+     */
     public void AddToTroopNumber(int _addTroopNumber)
     {
         troopNumber += _addTroopNumber;
     }
 
-    //The below will set the empires troop number
+    /*
+     * The below will set the empires troop number
+     * @param int _setTroopNumber This is the new troop number amount
+     */
     public void SetTroopNumber(int _setTroopNumber)
     {
         if (_setTroopNumber < 0)
@@ -261,19 +320,19 @@ public class WarModule : MonoBehaviour
         }
     }
 
+    /*
+     * This will return the amount of troops you have
+     * @return int troopNumber The amount of troops you have
+     */ 
     public int GetTroopNumber()
     {
         return troopNumber;
     }
 
-    //Set the empireDefeated variable to true when the ai has lost a fight and set the empire that has defeated you.
-    public void SetEmpireDefeatedTrue(EmpireClass _newEmpireThatDefeatedYou)
-    {
-        empireDefeated = true;
-        empireThatDefeatedYou = _newEmpireThatDefeatedYou;
-    }
-
-    //Returns if the empire has been defeated
+    /*
+     * Returns if the empire has been defeated
+     * @return bool empireDefeated This will return if you have been defeated in battle or not
+     */
     public bool GetEmpireDefeated()
     {
         return empireDefeated;

@@ -12,12 +12,12 @@ using UnityEngine;
 public class EmpireClass : MonoBehaviour
 {
 
-    private GameObject GameManager;
-    private MapBoard MapBoardScript;
-    private AIMain AiMain;
+    private GameObject GameManager; // This is the object that contains all the scripts.
+    private MapBoard MapBoardScript; // This sets up the game map
+    private AIMain AiMain; // Everything related to multiple AI will happen in here
 
-    public DiplomacyModule DiplomacyModule;
-    public WarModule WarModule;
+    public DiplomacyModule DiplomacyModule; // Handles everything related to diplomacy
+    public WarModule WarModule; // Handles everyrything related to war
 
     private List<MapTile> allTilesList; //All the tiles on the board
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
@@ -25,17 +25,23 @@ public class EmpireClass : MonoBehaviour
 
     private int empireNumber = 0;
 
-    private Color empireColor = Color.white;
+    private Color empireColor = Color.white; // Is default to white but will be changed to another colour
 
     private void Awake()
     {
+        // Lists
         allTilesList = new List<MapTile>();
         ownedTiles = new List<MapTile>();
         expandingTiles = new List<MapTile>();
+
+        //Gameobjects
         GameManager = GameObject.Find("GameManager");
+
+        //Scripts
         MapBoardScript = GameManager.GetComponent<MapBoard>();
         AiMain = GameManager.GetComponent<AIMain>();
 
+        //Modules
         DiplomacyModule = this.AddComponent<DiplomacyModule>();
         WarModule = this.AddComponent<WarModule>();
 
@@ -43,14 +49,20 @@ public class EmpireClass : MonoBehaviour
         DiplomacyModule.SetThisEmpire(this);
     }
 
-    //The below function is used to get a list of all the tiles when the map is set up.
+    /*
+     *The below function is used to set a list of all the tiles. 
+     *@param _newTileList This is the new list that  will replace the old tile list
+     */
+
     public void SetAllTilesList(List<MapTile> _newTileList)
     {
         allTilesList = _newTileList;
         GetOwnedTiles();
     }
 
-    //The below function is used to get tiles that are owned by this empire specifically.
+    /*
+     * The below function is used to get tiles that are owned by this empire specifically.
+     */
     public void GetOwnedTiles()
     {
         ownedTiles.Clear();
@@ -67,7 +79,9 @@ public class EmpireClass : MonoBehaviour
         }
     }
 
-    //The below function will get the tiles that are adjacent to a tile and put them into a list
+    /*
+     * The below function will get the tiles that are adjacent to a tile and put them into a list
+     */
     public void GetExpandingTilesOfTile()
     {
         expandingTiles.Clear();
@@ -84,43 +98,64 @@ public class EmpireClass : MonoBehaviour
         }
     }
 
-    // This function will set the new empire number
+    /* 
+     * This function will set the new empire number
+     * @param int _newEmpireNumber This is the new empire number
+     */
     public void SetEmpireNumber(int _newEmpireNumber)
     {
         empireNumber = _newEmpireNumber;
     }
 
-    //Return the empire number
+    /*
+     * Return the empire number
+     * @return int empireNumber This is the empire number
+     */ 
     public int GetEmpireNumber()
     {
         return empireNumber;
     }
 
-    //The below function will set the empire color for the tiles
-    public void SetEmpireColor(Color newEmpireColor)
+    /*
+     * The below function will set the empire color for the tiles
+     * @param Color _newEnpireColor This is the new empire colour
+     */
+    public void SetEmpireColor(Color _newEmpireColor)
     {
-        empireColor = newEmpireColor;
+        empireColor = _newEmpireColor;
     }
 
-    //The below function will return the empire color used for the tiles
+    /*
+     * The below function will return the empire color used for the tiles
+     * @return Color empireColor This is the empire colour
+     */
     public Color GetEmpireColor()
     {
         return empireColor;
     }
 
-    // The below will return all of the owned tiles
+    /*
+     * The below will return all of the owned tiles
+     * @return List<MapTile> ownedTiles This is all of the owned tiles
+     */
     public List<MapTile> ReturnOwnedTiles()
     {
         return ownedTiles; 
     }
 
-    // The below will return all of the expanding tiles
+    /*
+     * The below will return all of the expanding tiles
+     * @return List<MapTile> expandingTiles This is all of the expanding tiles
+     */
     public List<MapTile> ReturnExpandingTiles()
     {
         return expandingTiles;
     }
 
-    // The below will return all of the tiles
+    /*
+     * The below will return all of the tiles
+     * @return List<MapTile> alTilesList This is a list of all the tiles
+     */
     public List<MapTile> ReturnAllTiles()
     {
         return allTilesList;
