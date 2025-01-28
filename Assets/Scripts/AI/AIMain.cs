@@ -19,7 +19,10 @@ public class AIMain : MonoBehaviour
         allAIEmpireClasses = new List<EmpireClass>();
     }
 
-    //The below function will add an empire to the list 
+    /*
+     * The below function will add an empire to the list 
+     * @param EmpireClass _empireToAdd This is the empire yo uare adding to the list
+     */
     public void AddEmpireToList(EmpireClass _empireToAdd)
     {
         allAIEmpireClasses.Add(_empireToAdd);
@@ -40,7 +43,10 @@ public class AIMain : MonoBehaviour
         }
     }
 
-    //The below function is used to make the AI's expand to another region.
+    /*
+     * The below function is used to handle the main loop of the AI.
+     * @param EmpireClass _currentEmpire This is the empire currently 'taking its turn' 
+     */
     private IEnumerator MainLoop(EmpireClass _currentEmpire)
     {
         startAI = false;
@@ -57,7 +63,10 @@ public class AIMain : MonoBehaviour
         startAI = true;
     }
 
-    //The below function will attempt to conquer a region on the map
+    /*
+     * The below function will attempt to conquer a region on the map
+     * @param EmpireClass _currentEmpire This is the empire conquering
+     */
     private void ConquerRegion(EmpireClass _currentEmpire)
     {
         _currentEmpire.WarModule.ConquerTerritory();
@@ -67,7 +76,10 @@ public class AIMain : MonoBehaviour
         }
     }
 
-    //The below function will update all the threat ratings of the empires
+    /*
+     * The below function will update all the threat ratings of the empires
+     * @param EmpireClass _currentEmpire This is the empire which is updating its threat ratings
+     */
     private void UpdateAllThreatRatings(EmpireClass _currentEmpire)
     {
         foreach (var empire in _currentEmpire.WarModule.GetBoarderingEmpires())
@@ -76,6 +88,10 @@ public class AIMain : MonoBehaviour
         }
     }
 
+   /*
+   * The below function will destroy an empire and let the other empires know
+   * @param EmpireClass _destroyedEmpire This is the empire which has been destroyed
+   */
     public void EmpireDestroyed(EmpireClass _destroyedEmpire)
     {
         foreach (var empire in allAIEmpireClasses)
@@ -86,7 +102,10 @@ public class AIMain : MonoBehaviour
         allAIEmpireClasses.Remove(_destroyedEmpire);
     }
 
-    //The below function is used to fight another enemy empire AI
+    /*
+     * The below function is used to fight another enemy empire AI
+     * param EmpireClass _currentEmpire This is the empire who is attacking
+     */
     private void FightOtherEmpire(EmpireClass _currentEmpire)
     {
         if (_currentEmpire.WarModule.GetAtWarEmpires().Count > 0) // Only occur if at war with an empire

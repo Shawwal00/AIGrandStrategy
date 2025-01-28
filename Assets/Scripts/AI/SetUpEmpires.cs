@@ -23,6 +23,9 @@ public class SetUpEmpires : MonoBehaviour
         empiresInGame = new List<EmpireClass>();
     }
 
+    /*
+     * This will spawn all the AI Empires onto the map and set them up
+     */ 
     public void SpawnEmpires()
     {
         // Set up the empires depending on how many of them there are.
@@ -48,6 +51,11 @@ public class SetUpEmpires : MonoBehaviour
         }
     }
 
+    /*
+     * This can be used to get a refrence to an empire if you know the empire number
+     * @param int _empireWanted This is the empire number of the empire you want
+     * @return EmpireClass empire This is the empire refrence.
+     */ 
     public EmpireClass GetSpecificEmpireClassBasedOnOwner(int _empireWanted)
     {
         foreach (var empire in empiresInGame)
