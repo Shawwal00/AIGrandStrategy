@@ -25,6 +25,8 @@ public class WarModule : MonoBehaviour
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
 
+    private int warDiplomacyNumber = -50; // This is the number at which a AI will go to war with another Empire
+
     private void Awake()
     {
         //Gameobject
@@ -142,6 +144,13 @@ public class WarModule : MonoBehaviour
                             boarderingEmpires.Add(otherEmpire);
                             UpdateThreatRating(otherEmpire);
                             otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
+
+                            // Set up the diplomacy of the other empire
+                            thisEmpire.DiplomacyModule.MetEmpire(otherEmpire);
+                            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(otherEmpire, "Boardering", -20);
+
+                            otherEmpire.DiplomacyModule.MetEmpire(thisEmpire);
+                            otherEmpire.DiplomacyModule.ChangeValueInAllReasons(thisEmpire, "Boardering", -20);
                         }
                         break;
                     }
@@ -217,7 +226,8 @@ public class WarModule : MonoBehaviour
         {
             foreach (var empire in boarderingEmpires)
             {
-                if (threatRatings[empire] == -1)
+                // Get the diplomacy and check if you have a negative relationship
+                if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.ReturnThisEmpireOpinion(empire) <= warDiplomacyNumber)
                 {
                     return empire;
                 }

@@ -12,7 +12,8 @@ public class DiplomacyModule : MonoBehaviour
     private EmpireClass thisEmpire;
     private List<EmpireClass> alliedEmpire; // A list of allied empires
     private Dictionary<EmpireClass, int> thisEmpireOpinions = new Dictionary<EmpireClass, int>(); // This empires opinions of other empire
-    private Dictionary<EmpireClass, int> opinionsOfYou = new Dictionary<EmpireClass, int>(); // other empire opinions of you
+   // private Dictionary<EmpireClass, int> opinionsOfYou = new Dictionary<EmpireClass, int>(); // other empire opinions of you
+    private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
     //Favour
     private bool gainedFavour = false;
@@ -23,6 +24,7 @@ public class DiplomacyModule : MonoBehaviour
     {
         //Lists
         alliedEmpire = new List<EmpireClass>();
+
     }
 
     // Update is called once per frame
@@ -41,6 +43,22 @@ public class DiplomacyModule : MonoBehaviour
     }
 
     /*
+     * The below will loop through all the reasons and update the diplomacy of all the empires
+     */ 
+    public void UpdateDiplomacyOfAllEmpires()
+    {
+        for (int i = 0; i < thisEmpire.WarModule.GetBoarderingEmpires().Count; i++)
+        {
+            int total = 0;
+            EmpireClass otherEmpire = thisEmpire.WarModule.GetBoarderingEmpires()[i];
+
+            total += allReasons[otherEmpire]["Boardering"];
+
+            thisEmpireOpinions[otherEmpire] = total;
+        }
+    }
+
+    /*
      * This is so the script knows which empire it is.
      * @param EmpireClass _thisEmpire The empire this script is attached to
      */
@@ -51,12 +69,26 @@ public class DiplomacyModule : MonoBehaviour
 
     /*
      * The below function will occur when another empire has been met for the first time.
-     * @param EmpireClass _empire This is the new empire you have just met
+     * @param EmpireClass _otherEmpire This is the new empire you have just met
      */
-    private void MetEmpire(EmpireClass _empire)
+    public void MetEmpire(EmpireClass _otherEmpire)
     {
-        thisEmpireOpinions[_empire] = 0;
-        opinionsOfYou[_empire] = 0;
+        thisEmpireOpinions[_otherEmpire] = 0;
+        allReasons[_otherEmpire] = new Dictionary<string, int>();
+        allReasons[_otherEmpire]["Boardering"] = 0;
+       // opinionsOfYou[_empire] = 0;
+    }
+
+    /*
+     * The below function is used to update the value for a reason why the diplomacy total has increased or decreased.
+     * @param EmpireClass _otherEmpire This is the other empire
+     * @param string _reason This is the reason that the diplomacy is increasing or decreasing
+     * @param int _newValue This is the new value that it will be set to.
+     */ 
+    public void ChangeValueInAllReasons(EmpireClass _otherEmpire, string _reason, int _newValue)
+    {
+        allReasons[_otherEmpire][_reason] = _newValue;
+        UpdateDiplomacyOfAllEmpires();
     }
 
 
@@ -104,43 +136,43 @@ public class DiplomacyModule : MonoBehaviour
      * @param EmpireClass _empire This is the empire whos opinion is increasing
      * @param int _increaseBy This is how much it is increasing
      */
-    private void IncreaseOpinionsOfYou(EmpireClass _empire, int _increaseBy)
-    {
-        if (_increaseBy > 0)
-        {
-            if (opinionsOfYou[_empire] < 100)
-            {
-                opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
-            }
-        }
-        else if (_increaseBy < 0)
-        {
-            if (opinionsOfYou[_empire] > -100)
-            {
-                opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
-            }
-        }
-    }
+    //private void IncreaseOpinionsOfYou(EmpireClass _empire, int _increaseBy)
+    //{
+    //    if (_increaseBy > 0)
+    //    {
+    //        if (opinionsOfYou[_empire] < 100)
+    //        {
+    //            opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
+    //        }
+    //    }
+    //    else if (_increaseBy < 0)
+    //    {
+    //        if (opinionsOfYou[_empire] > -100)
+    //        {
+    //            opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
+    //        }
+    //    }
+    //}
 
     /*
      * The below opinion will set the opinion of another empire to a specific number
      * @param EmpireClass _empire This is the empire whos opinion of you will be inceasing
      * @param int _setTo This is what the value will be set to
      */
-    private void SetOpinionsOfYou(EmpireClass _empire, int _setTo)
-    {
-         opinionsOfYou[_empire] = _setTo;
-    }
+    //private void SetOpinionsOfYou(EmpireClass _empire, int _setTo)
+    //{
+    //     opinionsOfYou[_empire] = _setTo;
+    //}
 
     /*
      * The below function will retun the empires opinion of the you
      * @param EmpireClass _empire This is the empire whos opinion will be returned
      * @return int opinionsOfYou[_empire] the number that the opinion is
      */
-    private int ReturnEmpireOpinionsOfYou(EmpireClass _empire)
-    {
-        return opinionsOfYou[_empire];
-    }
+    //private int ReturnEmpireOpinionsOfYou(EmpireClass _empire)
+    //{
+    //    return opinionsOfYou[_empire];
+    //}
 
     /*
      *The below function will incrase your opinion of an empire by an amount
@@ -181,7 +213,7 @@ public class DiplomacyModule : MonoBehaviour
      * @param EmpireClass _empire This is the empire whos opinion will be returned
      * @return int opinionsOfYou[_empire] the number that the opinion is
      */
-    private int ReturnThisEmpireOpinion(EmpireClass _empire)
+    public int ReturnThisEmpireOpinion(EmpireClass _empire)
     {
         return thisEmpireOpinions[_empire];
     }
