@@ -164,4 +164,12 @@ public class AIMain : MonoBehaviour
         }
     }
 
+    /*
+     * The below function can be used to return a list of all of the empires
+     */ 
+    public List<EmpireClass> ReturnAllEmpiresInGame()
+    {
+        return allAIEmpireClasses;
+    }
+
 }

@@ -48,6 +48,11 @@ public class SetUpEmpires : MonoBehaviour
                     curerntAIOwner++;
                 }
             }
+
+            for (int j = 0; j < empiresInGame.Count; j++)
+            {
+                empiresInGame[j].WarModule.MeetingAllEmpires(empiresInGame);
+            }
         }
     }
 

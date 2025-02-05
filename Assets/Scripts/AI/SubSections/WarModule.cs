@@ -16,6 +16,7 @@ public class WarModule : MonoBehaviour
     private List<EmpireClass> boarderingEmpires;
     private List<EmpireClass> atWarEmpires;
     private List<EmpireClass> empiresDefeatedInBattle;
+    private List<EmpireClass> allEmpiresInGame;
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
 
     private bool empireDefeated = false;
@@ -57,6 +58,21 @@ public class WarModule : MonoBehaviour
                 empireThatDefeatedYou.WarModule.RemoveEmpireFromeDefeatedList(thisEmpire);
             }
         }
+    }
+
+    /*
+     * This function is used when all the other empires have been set up and the inital relationships should also be set up
+     * @param List<EmpireClass> _allEmpires This is a list of all the empires within the game.
+     */ 
+    public void MeetingAllEmpires(List<EmpireClass> _allEmpires)
+    {
+        for (int i = 0; i < _allEmpires.Count; i++)
+        {
+            thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
+            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(_allEmpires[i], "Boardering", 20);
+        }
+
+        allEmpiresInGame = _allEmpires;
     }
 
     /*
@@ -146,10 +162,8 @@ public class WarModule : MonoBehaviour
                             otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
 
                             // Set up the diplomacy of the other empire
-                            thisEmpire.DiplomacyModule.MetEmpire(otherEmpire);
                             thisEmpire.DiplomacyModule.ChangeValueInAllReasons(otherEmpire, "Boardering", -20);
 
-                            otherEmpire.DiplomacyModule.MetEmpire(thisEmpire);
                             otherEmpire.DiplomacyModule.ChangeValueInAllReasons(thisEmpire, "Boardering", -20);
                         }
                         break;
@@ -177,6 +191,10 @@ public class WarModule : MonoBehaviour
         if (boarderingEmpires.Contains(_deadEmpire))
         {
             boarderingEmpires.Remove(_deadEmpire);
+        }
+        if (allEmpiresInGame.Contains(_deadEmpire))
+        {
+            allEmpiresInGame.Remove(_deadEmpire);
         }
     }
 
