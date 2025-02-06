@@ -26,7 +26,7 @@ public class WarModule : MonoBehaviour
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
 
-    private int warDiplomacyNumber = -50; // This is the number at which a AI will go to war with another Empire
+    private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
 
     private void Awake()
     {
@@ -209,12 +209,17 @@ public class WarModule : MonoBehaviour
     }
 
     /*
-     * The below function occurs when an empire has declared war on war
+     * The below function occurs when an empire has declared war on you
      * @param EmpireClass _empireThatDeclaredWar The empire that has declared war on you
      */
     public void EmpireAtWarWith(EmpireClass _empireThatDeclaredWar)
     {
         atWarEmpires.Add(_empireThatDeclaredWar);
+        foreach (EmpireClass Empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
+        {
+            atWarEmpires.Add(Empire);
+            Empire.WarModule.EmpireAtWarWith(_empireThatDeclaredWar);
+        }
     }
 
     /*
@@ -244,8 +249,8 @@ public class WarModule : MonoBehaviour
         {
             foreach (var empire in boarderingEmpires)
             {
-                // Get the diplomacy and check if you have a negative relationship
-                if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.ReturnThisEmpireOpinion(empire) <= warDiplomacyNumber)
+                // Get the diplomacy and check if you have a negative relationship also check the threat rating
+                if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
                 {
                     return empire;
                 }
@@ -364,5 +369,10 @@ public class WarModule : MonoBehaviour
     public bool GetEmpireDefeated()
     {
         return empireDefeated;
+    }
+
+    public List<EmpireClass> GetAllEmpiresInGame()
+    {
+        return allEmpiresInGame;
     }
 }
