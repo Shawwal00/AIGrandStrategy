@@ -111,26 +111,39 @@ public class WarModule : MonoBehaviour
     {
        thisEmpire.GetExpandingTilesOfTile();
         int randomNumber = Random.Range(0, thisEmpire.ReturnExpandingTiles().Count);
+        bool alliedTile = false;
         if (thisEmpire.ReturnExpandingTiles().Count > 0)
         {
             MapTile lowestTile = null;
 
             foreach (MapTile tile in thisEmpire.ReturnExpandingTiles())
             {
-                if (lowestTile == null)
+                alliedTile = false;
+                foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                 {
-                    if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                    if (alliedEmpire.GetEmpireNumber() == tile.GetOwner())
                     {
-                        lowestTile = tile;
+                        alliedTile = true;
+                        break;
                     }
                 }
-                else
+                if (alliedTile == false)
                 {
-                    if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                    if (lowestTile == null)
                     {
-                        if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                        if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
                         {
                             lowestTile = tile;
+                        }
+                    }
+                    else
+                    {
+                        if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                        {
+                            if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                            {
+                                lowestTile = tile;
+                            }
                         }
                     }
                 }
@@ -142,6 +155,7 @@ public class WarModule : MonoBehaviour
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
 
                 List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();
+
                 foreach (MapTile tile in mapTiles)
                 {
                     if (tile.GetOwner() != 0 && tile.GetOwner() != thisEmpire.GetEmpireNumber())
@@ -162,9 +176,9 @@ public class WarModule : MonoBehaviour
                             otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
 
                             // Set up the diplomacy of the other empire
-                            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(otherEmpire, "Boardering", -20);
+                            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(otherEmpire, "Boardering", -40);
 
-                            otherEmpire.DiplomacyModule.ChangeValueInAllReasons(thisEmpire, "Boardering", -20);
+                            otherEmpire.DiplomacyModule.ChangeValueInAllReasons(thisEmpire, "Boardering", -40);
                         }
                         break;
                     }
@@ -214,11 +228,47 @@ public class WarModule : MonoBehaviour
      */
     public void EmpireAtWarWith(EmpireClass _empireThatDeclaredWar)
     {
-        atWarEmpires.Add(_empireThatDeclaredWar);
-        foreach (EmpireClass Empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
+        //Need to break alliances
+        //If they have overlapping alliances then the alliance with the more liked empire will remain or if same with the defender
+        List<EmpireClass> yourAllies = thisEmpire.DiplomacyModule.GetAlliedEmpires();
+        List<EmpireClass> thierAllies = _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires();
+
+        List<EmpireClass> matchingAlliances = new List<EmpireClass>();
+        foreach (var yourAlly in yourAllies)
         {
-            atWarEmpires.Add(Empire);
-            Empire.WarModule.EmpireAtWarWith(_empireThatDeclaredWar);
+            foreach (var thierAlly in thierAllies)
+            {
+                if (thierAlly.GetEmpireNumber() == yourAlly.GetEmpireNumber()) //Same Ally
+                {
+                    matchingAlliances.Add(thierAlly);
+                }
+            }
+        }
+
+        foreach (var yourAlly in matchingAlliances)
+        {
+            int yourLiking = yourAlly.DiplomacyModule.GetThisEmpireOpinion(thisEmpire);
+            int thierLiking = yourAlly.DiplomacyModule.GetThisEmpireOpinion(_empireThatDeclaredWar);
+
+            if (yourLiking > thierLiking)
+            {
+                _empireThatDeclaredWar.DiplomacyModule.BreakAliiance(yourAlly);
+            }
+            else //If less or equal as you are the attacking empire
+            {
+                thisEmpire.DiplomacyModule.BreakAliiance(yourAlly);
+            }
+        }
+    
+
+        if (!atWarEmpires.Contains(_empireThatDeclaredWar))
+        {
+            atWarEmpires.Add(_empireThatDeclaredWar);
+            foreach (EmpireClass Empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
+            {
+                atWarEmpires.Add(Empire);
+                Empire.WarModule.EmpireAtWarWith(_empireThatDeclaredWar);
+            }
         }
     }
 
@@ -249,10 +299,13 @@ public class WarModule : MonoBehaviour
         {
             foreach (var empire in boarderingEmpires)
             {
-                // Get the diplomacy and check if you have a negative relationship also check the threat rating
-                if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
+                if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire)) // Do not go to war with allies unless alliance is broken first
                 {
-                    return empire;
+                    // Get the diplomacy and check if you have a negative relationship also check the threat rating
+                    if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
+                    {
+                        return empire;
+                    }
                 }
             }
         }

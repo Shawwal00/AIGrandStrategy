@@ -16,8 +16,8 @@ public class DiplomacyModule : MonoBehaviour
                                                                                                   // private Dictionary<EmpireClass, int> opinionsOfYou = new Dictionary<EmpireClass, int>(); // other empire opinions of you
     private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
-    public int makeAllianceNumber = 20;
-    public int breakAllianceNumber = -20;
+    public int makeAllianceNumber = 40;
+    public int breakAllianceNumber = -50;
     //Favour
     private bool gainedFavour = false;
     private float giveFavourTimer = 30;
@@ -62,6 +62,7 @@ public class DiplomacyModule : MonoBehaviour
             total += allReasons[otherEmpire]["Money"];
             total += allReasons[otherEmpire]["Gift"];
             total += allReasons[otherEmpire]["Alliances"];
+            total += allReasons[otherEmpire]["BrokeAlliance"];
 
             thisEmpireOpinions[otherEmpire] = total;
         }
@@ -91,6 +92,7 @@ public class DiplomacyModule : MonoBehaviour
         allReasons[_otherEmpire]["Money"] = 0; //This is if the other empire has the same or more money then you
         allReasons[_otherEmpire]["Gift"] = 0; //This is if the other empire has given you a gift
         allReasons[_otherEmpire]["Alliances"] = 0; // This is if the other empire has alliances that you do not like.
+        allReasons[_otherEmpire]["BrokeAlliance"] = 0; // This is if the other empire has broken an alliance with you
         // opinionsOfYou[_empire] = 0;
     }
 
@@ -123,16 +125,13 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void MakeAlliance(EmpireClass _empire)
     {
-        if (alliedEmpires.Contains(_empire))
-        {
-
-        }
-        else
+        if (!alliedEmpires.Contains(_empire))
         {
             Debug.Log("Made Alliance");
-          //  Debug.Log(thisEmpire.GetEmpireColor());
-          //  Debug.Log(_empire.GetEmpireColor());
+            Debug.Log(thisEmpire.GetEmpireColor());
+            Debug.Log(_empire.GetEmpireColor());
             alliedEmpires.Add(_empire);
+            _empire.DiplomacyModule.MakeAlliance(thisEmpire);
             if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
             {
                 foreach (EmpireClass atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
@@ -147,15 +146,14 @@ public class DiplomacyModule : MonoBehaviour
     * This will break your alliance with this empire
     * @param EmpireClass _empire The empire you are making an alliance with
     */
-    private void BreakAliiance(EmpireClass _empire)
+    public void BreakAliiance(EmpireClass _empire)
     {
-        foreach (var alliedEmpire in alliedEmpires)
+        if (alliedEmpires.Contains(_empire))
         {
-            if (alliedEmpire.GetEmpireNumber() == _empire.GetEmpireNumber())
-            {
-                alliedEmpires.Remove(_empire);
-                Debug.Log("Break Alliance");
-            }
+            ChangeValueInAllReasons(_empire, "BrokeAlliance", -50);
+            alliedEmpires.Remove(_empire);
+            _empire.DiplomacyModule.BreakAliiance(thisEmpire);
+             Debug.Log("Break Alliance");
         }
     }
 
@@ -350,12 +348,18 @@ public class DiplomacyModule : MonoBehaviour
                 MakeAlliance(allEmpire);
             }
 
+            List<EmpireClass> alliancesToBreak = new List<EmpireClass>();
             foreach (var alliedEmpire in alliedEmpires)
             {
                 if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(alliedEmpire) < breakAllianceNumber)
                 {
-                    BreakAliiance(alliedEmpire);
+                    alliancesToBreak.Add(thisEmpire);
                 }
+            }
+
+            foreach (var alliance in alliancesToBreak)
+            {
+                BreakAliiance(alliance);
             }
         } 
     }
