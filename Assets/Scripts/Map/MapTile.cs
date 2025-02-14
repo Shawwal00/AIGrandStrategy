@@ -22,6 +22,7 @@ public class MapTile : MonoBehaviour
     private int tileNumber; // This is what tile number the map is.
 
     private int owner = 0; // 0 is neutral, //1 - 4 is ai
+    public int income = 0; // The tiles income
 
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
@@ -75,6 +76,7 @@ public class MapTile : MonoBehaviour
         {
             SetTroopPresent(Random.Range(15, 25));
             SetTroopAdding(Random.Range(3, 5));
+            SetIncome(Random.Range(20, 40));
         }
         else 
         {
@@ -164,5 +166,23 @@ public class MapTile : MonoBehaviour
     public int GetTroopAdding()
     {
         return troopAdding;
+    }
+
+    /*
+     * The below function is used to set the income
+     * @param int _newIncome This is the value that the income of this tile will now be set to
+     */
+    public void SetIncome(int _newIncome)
+    {
+        income = _newIncome;
+    }
+
+    /*
+     * The below function is used to get the current income of this tile
+     * @return int income This is the income of the tile
+     */ 
+    public int GetIncome()
+    {
+        return income;
     }
 }

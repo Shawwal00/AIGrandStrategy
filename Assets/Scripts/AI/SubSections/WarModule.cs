@@ -26,6 +26,8 @@ public class WarModule : MonoBehaviour
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
 
+    public bool trainTroops = true;
+
     private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
 
     private void Awake()
@@ -97,7 +99,10 @@ public class WarModule : MonoBehaviour
                 for (int i = 0; i < thisEmpire.ReturnOwnedTiles().Count; i++)
                 {
                     // Debug.Log(ownedTiles[i].GetTroopAdding());
-                    AddToTroopNumber(thisEmpire.ReturnOwnedTiles()[i].GetTroopAdding());
+                    if (thisEmpire.EconomyModule.GetTrainTroops())
+                    {
+                        AddToTroopNumber(thisEmpire.ReturnOwnedTiles()[i].GetTroopAdding());
+                    }
                 }
                 updateTroopNumberTime = 0;
             }
