@@ -157,6 +157,7 @@ public class WarModule : MonoBehaviour
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(10);
+                thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
 
                 List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();

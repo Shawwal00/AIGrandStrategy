@@ -6,8 +6,6 @@ using UnityEngine;
  * This script is responsible for the economy of an empire.
 */
 
-
-
 public class EconomyModule : MonoBehaviour
 {
 
@@ -16,7 +14,7 @@ public class EconomyModule : MonoBehaviour
     private int totalAmountOfMoney;
     private int moneyUpdateAmount;
 
-    public bool trainTroops = true;
+    private bool trainTroops = true;
 
     private void Update()
     {
@@ -35,17 +33,7 @@ public class EconomyModule : MonoBehaviour
 
     public void BuildBuilding()
     {
-
-    }
-
-    public void GiveMoney()
-    {
-
-    }
-
-    public void TakeTroopMoney()
-    {
-
+        
     }
 
     /*
@@ -53,17 +41,54 @@ public class EconomyModule : MonoBehaviour
      */ 
     public void CheckTrainTroops()
     {
+        //Check if at war - do max
+        //If not at war then do half
 
+        int troopAmount = thisEmpire.WarModule.GetTroopNumber();
+
+        if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
+        {
+            if (moneyUpdateAmount > troopAmount)
+            {
+                trainTroops = true;
+            }
+            else
+            {
+                trainTroops = false;
+            }
+        }
+        else 
+        {
+            if (thisEmpire.ReturnOwnedTiles().Count > 5)
+            {
+                if (moneyUpdateAmount / 2 > troopAmount)
+                {
+                    trainTroops = true;
+                }
+                else
+                {
+                    trainTroops = false;
+                }
+            }
+        }
+
+        //If at war and losing then do over assuming you will not become bankrupt
     }
 
     /*
      * The below function is used in AIMain to update the total amount of money that this empire has
-     */ 
+     */
     public void UpdateEmpireMoney()
     {
+        CheckTrainTroops();
         totalAmountOfMoney += moneyUpdateAmount;
         int troopAmount = thisEmpire.WarModule.GetTroopNumber();
         totalAmountOfMoney = totalAmountOfMoney - troopAmount;
+
+        if (totalAmountOfMoney <= 0)
+        {
+            Debug.Log("This empire should die");
+        }
     }
 
     /*
@@ -76,11 +101,6 @@ public class EconomyModule : MonoBehaviour
         foreach (MapTile tile in yourTiles)
         {
             moneyUpdateAmount += tile.GetIncome();
-        }
-
-        if (totalAmountOfMoney <= 0)
-        {
-            Debug.Log("This empire should die");
         }
     }
 

@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -11,6 +12,9 @@ using UnityEngine.Serialization;
 
 public class MapTile : MonoBehaviour
 {
+
+    private BuildingData buildingData;
+
     private GameObject GameManager;
 
     //Scripts
@@ -20,6 +24,7 @@ public class MapTile : MonoBehaviour
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
     private int tileNumber; // This is what tile number the map is.
+
 
     private int owner = 0; // 0 is neutral, //1 - 4 is ai
     public int income = 0; // The tiles income
@@ -35,6 +40,8 @@ public class MapTile : MonoBehaviour
         //Scripts
         TileData = GameManager.GetComponent<TileData>();
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
+
+        buildingData = this.AddComponent<BuildingData>();
     }
 
     /*
