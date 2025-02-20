@@ -283,24 +283,29 @@ public class WarModule : MonoBehaviour
                             ;
                             foreach (var secondTile in tile.GetAllConnectedTiles())
                             {
-                                CheckTileForReasons(secondTile);
-                                int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 2;
-
-                                if (secondAverage > tileReasonValue)
+                                if (secondTile.GetOwner() != thisEmpire.GetEmpireNumber())
                                 {
-                                    tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
-                                    lowestTile = tile;
-                                }
+                                    CheckTileForReasons(secondTile);
+                                    int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 2;
 
-                                foreach (var thirdTile in secondTile.GetAllConnectedTiles())
-                                {
-                                    CheckTileForReasons(thirdTile);
-                                    int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires() + secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 3;
-
-                                    if (thirdAverage > tileReasonValue)
+                                    if (secondAverage > tileReasonValue)
                                     {
                                         tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
                                         lowestTile = tile;
+                                    }
+                                }
+                                foreach (var thirdTile in secondTile.GetAllConnectedTiles())
+                                {
+                                    if (thirdTile.GetOwner() != thisEmpire.GetEmpireNumber())
+                                    {
+                                        CheckTileForReasons(thirdTile);
+                                        int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires() + secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 3;
+
+                                        if (thirdAverage > tileReasonValue)
+                                        {
+                                            tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
+                                            lowestTile = tile;
+                                        }
                                     }
                                 }
                             }
