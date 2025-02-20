@@ -18,7 +18,7 @@ public class WarModule : MonoBehaviour
     private List<EmpireClass> empiresDefeatedInBattle;
     private List<EmpireClass> allEmpiresInGame;
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
-    private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
+    private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that an empire feels threatened by another empire.
 
     private bool empireDefeated = false;
     private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
@@ -34,12 +34,17 @@ public class WarModule : MonoBehaviour
     private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
 
     // Threat reason values
-    private int rBoardering = 40;
+    private int rThreatBoardering = 40;
     private int rTroops = 20;
     private int rIncome = 20;
     private int rTotalMoney = 20;
     private int rReplenishRate = 20;
     private int rGarrison = 20;
+
+
+    //Tile reason values
+    private int rTileBoardering = 60;
+    private int rYourTroops = 20;
 
     private void Awake()
     {
@@ -240,6 +245,7 @@ public class WarModule : MonoBehaviour
         if (thisEmpire.ReturnExpandingTiles().Count > 0)
         {
             MapTile lowestTile = null;
+            int tileReasonValue = 0;
 
             foreach (MapTile tile in thisEmpire.ReturnExpandingTiles())
             {
@@ -258,16 +264,45 @@ public class WarModule : MonoBehaviour
                     {
                         if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
                         {
+                            CheckTileForReasons(tile);
                             lowestTile = tile;
+                            tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
                         }
                     }
                     else
                     {
                         if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
                         {
-                            if (tile.GetTroopPresent() < lowestTile.GetTroopPresent())
+                            CheckTileForReasons(tile);
+
+                            if (tile.UpdateTileReasonsOfAllEmpires() > tileReasonValue)
                             {
+                                tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
                                 lowestTile = tile;
+                            }
+                            ;
+                            foreach (var secondTile in tile.GetAllConnectedTiles())
+                            {
+                                CheckTileForReasons(secondTile);
+                                int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 2;
+
+                                if (secondAverage > tileReasonValue)
+                                {
+                                    tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
+                                    lowestTile = tile;
+                                }
+
+                                foreach (var thirdTile in secondTile.GetAllConnectedTiles())
+                                {
+                                    CheckTileForReasons(thirdTile);
+                                    int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires() + secondTile.UpdateTileReasonsOfAllEmpires() + tile.UpdateTileReasonsOfAllEmpires()) / 3;
+
+                                    if (thirdAverage > tileReasonValue)
+                                    {
+                                        tileReasonValue = tile.UpdateTileReasonsOfAllEmpires();
+                                        lowestTile = tile;
+                                    }
+                                }
                             }
                         }
                     }
@@ -301,8 +336,8 @@ public class WarModule : MonoBehaviour
                             boarderingEmpires.Add(otherEmpire);
                             otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
 
-                            ChangeValueInThreatRatings(otherEmpire, "Boardering", -rBoardering);
-                            otherEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", -rBoardering);
+                            ChangeValueInThreatRatings(otherEmpire, "Boardering", -rThreatBoardering);
+                            otherEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", -rThreatBoardering);
 
                             // Set up the diplomacy of the other empire
                             thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(otherEmpire, "Boardering", -40);
@@ -311,6 +346,69 @@ public class WarModule : MonoBehaviour
                         break;
                     }
                 }
+            }
+        }
+    }
+
+
+    /*
+     * The below function is used to take a tile and then to check the reasons for conquering
+     * @param _tile This is the tile that you are using
+     */ 
+    public void CheckTileForReasons(MapTile _tile)
+    {
+        // Do reasons here
+        bool tileBoardering = false;
+        foreach (var boarderingTile in _tile.GetAllConnectedTiles())
+        {
+            if (boarderingTile.GetOwner() == 0)
+            {
+                tileBoardering = false;
+            }
+            else
+            {
+                foreach (var warEmpires in atWarEmpires)
+                {
+                    if (boarderingTile.GetOwner() == warEmpires.GetEmpireNumber())
+                    {
+                        tileBoardering = false;
+                    }
+                }
+
+                foreach (var diplomacyEmpires in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                {
+                    if (boarderingTile.GetOwner() == diplomacyEmpires.GetEmpireNumber())
+                    {
+                        tileBoardering = false;
+                    }
+                }
+            }
+        }
+
+        if (tileBoardering == true)
+        {
+            _tile.ChangeValueInTileReasons("Boardering", -rTileBoardering);
+        }
+
+        _tile.ChangeValueInTileReasons("Garrison", -_tile.GetTroopPresent());
+        _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding());
+        _tile.ChangeValueInTileReasons("Income", _tile.GetIncome());
+        _tile.ChangeValueInTileReasons("Income", _tile.GetIncome());
+
+        if (atWarEmpires.Count > 0)
+        {
+            int totalEnemyTroops = 0;
+            foreach (var warEmpire in atWarEmpires)
+            {
+                totalEnemyTroops += warEmpire.WarModule.GetTroopNumber();
+            }
+            if (totalEnemyTroops > troopNumber)
+            {
+                _tile.ChangeValueInTileReasons("YourTroops", -rYourTroops);
+            }
+            else
+            {
+                _tile.ChangeValueInTileReasons("YourTroops", rYourTroops);
             }
         }
     }
@@ -565,6 +663,7 @@ public class WarModule : MonoBehaviour
 
     /*
      * This function will return the replenish amount of the empire
+     * @return int troopReplenishAmount This is the amount of troops that the empire replenishes
      */ 
     public int GetReplinishAmount()
     {
@@ -573,6 +672,7 @@ public class WarModule : MonoBehaviour
 
     /*
      * This returns a list of all the empires in the game
+     * @return List<EmpireClass> This is a list of all the empires in the game
      */ 
     public List<EmpireClass> GetAllEmpiresInGame()
     {

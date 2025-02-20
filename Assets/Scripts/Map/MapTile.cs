@@ -25,12 +25,13 @@ public class MapTile : MonoBehaviour
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
     private int tileNumber; // This is what tile number the map is.
 
-
     private int owner = 0; // 0 is neutral, //1 - 4 is ai
     public int income = 0; // The tiles income
 
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
+
+    private Dictionary<string, int> conquerTileReasons = new Dictionary<string, int>(); // These are the reasons that this tile may be conquered.
 
     private void Awake()
     {
@@ -42,6 +43,39 @@ public class MapTile : MonoBehaviour
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
 
         buildingData = this.AddComponent<BuildingData>();
+
+        conquerTileReasons["BoarderingAnotherEmpire"] = 0; // This is if the tile is boardering another empire
+        conquerTileReasons["Garrison"] = 0; // This is how much of a garrison the tile has
+        conquerTileReasons["YourTroops"] = 0; // This is the empires troops and if it has enough to take the tile or if at war to win against the warring empire - should not take tiles if it will lose
+        conquerTileReasons["TileReplenish"] = 0; // This is how fast the tile replenished
+        conquerTileReasons["Income"] = 0; // This is how much the tile produces
+    }
+
+    /*
+    * The below will loop through all the reasons and update the diplomacy of all the empires
+    * @retun int total This is all the added up reasons to conquer this tile
+    */
+    public int UpdateTileReasonsOfAllEmpires()
+    {
+        int total = 0;
+
+        total += conquerTileReasons["BoarderingAnotherEmpire"];
+        total += conquerTileReasons["Garrison"];
+        total += conquerTileReasons["YourTroops"];
+        total += conquerTileReasons["TileReplenish"];
+        total += conquerTileReasons["Income"];
+
+        return total;
+    }
+
+    /*
+    * The below function is used to update the value for a reason why the tile reason has increased or decreased.
+    * @param string _reason This is the reason that the tile reason is increasing or decreasing
+    * @param int _newValue This is the new value that it will be set to.
+    */
+    public void ChangeValueInTileReasons(string _reason, int _newValue)
+    {
+        conquerTileReasons[_reason] = _newValue;
     }
 
     /*
