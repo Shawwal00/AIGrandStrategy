@@ -51,9 +51,10 @@ public class AIMain : MonoBehaviour
     {
         startAI = false;
         _currentEmpire.EconomyModule.UpdateEmpireMoney();
+        _currentEmpire.WarModule.UpdateNonStaticThreatReasons();
         _currentEmpire.DiplomacyModule.DiplomacyCheck();
         ConquerRegion(_currentEmpire);
-        UpdateAllThreatRatings(_currentEmpire);
+       // UpdateAllThreatRatings(_currentEmpire);
         EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
         if (warCheck != null)
         {
@@ -82,13 +83,13 @@ public class AIMain : MonoBehaviour
      * The below function will update all the threat ratings of the empires
      * @param EmpireClass _currentEmpire This is the empire which is updating its threat ratings
      */
-    private void UpdateAllThreatRatings(EmpireClass _currentEmpire)
-    {
-        foreach (var empire in _currentEmpire.WarModule.GetBoarderingEmpires())
-        {
-            _currentEmpire.WarModule.UpdateThreatRating(empire);
-        }
-    }
+    //private void UpdateAllThreatRatings(EmpireClass _currentEmpire)
+    //{
+    //   foreach (var empire in _currentEmpire.WarModule.GetBoarderingEmpires())
+    //    {
+    //        _currentEmpire.WarModule.UpdateThreatRating(empire);
+    //    }
+    //}
 
    /*
    * The below function will destroy an empire and let the other empires know

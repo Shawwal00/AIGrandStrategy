@@ -18,6 +18,7 @@ public class WarModule : MonoBehaviour
     private List<EmpireClass> empiresDefeatedInBattle;
     private List<EmpireClass> allEmpiresInGame;
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
+    private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
     private bool empireDefeated = false;
     private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
@@ -25,10 +26,20 @@ public class WarModule : MonoBehaviour
 
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
+    private int troopReplenishAmount = 0;
 
     public bool trainTroops = true;
 
     private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
+    private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
+
+    // Threat reason values
+    private int rBoardering = 40;
+    private int rTroops = 20;
+    private int rIncome = 20;
+    private int rTotalMoney = 20;
+    private int rReplenishRate = 20;
+    private int rGarrison = 20;
 
     private void Awake()
     {
@@ -71,10 +82,112 @@ public class WarModule : MonoBehaviour
         for (int i = 0; i < _allEmpires.Count; i++)
         {
             thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
-            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(_allEmpires[i], "Boardering", 20);
+            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", 20);
+            MetEmpire(_allEmpires[i]);
+            UpdateThreatRatingsOfAllEmpires();
         }
 
         allEmpiresInGame = _allEmpires;
+    }
+
+    /*
+     * The below function will be used to update the threat rating parameters every turn - these will be the ones that are not dependent on 
+     * other variables.
+     */ 
+    public void UpdateNonStaticThreatReasons()
+    {
+        foreach (EmpireClass _empireClass in allEmpiresInGame)
+        {
+            if (_empireClass.WarModule.GetTroopNumber() > GetTroopNumber())
+            {
+                ChangeValueInThreatRatings(_empireClass, "Troops", rTroops);
+            }
+            else
+            {
+                ChangeValueInThreatRatings(_empireClass, "Troops", -rTroops);
+            }
+            if (_empireClass.EconomyModule.GetIncomeValue() > thisEmpire.EconomyModule.GetIncomeValue())
+            {
+                ChangeValueInThreatRatings(_empireClass, "Income", rIncome);
+            }
+            else
+            {
+                ChangeValueInThreatRatings(_empireClass, "Income", -rIncome);
+            }
+            if (_empireClass.EconomyModule.GetCurrentMoney() > thisEmpire.EconomyModule.GetCurrentMoney())
+            {
+                ChangeValueInThreatRatings(_empireClass, "TotalMoney", rTotalMoney);
+            }
+            else
+            {
+                ChangeValueInThreatRatings(_empireClass, "TotalMoney", -rTotalMoney);
+            }
+            if (_empireClass.WarModule.GetReplinishAmount() > troopReplenishAmount)
+            {
+                ChangeValueInThreatRatings(_empireClass, "ReplenishRate", rReplenishRate);
+            }
+            else 
+            {
+                ChangeValueInThreatRatings(_empireClass, "ReplenishRate", -rReplenishRate);
+            }
+            if (_empireClass.WarModule.GetAllGarrisons() > GetAllGarrisons())
+            {
+                ChangeValueInThreatRatings(_empireClass, "AllGarrisons", rGarrison);
+            }
+            else 
+            {
+                ChangeValueInThreatRatings(_empireClass, "AllGarrisons", -rGarrison);
+            }
+        }
+    }
+
+    /*
+    * The below function will occur when another empire has been met for the first time.
+    * @param EmpireClass _otherEmpire This is the new empire you have just met
+    */
+    private void MetEmpire(EmpireClass _otherEmpire)
+    {
+        threatRatings[_otherEmpire] = 0;
+        threatRatingReasons[_otherEmpire] = new Dictionary<string, int>();
+        threatRatingReasons[_otherEmpire]["Boardering"] = 0; // This is if the empire is boardering
+        threatRatingReasons[_otherEmpire]["Troops"] = 0; // This is if the other empire has more troops then you
+        threatRatingReasons[_otherEmpire]["Income"] = 0; // This is if they have a higher monthly income
+        threatRatingReasons[_otherEmpire]["TotalMoney"] = 0; // This is the total amount of money that they have
+        threatRatingReasons[_otherEmpire]["ReplenishRate"] = 0; // This is how fast there troops would replenish with all thier lands
+        threatRatingReasons[_otherEmpire]["AllGarrisons"] = 0; // This is how much all thier garrisons add up to.
+    }
+
+    /*
+    * The below will loop through all the reasons and update the diplomacy of all the empires
+    */
+   private void UpdateThreatRatingsOfAllEmpires()
+    {
+        for (int i = 0; i < GetBoarderingEmpires().Count; i++)
+        {
+            int total = 0;
+            EmpireClass otherEmpire = thisEmpire.WarModule.GetBoarderingEmpires()[i];
+
+            total += threatRatingReasons[otherEmpire]["Boardering"];
+            total += threatRatingReasons[otherEmpire]["Troops"];
+            total += threatRatingReasons[otherEmpire]["Income"];
+            total += threatRatingReasons[otherEmpire]["TotalMoney"];
+            total += threatRatingReasons[otherEmpire]["ReplenishRate"];
+            total += threatRatingReasons[otherEmpire]["AllGarrisons"];
+
+            threatRatings[otherEmpire] = total;
+        }
+    }
+
+    /*
+    * The below function is used to update the value for a reason why the threat rating has increased or decreased.
+    * @param EmpireClass _otherEmpire This is the other empire
+    * @param string _reason This is the reason that the threat rating is increasing or decreasing
+    * @param int _newValue This is the new value that it will be set to.
+    */
+    private void ChangeValueInThreatRatings(EmpireClass _otherEmpire, string _reason, int _newValue)
+    {
+        threatRatingReasons[_otherEmpire][_reason] = _newValue;
+        UpdateThreatRatingsOfAllEmpires();
     }
 
     /*
@@ -87,6 +200,17 @@ public class WarModule : MonoBehaviour
     }
 
     /*
+     * The below function is used to update the replinish amount of the empire whenever a new tile is conquered or building constructed
+     */ 
+    public void UpdateReplinishAmount()
+    {
+        for (int i = 0; i < thisEmpire.ReturnOwnedTiles().Count; i++)
+        {
+             troopReplenishAmount += thisEmpire.ReturnOwnedTiles()[i].GetTroopAdding();
+        }
+    }
+
+    /*
      * This gets all the tiles owned by the empire and adds to the total empire troop count.
      */
     private void UpdateAllTroopCount()
@@ -96,13 +220,9 @@ public class WarModule : MonoBehaviour
         {
             if (updateTroopNumberTime > 1)
             {
-                for (int i = 0; i < thisEmpire.ReturnOwnedTiles().Count; i++)
+                if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
-                    // Debug.Log(ownedTiles[i].GetTroopAdding());
-                    if (thisEmpire.EconomyModule.GetTrainTroops())
-                    {
-                        AddToTroopNumber(thisEmpire.ReturnOwnedTiles()[i].GetTroopAdding());
-                    }
+                    AddToTroopNumber(troopReplenishAmount);
                 }
                 updateTroopNumberTime = 0;
             }
@@ -159,6 +279,7 @@ public class WarModule : MonoBehaviour
                 lowestTile.SetTroopPresent(10);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
+                UpdateReplinishAmount();
 
                 List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();
 
@@ -178,13 +299,14 @@ public class WarModule : MonoBehaviour
                         {
                             EmpireClass otherEmpire = SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner());
                             boarderingEmpires.Add(otherEmpire);
-                            UpdateThreatRating(otherEmpire);
                             otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
 
-                            // Set up the diplomacy of the other empire
-                            thisEmpire.DiplomacyModule.ChangeValueInAllReasons(otherEmpire, "Boardering", -40);
+                            ChangeValueInThreatRatings(otherEmpire, "Boardering", -rBoardering);
+                            otherEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", -rBoardering);
 
-                            otherEmpire.DiplomacyModule.ChangeValueInAllReasons(thisEmpire, "Boardering", -40);
+                            // Set up the diplomacy of the other empire
+                            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(otherEmpire, "Boardering", -40);
+                            otherEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", -40);
                         }
                         break;
                     }
@@ -193,6 +315,18 @@ public class WarModule : MonoBehaviour
         }
     }
 
+    /*
+     * The below function will get all the garrisoned troops present within the empire
+     */ 
+    public int GetAllGarrisons()
+    {
+        int totalGarrison = 0;
+        foreach (var tile in thisEmpire.ReturnOwnedTiles())
+        {
+            totalGarrison += tile.GetTroopPresent();
+        }
+        return totalGarrison;
+    }
 
     /*
      * This function is called when another empire has been defeated and all refrences to it should be destroyed
@@ -225,7 +359,6 @@ public class WarModule : MonoBehaviour
     public void OtherEmpireConquredNewTile(EmpireClass _newBoarderingEmpire)
     {
         boarderingEmpires.Add(_newBoarderingEmpire);
-        UpdateThreatRating(_newBoarderingEmpire);
     }
 
     /*
@@ -282,19 +415,19 @@ public class WarModule : MonoBehaviour
      * The below function will update the threat rating of another empire
      * @param EmpireClass _otherEmpire The empires whos threat rating you are updating
      */
-    public void UpdateThreatRating(EmpireClass _otherEmpire)
-    {
-        int newThreatRating = 0;
-        if (_otherEmpire.WarModule.troopNumber * 1.1 > troopNumber)
-        {
-            newThreatRating = 1;
-        }
-        else
-        {
-            newThreatRating = -1;
-        }
-        threatRatings[_otherEmpire] = newThreatRating;
-    }
+    //public void UpdateThreatRating(EmpireClass _otherEmpire)
+    //{
+    //    int newThreatRating = 0;
+    //    if (_otherEmpire.WarModule.troopNumber * 1.1 > troopNumber)
+    //    {
+    //        newThreatRating = 1;
+    //    }
+    //    else
+    //    {
+    //        newThreatRating = -1;
+    //    }
+    //    threatRatings[_otherEmpire] = newThreatRating;
+    //}
 
     /*
      * The below function is used to check if the AI should go to war with a neighbouring faction
@@ -308,7 +441,7 @@ public class WarModule : MonoBehaviour
                 if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire)) // Do not go to war with allies unless alliance is broken first
                 {
                     // Get the diplomacy and check if you have a negative relationship also check the threat rating
-                    if (threatRatings[empire] == -1 && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
+                    if (threatRatings[empire] >= threatValue && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
                     {
                         return empire;
                     }
@@ -430,6 +563,17 @@ public class WarModule : MonoBehaviour
         return empireDefeated;
     }
 
+    /*
+     * This function will return the replenish amount of the empire
+     */ 
+    public int GetReplinishAmount()
+    {
+        return troopReplenishAmount;
+    }
+
+    /*
+     * This returns a list of all the empires in the game
+     */ 
     public List<EmpireClass> GetAllEmpiresInGame()
     {
         return allEmpiresInGame;

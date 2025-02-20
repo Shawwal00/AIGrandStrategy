@@ -102,7 +102,7 @@ public class DiplomacyModule : MonoBehaviour
      * @param string _reason This is the reason that the diplomacy is increasing or decreasing
      * @param int _newValue This is the new value that it will be set to.
      */
-    public void ChangeValueInAllReasons(EmpireClass _otherEmpire, string _reason, int _newValue)
+    public void ChangeValueInDiplomacyReasons(EmpireClass _otherEmpire, string _reason, int _newValue)
     {
         allReasons[_otherEmpire][_reason] = _newValue;
         UpdateDiplomacyOfAllEmpires();
@@ -150,7 +150,7 @@ public class DiplomacyModule : MonoBehaviour
     {
         if (alliedEmpires.Contains(_empire))
         {
-            ChangeValueInAllReasons(_empire, "BrokeAlliance", -50);
+            ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -50);
             alliedEmpires.Remove(_empire);
             _empire.DiplomacyModule.BreakAliiance(thisEmpire);
              Debug.Log("Break Alliance");
@@ -163,7 +163,7 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GainFavour(EmpireClass _empire)
     {
-        ChangeValueInAllReasons(_empire, "Complement", 80);
+        ChangeValueInDiplomacyReasons(_empire, "Complement", 80);
         gainedFavour = true;
     }
 
@@ -211,7 +211,7 @@ public class DiplomacyModule : MonoBehaviour
         //See if any of the empires you like are the same
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
-            ChangeValueInAllReasons(allEmpire, "Alliances", 0);
+            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", 0);
             foreach (var secondAllEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
             {
                 int opinion = allEmpire.DiplomacyModule.GetThisEmpireOpinion(secondAllEmpire);
@@ -221,7 +221,7 @@ public class DiplomacyModule : MonoBehaviour
                     {
                         if (secondAllEmpire.GetEmpireNumber() == likedEmpire.GetEmpireNumber())
                         {
-                            ChangeValueInAllReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") + 10);
+                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") + 10);
                         }
                     }
 
@@ -229,7 +229,7 @@ public class DiplomacyModule : MonoBehaviour
                     {
                         if (secondAllEmpire.GetEmpireNumber() == unlikedEmpire.GetEmpireNumber())
                         {
-                            ChangeValueInAllReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") - 10);
+                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") - 10);
                         }
                     }
                 }
@@ -280,7 +280,7 @@ public class DiplomacyModule : MonoBehaviour
                         if (currentStrongestEmpire.WarModule.GetTroopNumber() < allEmpire.WarModule.GetTroopNumber())
                         {
                             // These empires are strong increase opinion
-                            ChangeValueInAllReasons(allEmpire, "Stength", 20);
+                            ChangeValueInDiplomacyReasons(allEmpire, "Stength", 20);
                             currentStrongestEmpire = allEmpire;
                         }
                     }
@@ -300,7 +300,7 @@ public class DiplomacyModule : MonoBehaviour
                         {
                             if (currentStrongestEmpire.WarModule.GetTroopNumber() < allEmpire.WarModule.GetTroopNumber())
                             {
-                                ChangeValueInAllReasons(allEmpire, "Stength", 20);
+                                ChangeValueInDiplomacyReasons(allEmpire, "Stength", 20);
                                 currentStrongestEmpire = allEmpire;
                             }
                         }
@@ -337,7 +337,7 @@ public class DiplomacyModule : MonoBehaviour
                     int warValue = thisEmpire.DiplomacyModule.GetDiplomacyReasonValue(atWarEmpire, "War");
                     if (warValue > -50)
                     {
-                        thisEmpire.DiplomacyModule.ChangeValueInAllReasons(atWarEmpire, "War", warValue - 1);
+                        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(atWarEmpire, "War", warValue - 1);
                     }
                     break;
                 }

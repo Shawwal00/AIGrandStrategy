@@ -46,6 +46,7 @@ public class SetUpEmpires : MonoBehaviour
                     allTilesList[j].SetOwner(curerntAIOwner);
                     copyEmpirePiece.SetAllTilesList(allTilesList);
                     copyEmpirePiece.EconomyModule.CalculateMoneyUpdateAmount();
+                    copyEmpirePiece.WarModule.UpdateReplinishAmount();
                     curerntAIOwner++;
                 }
             }
