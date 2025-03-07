@@ -16,12 +16,6 @@ public class EconomyModule : MonoBehaviour
 
     private bool trainTroops = true;
 
-    private void Update()
-    {
-        //Give money based on tiles
-        //Take money away depending on troops
-    }
-
     /*
     * This is so the script knows which empire it is.
     * @param EmpireClass _thisEmpire The empire this script is attached to
@@ -87,7 +81,7 @@ public class EconomyModule : MonoBehaviour
 
         if (totalAmountOfMoney <= 0)
         {
-            Debug.Log("This empire should die");
+            Debug.Log("This empire should get downsides");
         }
     }
 

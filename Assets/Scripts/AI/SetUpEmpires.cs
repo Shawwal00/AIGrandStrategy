@@ -31,10 +31,10 @@ public class SetUpEmpires : MonoBehaviour
         // Set up the empires depending on how many of them there are.
         int curerntAIOwner = 1;
         EmpireClass copyEmpirePiece;
+
+        List<MapTile> allTilesList = MapBoardScript.returnTileList();
         for (int i = 0; i < spawnPositions.Count; i++)
         {
-            List<MapTile> allTilesList = MapBoardScript.returnTileList();
-
             for (int j = 0; j < allTilesList.Count; j++)
             {
                 if (allTilesList[j].GetTileNumber() == spawnPositions[i])
@@ -50,11 +50,19 @@ public class SetUpEmpires : MonoBehaviour
                     curerntAIOwner++;
                 }
             }
+        }
 
-            for (int j = 0; j < empiresInGame.Count; j++)
+        for (int j = 0; j < allTilesList.Count; j++)
+        {
+            for (int h = 0; h < empiresInGame.Count; h++)
             {
-                empiresInGame[j].WarModule.MeetingAllEmpires(empiresInGame);
+                allTilesList[j].SetUpAllTileConquerReasons(empiresInGame[h]);
             }
+        }
+
+        for (int j = 0; j < empiresInGame.Count; j++)
+        {
+            empiresInGame[j].WarModule.MeetingAllEmpires(empiresInGame);
         }
     }
 

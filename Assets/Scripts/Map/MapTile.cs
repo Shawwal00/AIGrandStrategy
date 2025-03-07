@@ -31,7 +31,8 @@ public class MapTile : MonoBehaviour
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
 
-    private Dictionary<string, int> conquerTileReasons = new Dictionary<string, int>(); // These are the reasons that this tile may be conquered.
+    private Dictionary<EmpireClass,Dictionary< string, int>> conquerTileReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this tile may be conquered.
+
 
     private void Awake()
     {
@@ -44,26 +45,37 @@ public class MapTile : MonoBehaviour
 
         buildingData = this.AddComponent<BuildingData>();
 
-        conquerTileReasons["BoarderingAnotherEmpire"] = 0; // This is if the tile is boardering another empire
-        conquerTileReasons["Garrison"] = 0; // This is how much of a garrison the tile has
-        conquerTileReasons["YourTroops"] = 0; // This is the empires troops and if it has enough to take the tile or if at war to win against the warring empire - should not take tiles if it will lose
-        conquerTileReasons["TileReplenish"] = 0; // This is how fast the tile replenished
-        conquerTileReasons["Income"] = 0; // This is how much the tile produces
+    }
+
+    /*
+     * The below function is used so that when the empires are set up the tiles will set up all the reasons to conquer for each empire
+     * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+     */ 
+    public void SetUpAllTileConquerReasons(EmpireClass _otherEmpire)
+    {
+        conquerTileReasons[_otherEmpire] = new Dictionary<string, int>();
+        conquerTileReasons[_otherEmpire]["BoarderingAnotherEmpire"] = 0; // This is if the tile is boardering another empire
+        conquerTileReasons[_otherEmpire]["Garrison"] = 0; // This is how much of a garrison the tile has
+        conquerTileReasons[_otherEmpire]["YourTroops"] = 0; // This is the empires troops and if it has enough to take the tile or if at war to win against the warring empire - should not take tiles if it will lose
+        conquerTileReasons[_otherEmpire]["TileReplenish"] = 0; // This is how fast the tile replenished
+        conquerTileReasons[_otherEmpire]["Income"] = 0; // This is how much the tile produces
+        conquerTileReasons[_otherEmpire]["EmpireConquer"] = 0; // This is how likely the it is that the AI will conquer the tile before you
     }
 
     /*
     * The below will loop through all the reasons and update the diplomacy of all the empires
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
     * @retun int total This is all the added up reasons to conquer this tile
     */
-    public int UpdateTileReasonsOfAllEmpires()
+    public int UpdateTileReasonsOfAllEmpires(EmpireClass _otherEmpire)
     {
         int total = 0;
-
-        total += conquerTileReasons["BoarderingAnotherEmpire"];
-        total += conquerTileReasons["Garrison"];
-        total += conquerTileReasons["YourTroops"];
-        total += conquerTileReasons["TileReplenish"];
-        total += conquerTileReasons["Income"];
+        total += conquerTileReasons[_otherEmpire]["BoarderingAnotherEmpire"];
+        total += conquerTileReasons[_otherEmpire]["Garrison"];
+        total += conquerTileReasons[_otherEmpire]["YourTroops"];
+        total += conquerTileReasons[_otherEmpire]["TileReplenish"];
+        total += conquerTileReasons[_otherEmpire]["Income"];
+        total += conquerTileReasons[_otherEmpire]["EmpireConquer"];
 
         return total;
     }
@@ -72,10 +84,11 @@ public class MapTile : MonoBehaviour
     * The below function is used to update the value for a reason why the tile reason has increased or decreased.
     * @param string _reason This is the reason that the tile reason is increasing or decreasing
     * @param int _newValue This is the new value that it will be set to.
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
     */
-    public void ChangeValueInTileReasons(string _reason, int _newValue)
+    public void ChangeValueInTileReasons(string _reason, int _newValue, EmpireClass _otherEmpire)
     {
-        conquerTileReasons[_reason] = _newValue;
+        conquerTileReasons[_otherEmpire][_reason] = _newValue;
     }
 
     /*
