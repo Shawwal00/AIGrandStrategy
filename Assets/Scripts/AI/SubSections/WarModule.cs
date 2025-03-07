@@ -33,6 +33,7 @@ public class WarModule : MonoBehaviour
 
     private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
     private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
+    private int conquerTileValue = -50; //This is the value the tile has to be at least for this empire to conquer it
 
     // Threat reason values
     private int rThreatBoardering = 40;
@@ -314,7 +315,7 @@ public class WarModule : MonoBehaviour
                     }
                 }
             }
-            if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber)
+            if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber && tileReasonValue > conquerTileValue)
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(10);
