@@ -81,7 +81,7 @@ public class EconomyModule : MonoBehaviour
 
         if (totalAmountOfMoney <= 0)
         {
-            Debug.Log("This empire should get downsides");
+           // Debug.Log("This empire should get downsides");
         }
     }
 

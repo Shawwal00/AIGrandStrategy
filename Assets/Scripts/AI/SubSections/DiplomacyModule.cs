@@ -23,6 +23,19 @@ public class DiplomacyModule : MonoBehaviour
     private float giveFavourTimer = 30;
     private float currentFavourTimer = 0;
 
+    private int strongEnough = 40; // This is the value at which this empire will consider another empire to be strong
+    private int makePeace = 20;
+
+    //All Value Reasons
+    private int rBoardering = 40;
+    private int rWarDecrease = 1;
+    private int rStrength = 20;
+    private int rComplement = 80;
+    private int rMoney = 0;
+    private int rGift = 0;
+    private int rAllianceUpdate = 10;
+    private int rBrokeAlliance = 50;
+
     private void Awake()
     {
         //Lists
@@ -93,6 +106,7 @@ public class DiplomacyModule : MonoBehaviour
         allReasons[_otherEmpire]["Gift"] = 0; //This is if the other empire has given you a gift
         allReasons[_otherEmpire]["Alliances"] = 0; // This is if the other empire has alliances that you do not like.
         allReasons[_otherEmpire]["BrokeAlliance"] = 0; // This is if the other empire has broken an alliance with you
+        allReasons[_otherEmpire]["Winning"] = 0; //This is if you are currently winning the war you are in - if you are at war with them.
         // opinionsOfYou[_empire] = 0;
     }
 
@@ -150,7 +164,7 @@ public class DiplomacyModule : MonoBehaviour
     {
         if (alliedEmpires.Contains(_empire))
         {
-            ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -50);
+            ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -rBrokeAlliance);
             alliedEmpires.Remove(_empire);
             _empire.DiplomacyModule.BreakAliiance(thisEmpire);
              Debug.Log("Break Alliance");
@@ -163,7 +177,7 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GainFavour(EmpireClass _empire)
     {
-        ChangeValueInDiplomacyReasons(_empire, "Complement", 80);
+        ChangeValueInDiplomacyReasons(_empire, "Complement", rComplement);
         gainedFavour = true;
     }
 
@@ -208,7 +222,7 @@ public class DiplomacyModule : MonoBehaviour
             }
         }
 
-        //See if any of the empires you like are the same
+        //Check all the empires and see if you like simillar empires
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
             ChangeValueInDiplomacyReasons(allEmpire, "Alliances", 0);
@@ -221,7 +235,7 @@ public class DiplomacyModule : MonoBehaviour
                     {
                         if (secondAllEmpire.GetEmpireNumber() == likedEmpire.GetEmpireNumber())
                         {
-                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") + 10);
+                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") + rAllianceUpdate);
                         }
                     }
 
@@ -229,7 +243,7 @@ public class DiplomacyModule : MonoBehaviour
                     {
                         if (secondAllEmpire.GetEmpireNumber() == unlikedEmpire.GetEmpireNumber())
                         {
-                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") - 10);
+                            ChangeValueInDiplomacyReasons(allEmpire, "Alliances", GetDiplomacyReasonValue(allEmpire, "Alliances") - rAllianceUpdate);
                         }
                     }
                 }
@@ -238,70 +252,51 @@ public class DiplomacyModule : MonoBehaviour
     }
 
     /*
-     * The below function is used to check if this empire wants an alliance - if so it will attempt to raise the opinion of the other empire
+     * The below function is used to update important diplomacy actions 
      */
-    public void CheckIfWantToAlly()
+    public void UpdateDiplomacy()
     {
         CheckOtherAllEmpiresAlliances();
-        int totalEnemyTroops = 0;
-        int totalAllyTroops = 0;
-        EmpireClass currentStrongestEmpire = null;
-
-        foreach (EmpireClass alliedEmpire in alliedEmpires)
-        {
-            totalAllyTroops += alliedEmpire.WarModule.GetTroopNumber();
-        }
+        EmpireClass empireToImproveRelations = null;
 
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
-            foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+            // Check if the other empires are strong
+            if (thisEmpire.WarModule.GetThreatRating(allEmpire) > strongEnough)
             {
-
-                totalEnemyTroops += atWarEmpire.WarModule.GetTroopNumber();
-                if (allEmpire.GetEmpireNumber() == atWarEmpire.GetEmpireNumber())
-                {
-                    // In here if too strong make peace with them
-                }
-            }
-
-            // Check your troops - if strongest don't bother making alliancce
-            // If not try to make alliance with any empire that you like
-
-            if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
-            {
-                if (totalEnemyTroops > totalAllyTroops + thisEmpire.WarModule.GetTroopNumber())
-                {
-                    if (currentStrongestEmpire == null)
-                    {
-                        currentStrongestEmpire = allEmpire;
-                    }
-                    else
-                    {
-                        if (currentStrongestEmpire.WarModule.GetTroopNumber() < allEmpire.WarModule.GetTroopNumber())
-                        {
-                            // These empires are strong increase opinion
-                            ChangeValueInDiplomacyReasons(allEmpire, "Stength", 20);
-                            currentStrongestEmpire = allEmpire;
-                        }
-                    }
-                }
+                ChangeValueInDiplomacyReasons(allEmpire, "Stength", rStrength);
             }
             else
             {
-                if (thisEmpire.WarModule.GetTroopNumber() < allEmpire.WarModule.GetTroopNumber()) // Attempt to ally if another empire has more troops
+                ChangeValueInDiplomacyReasons(allEmpire, "Stength", -rStrength);
+            }
+
+            //See if you can make peace with the atWarEmpires
+            foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+            {
+                //Check to see if you like the empire
+                // If not then see if you are weaker - Try to make the other empire like you.
+
+                if (thisEmpireOpinions[atWarEmpire] > 0 && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > 0)
                 {
-                    if (alliedEmpires.Count <= 0) // Only ally if not already allied
+                    thisEmpire.WarModule.MakePeace(atWarEmpire);
+                    atWarEmpire.WarModule.MakePeace(thisEmpire);
+                }
+
+                // In here if too strong make peace with them
+                if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > makePeace)
+                {
+                    if (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] < 0)
                     {
-                        if (currentStrongestEmpire == null)
+                        if (empireToImproveRelations == null)
                         {
-                            currentStrongestEmpire = allEmpire;
+                            empireToImproveRelations = atWarEmpire;
                         }
-                        else
+                        else 
                         {
-                            if (currentStrongestEmpire.WarModule.GetTroopNumber() < allEmpire.WarModule.GetTroopNumber())
+                            if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > thisEmpire.WarModule.GetThreatRating(empireToImproveRelations))
                             {
-                                ChangeValueInDiplomacyReasons(allEmpire, "Stength", 20);
-                                currentStrongestEmpire = allEmpire;
+                                empireToImproveRelations = atWarEmpire;
                             }
                         }
                     }
@@ -309,12 +304,13 @@ public class DiplomacyModule : MonoBehaviour
             }
         }
 
-        if (currentStrongestEmpire != null)
+        // If you are weaker and likely to get attacked then try to make alliance
+        if (empireToImproveRelations != null)
         {
             //Try to ally with the currentStrongestEmpire
             if (gainedFavour == false)
             {
-                currentStrongestEmpire.DiplomacyModule.GainFavour(thisEmpire);
+                empireToImproveRelations.DiplomacyModule.GainFavour(thisEmpire);
             }
             // Try to give territory - do check
             // Try to give money - do check
@@ -326,7 +322,7 @@ public class DiplomacyModule : MonoBehaviour
      */ 
     public void DiplomacyCheck()
     {
-        CheckIfWantToAlly();
+        UpdateDiplomacy();
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
             foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
@@ -337,7 +333,7 @@ public class DiplomacyModule : MonoBehaviour
                     int warValue = thisEmpire.DiplomacyModule.GetDiplomacyReasonValue(atWarEmpire, "War");
                     if (warValue > -50)
                     {
-                        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(atWarEmpire, "War", warValue - 1);
+                        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(atWarEmpire, "War", warValue - rWarDecrease);
                     }
                     break;
                 }
@@ -457,6 +453,14 @@ public class DiplomacyModule : MonoBehaviour
     public List<EmpireClass> GetAlliedEmpires()
     {
         return alliedEmpires;
+    }
+
+    /*
+     * The below function will return the boardering value.
+     */ 
+    public int GetRBoarderingValue()
+    {
+        return rBoardering;
     }
 
 }

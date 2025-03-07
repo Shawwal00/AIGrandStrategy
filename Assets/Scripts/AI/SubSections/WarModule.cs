@@ -18,7 +18,7 @@ public class WarModule : MonoBehaviour
     private List<EmpireClass> atWarEmpires;
     private List<EmpireClass> empiresDefeatedInBattle;
     private List<EmpireClass> allEmpiresInGame;
-    private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); // 1 is a threat // -1 is not a threat
+    private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); 
     private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that an empire feels threatened by another empire.
 
     private bool empireDefeated = false;
@@ -42,11 +42,11 @@ public class WarModule : MonoBehaviour
     private int rTotalMoney = 20;
     private int rReplenishRate = 20;
     private int rGarrison = 20;
-    private int rOtherEmpireConquer = 50;
 
     //Tile reason values
     private int rTileBoardering = 60;
     private int rYourTroops = 20;
+    private int rOtherEmpireConquer = 50;
 
     private void Awake()
     {
@@ -89,7 +89,7 @@ public class WarModule : MonoBehaviour
         for (int i = 0; i < _allEmpires.Count; i++)
         {
             thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
-            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", 20);
+            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", thisEmpire.DiplomacyModule.GetRBoarderingValue());
             MetEmpire(_allEmpires[i]);
             UpdateThreatRatingsOfAllEmpires();
         }
@@ -347,8 +347,8 @@ public class WarModule : MonoBehaviour
                             otherEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", -rThreatBoardering);
 
                             // Set up the diplomacy of the other empire
-                            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(otherEmpire, "Boardering", -40);
-                            otherEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", -40);
+                            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(otherEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
+                            otherEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
                         }
                         break;
                     }
@@ -481,7 +481,7 @@ public class WarModule : MonoBehaviour
 
             if (_tile == lowestEnemyTile || _tile == secondLowestTile)
             {
-                _tile.ChangeValueInTileReasons("YourTroops", -rOtherEmpireConquer, thisEmpire);
+               // _tile.ChangeValueInTileReasons("YourTroops", -rOtherEmpireConquer, thisEmpire);
             }
         }
     }
@@ -624,14 +624,23 @@ public class WarModule : MonoBehaviour
 
     /*
      * This function is used to make peace with another empire
+     * @param EmpireClass _makePeaceEmpire This is the empire you will be making peace with
      */ 
-    public void MakePeace()
+    public void MakePeace(EmpireClass _makePeaceEmpire)
     {
+        Debug.Log("MakePeace");
         foreach (var otherEmpire in atWarEmpires)
         {
-            if (otherEmpire.WarModule.troopNumber > troopNumber)
+            if (otherEmpire == _makePeaceEmpire)
             {
-                //Attempt to make peace they have more troops.
+                atWarEmpires.Remove(_makePeaceEmpire);
+                foreach (var empire in empiresDefeatedInBattle)
+                {
+                    if (empire == _makePeaceEmpire)
+                    {
+                        empiresDefeatedInBattle.Remove(_makePeaceEmpire);
+                    }
+                }
             }
         }
     }
@@ -750,5 +759,14 @@ public class WarModule : MonoBehaviour
     public List<EmpireClass> GetAllEmpiresInGame()
     {
         return allEmpiresInGame;
+    }
+
+    /*
+     * The below function is used to get the specific threat rating of another empire
+     * @param EmpireClass _otherEmpire This is the other empire that you want to get the threat rating of
+     */ 
+    public int GetThreatRating(EmpireClass _otherEmpire)
+    {
+        return threatRatings[_otherEmpire];
     }
 }
