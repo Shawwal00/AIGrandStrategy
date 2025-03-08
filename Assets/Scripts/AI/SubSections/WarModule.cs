@@ -830,4 +830,20 @@ public class WarModule : MonoBehaviour
     {
         return threatValue;
     }
+
+    /*
+     * The below function can be used to get the threat rating of an empire as well as its allies
+     * @param EmpireClass _otherEmpire This is the empire whos threat rating along with its allies will be returned.
+     */ 
+    public int GetAllAllianceThreatRating(EmpireClass _otherEmpire)
+    {
+        int totalThreatValue = 0;
+        totalThreatValue = threatRatings[_otherEmpire];
+        foreach (var alliedEmpire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
+        {
+            totalThreatValue += threatRatings[alliedEmpire];
+        }
+
+        return totalThreatValue;
+    }
 }

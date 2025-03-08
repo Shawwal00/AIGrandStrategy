@@ -24,7 +24,7 @@ public class DiplomacyModule : MonoBehaviour
     private float currentFavourTimer = 0;
 
     private int strongEnough = 40; // This is the value at which this empire will consider another empire to be strong
-    private int makePeace = 20;
+    private int makePeace = 40; // This is the value at which an empire will make peace if they feel that another empire is stronger then them.
 
     //All Value Reasons
     private int rBoardering = 40;
@@ -287,8 +287,8 @@ public class DiplomacyModule : MonoBehaviour
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
 
-            // In here if too strong make peace with them
-            if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > makePeace)
+            // In here if too strong make peace with them by making them like you
+            if (thisEmpire.WarModule.GetAllAllianceThreatRating(atWarEmpire) > atWarEmpire.WarModule.GetAllAllianceThreatRating(thisEmpire) + makePeace)
             {
                 if (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] < 0)
                 {
@@ -298,7 +298,7 @@ public class DiplomacyModule : MonoBehaviour
                     }
                     else
                     {
-                        if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > thisEmpire.WarModule.GetThreatRating(empireToImproveRelations))
+                        if (thisEmpire.WarModule.GetAllAllianceThreatRating(atWarEmpire) > thisEmpire.WarModule.GetAllAllianceThreatRating(empireToImproveRelations))
                         {
                             empireToImproveRelations = atWarEmpire;
                         }
@@ -359,7 +359,7 @@ public class DiplomacyModule : MonoBehaviour
         //Check if there is an empire that dislikes you and is stronger then you if so ally with any empire that likes you
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
-            if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.WarModule.GetWarDiplomacyValue() || allEmpire.WarModule.GetThreatRating(thisEmpire) >= allEmpire.WarModule.GetThreatRating(thisEmpire))
+            if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.WarModule.GetWarDiplomacyValue() || allEmpire.WarModule.GetThreatRating(thisEmpire) >= allEmpire.WarModule.GetThreatValue())
             {
                 inDanger = true;
             }
