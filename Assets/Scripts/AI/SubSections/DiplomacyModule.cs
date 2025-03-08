@@ -270,36 +270,58 @@ public class DiplomacyModule : MonoBehaviour
             {
                 ChangeValueInDiplomacyReasons(allEmpire, "Stength", -rStrength);
             }
+        }
 
-            //See if you can make peace with the atWarEmpires
-            foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+        //See if you can make peace with the atWarEmpires
+        foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+        {
+            //Check to see if you like the empire
+            // If not then see if you are weaker - Try to make the other empire like you.
+
+            if (thisEmpireOpinions[atWarEmpire] > 0 && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > 0)
             {
-                //Check to see if you like the empire
-                // If not then see if you are weaker - Try to make the other empire like you.
+                thisEmpire.WarModule.MakePeace(atWarEmpire);
+                atWarEmpire.WarModule.MakePeace(thisEmpire);
+            }
 
-                if (thisEmpireOpinions[atWarEmpire] > 0 && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > 0)
+            // In here if too strong make peace with them
+            if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > makePeace)
+            {
+                if (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] < 0)
                 {
-                    thisEmpire.WarModule.MakePeace(atWarEmpire);
-                    atWarEmpire.WarModule.MakePeace(thisEmpire);
-                }
-
-                // In here if too strong make peace with them
-                if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > makePeace)
-                {
-                    if (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] < 0)
+                    if (empireToImproveRelations == null)
                     {
-                        if (empireToImproveRelations == null)
+                        empireToImproveRelations = atWarEmpire;
+                    }
+                    else
+                    {
+                        if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > thisEmpire.WarModule.GetThreatRating(empireToImproveRelations))
                         {
                             empireToImproveRelations = atWarEmpire;
                         }
-                        else 
+                    }
+                }
+            }
+        }
+
+        if (empireToImproveRelations == null)
+        {
+            foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
+            {
+                if (alliedEmpires.Count == 0) //If not already allied try to make an alliance
+                {
+                    if (empireToImproveRelations == null)
+                    {
+                        empireToImproveRelations = allEmpire;
+                    }
+                    else
+                    {
+                        if (thisEmpireOpinions[empireToImproveRelations] < thisEmpireOpinions[allEmpire]) // Get the empire with the one you have the highest opinion of.
                         {
-                            if (thisEmpire.WarModule.GetThreatRating(atWarEmpire) > thisEmpire.WarModule.GetThreatRating(empireToImproveRelations))
-                            {
-                                empireToImproveRelations = atWarEmpire;
-                            }
+                            empireToImproveRelations = allEmpire;
                         }
                     }
+
                 }
             }
         }
