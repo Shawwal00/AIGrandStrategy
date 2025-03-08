@@ -150,6 +150,8 @@ public class DiplomacyModule : MonoBehaviour
             {
                 foreach (EmpireClass atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
                 {
+                    Debug.Log("2");
+                    Debug.Log(atWarEmpire.GetEmpireColor());
                     _empire.WarModule.EmpireAtWarWith(atWarEmpire);
                 }
             }
@@ -178,6 +180,7 @@ public class DiplomacyModule : MonoBehaviour
     private void GainFavour(EmpireClass _empire)
     {
         ChangeValueInDiplomacyReasons(_empire, "Complement", rComplement);
+        _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Complement", rComplement);
         gainedFavour = true;
     }
 
@@ -273,6 +276,7 @@ public class DiplomacyModule : MonoBehaviour
         }
 
         //See if you can make peace with the atWarEmpires
+       List<EmpireClass> empiresToMakePeaceWith = new List<EmpireClass>();
         foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
         {
             //Check to see if you like the empire
@@ -280,8 +284,7 @@ public class DiplomacyModule : MonoBehaviour
 
             if (thisEmpireOpinions[atWarEmpire] > 0 && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > 0)
             {
-                thisEmpire.WarModule.MakePeace(atWarEmpire);
-                atWarEmpire.WarModule.MakePeace(thisEmpire);
+                empiresToMakePeaceWith.Add(atWarEmpire);
             }
 
             // In here if too strong make peace with them
@@ -304,6 +307,12 @@ public class DiplomacyModule : MonoBehaviour
             }
         }
 
+        foreach (var makePeaceEmpire in empiresToMakePeaceWith)
+        {
+            thisEmpire.WarModule.MakePeace(makePeaceEmpire);
+            makePeaceEmpire.WarModule.MakePeace(thisEmpire);
+        }
+
         if (empireToImproveRelations == null)
         {
             foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
@@ -316,7 +325,7 @@ public class DiplomacyModule : MonoBehaviour
                     }
                     else
                     {
-                        if (thisEmpireOpinions[empireToImproveRelations] < thisEmpireOpinions[allEmpire]) // Get the empire with the one you have the highest opinion of.
+                        if (empireToImproveRelations.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire)) // Get the empire with the one you have the highest opinion of.
                         {
                             empireToImproveRelations = allEmpire;
                         }
@@ -345,6 +354,17 @@ public class DiplomacyModule : MonoBehaviour
     public void DiplomacyCheck()
     {
         UpdateDiplomacy();
+        bool inDanger = false;
+
+        //Check if there is an empire that dislikes you and is stronger then you if so ally with any empire that likes you
+        foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
+        {
+            if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.WarModule.GetWarDiplomacyValue() || allEmpire.WarModule.GetThreatRating(thisEmpire) >= allEmpire.WarModule.GetThreatRating(thisEmpire))
+            {
+                inDanger = true;
+            }
+        }
+
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
             foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
@@ -361,9 +381,31 @@ public class DiplomacyModule : MonoBehaviour
                 }
             }
 
-            if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(allEmpire) > makeAllianceNumber)
+            if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(allEmpire) > makeAllianceNumber && allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) > makeAllianceNumber) // If you both like each other
             {
-                MakeAlliance(allEmpire);
+                bool atWar = false;
+                foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+                {
+                    if (atWarEmpire == allEmpire)
+                    {
+                        atWar = true;
+                    }
+                }
+                if (atWar == false)
+                {
+                    MakeAlliance(allEmpire);
+                }
+            }
+            else
+            {
+                if (inDanger == true)
+                {
+                    if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) > makeAllianceNumber)
+                    {
+                        Debug.Log("InDangerAlliance");
+                        MakeAlliance(allEmpire);
+                    }
+                }
             }
 
             List<EmpireClass> alliancesToBreak = new List<EmpireClass>();

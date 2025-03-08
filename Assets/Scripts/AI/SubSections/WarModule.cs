@@ -550,6 +550,10 @@ public class WarModule : MonoBehaviour
             {
                 if (thierAlly.GetEmpireNumber() == yourAlly.GetEmpireNumber()) //Same Ally
                 {
+                    Debug.Log(thisEmpire.GetEmpireColor());
+                    Debug.Log(_empireThatDeclaredWar.GetEmpireColor());
+                    Debug.Log(thierAlly.GetEmpireColor());
+                    Debug.Log(yourAlly.GetEmpireColor());
                     matchingAlliances.Add(thierAlly);
                 }
             }
@@ -629,19 +633,33 @@ public class WarModule : MonoBehaviour
     public void MakePeace(EmpireClass _makePeaceEmpire)
     {
         Debug.Log("MakePeace");
-        foreach (var otherEmpire in atWarEmpires)
+        bool removeEmpirePeace = false;
+        bool removeEmpireDefeated = false;
+        List<EmpireClass> staticEmpireAtWar = atWarEmpires;
+        foreach (var otherEmpire in staticEmpireAtWar)
         {
             if (otherEmpire == _makePeaceEmpire)
             {
-                atWarEmpires.Remove(_makePeaceEmpire);
-                foreach (var empire in empiresDefeatedInBattle)
+                removeEmpirePeace = true;
+                List<EmpireClass> nonChangingEmpiresDefeated = empiresDefeatedInBattle;
+                foreach (var empire in nonChangingEmpiresDefeated)
                 {
                     if (empire == _makePeaceEmpire)
                     {
-                        empiresDefeatedInBattle.Remove(_makePeaceEmpire);
+                        removeEmpireDefeated = true;
                     }
-                }
+                } 
             }
+        }
+        if (removeEmpirePeace == true)
+        {
+            atWarEmpires.Remove(_makePeaceEmpire);
+ 
+        }
+
+        if (removeEmpireDefeated == true)
+        {
+            empiresDefeatedInBattle.Remove(_makePeaceEmpire);
         }
     }
 
@@ -754,7 +772,7 @@ public class WarModule : MonoBehaviour
 
     /*
      * This returns a list of all the empires in the game
-     * @return List<EmpireClass> This is a list of all the empires in the game
+     * @return List<EmpireClass> allEmpiresInGame This is a list of all the empires in the game
      */ 
     public List<EmpireClass> GetAllEmpiresInGame()
     {
@@ -768,5 +786,23 @@ public class WarModule : MonoBehaviour
     public int GetThreatRating(EmpireClass _otherEmpire)
     {
         return threatRatings[_otherEmpire];
+    }
+
+    /*
+     * This will return the number at which an empire will consider going to war for low diplomacy.
+     * @return int warDiplomacyNumber This is the value at which an empire will consider going to war
+     */
+    public int GetWarDiplomacyValue()
+    {
+        return warDiplomacyNumber;
+    }
+
+    /*
+     * This will return the number at which this empire will consider another empire to be a threat
+     * @return int threatValue This is the value at which this empire will consider another empire to be threat.
+     */ 
+    public int GetThreatValue()
+    {
+        return threatValue;
     }
 }
