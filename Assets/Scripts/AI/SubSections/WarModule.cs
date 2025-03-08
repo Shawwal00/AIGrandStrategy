@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -656,18 +657,19 @@ public class WarModule : MonoBehaviour
      * @param EmpireClass _makePeaceEmpire This is the empire you will be making peace with
      */ 
     public void MakePeace(EmpireClass _makePeaceEmpire)
-    {
+    { 
+
         Debug.Log("MakePeace");
+        Debug.Log(thisEmpire.GetEmpireColor());
+        Debug.Log(_makePeaceEmpire.GetEmpireColor());
         bool removeEmpirePeace = false;
         bool removeEmpireDefeated = false;
-        List<EmpireClass> staticEmpireAtWar = atWarEmpires;
-        foreach (var otherEmpire in staticEmpireAtWar)
+        foreach (var otherEmpire in atWarEmpires)
         {
             if (otherEmpire == _makePeaceEmpire)
             {
                 removeEmpirePeace = true;
-                List<EmpireClass> nonChangingEmpiresDefeated = empiresDefeatedInBattle;
-                foreach (var empire in nonChangingEmpiresDefeated)
+                foreach (var empire in empiresDefeatedInBattle)
                 {
                     if (empire == _makePeaceEmpire)
                     {
@@ -679,7 +681,19 @@ public class WarModule : MonoBehaviour
         if (removeEmpirePeace == true)
         {
             atWarEmpires.Remove(_makePeaceEmpire);
- 
+
+            foreach (var empire in _makePeaceEmpire.DiplomacyModule.GetAlliedEmpires())
+            {
+                if (atWarEmpires.Contains(empire))
+                {
+                    atWarEmpires.Remove(empire);
+                }
+
+                if (empiresDefeatedInBattle.Contains(empire))
+                {
+                    empiresDefeatedInBattle.Remove(empire);
+                }
+            }
         }
 
         if (removeEmpireDefeated == true)

@@ -150,8 +150,6 @@ public class DiplomacyModule : MonoBehaviour
             {
                 foreach (EmpireClass atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
                 {
-                    Debug.Log("2");
-                    Debug.Log(atWarEmpire.GetEmpireColor());
                     _empire.WarModule.EmpireAtWarWith(atWarEmpire);
                 }
             }
@@ -282,7 +280,7 @@ public class DiplomacyModule : MonoBehaviour
             //Check to see if you like the empire
             // If not then see if you are weaker - Try to make the other empire like you.
 
-            if (thisEmpireOpinions[atWarEmpire] > 0 && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > 0)
+            if (thisEmpireOpinions[atWarEmpire] > makePeace && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace)
             {
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
