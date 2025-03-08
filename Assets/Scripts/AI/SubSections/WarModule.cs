@@ -101,11 +101,15 @@ public class WarModule : MonoBehaviour
      * The below function will be used to update the threat rating parameters every turn - these will be the ones that are not dependent on 
      * other variables.
      */ 
-    public void UpdateNonStaticThreatReasons()
+    public void UpdateThreatReasons()
     {
         foreach (EmpireClass _empireClass in allEmpiresInGame)
         {
-            if (_empireClass.WarModule.GetTroopNumber() > GetTroopNumber())
+            if (_empireClass.WarModule.GetTroopNumber() > GetTroopNumber() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "Troops", rTroops * 2);
+            }
+            else if (_empireClass.WarModule.GetTroopNumber() > GetTroopNumber())
             {
                 ChangeValueInThreatRatings(_empireClass, "Troops", rTroops);
             }
@@ -113,7 +117,12 @@ public class WarModule : MonoBehaviour
             {
                 ChangeValueInThreatRatings(_empireClass, "Troops", -rTroops);
             }
-            if (_empireClass.EconomyModule.GetIncomeValue() > thisEmpire.EconomyModule.GetIncomeValue())
+
+            if (_empireClass.EconomyModule.GetIncomeValue() > thisEmpire.EconomyModule.GetIncomeValue() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "Income", rIncome * 2);
+            }
+            else if (_empireClass.EconomyModule.GetIncomeValue() > thisEmpire.EconomyModule.GetIncomeValue())
             {
                 ChangeValueInThreatRatings(_empireClass, "Income", rIncome);
             }
@@ -121,7 +130,12 @@ public class WarModule : MonoBehaviour
             {
                 ChangeValueInThreatRatings(_empireClass, "Income", -rIncome);
             }
-            if (_empireClass.EconomyModule.GetCurrentMoney() > thisEmpire.EconomyModule.GetCurrentMoney())
+
+            if (_empireClass.EconomyModule.GetCurrentMoney() > thisEmpire.EconomyModule.GetCurrentMoney() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "TotalMoney", rTotalMoney * 2);
+            }
+            else if (_empireClass.EconomyModule.GetCurrentMoney() > thisEmpire.EconomyModule.GetCurrentMoney())
             {
                 ChangeValueInThreatRatings(_empireClass, "TotalMoney", rTotalMoney);
             }
@@ -129,22 +143,33 @@ public class WarModule : MonoBehaviour
             {
                 ChangeValueInThreatRatings(_empireClass, "TotalMoney", -rTotalMoney);
             }
-            if (_empireClass.WarModule.GetReplinishAmount() > troopReplenishAmount)
+
+            if (_empireClass.WarModule.GetReplinishAmount() > troopReplenishAmount * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "ReplenishRate", rReplenishRate * 2);
+            }
+            else if (_empireClass.WarModule.GetReplinishAmount() > troopReplenishAmount)
             {
                 ChangeValueInThreatRatings(_empireClass, "ReplenishRate", rReplenishRate);
             }
-            else 
+            else
             {
                 ChangeValueInThreatRatings(_empireClass, "ReplenishRate", -rReplenishRate);
             }
-            if (_empireClass.WarModule.GetAllGarrisons() > GetAllGarrisons())
+
+            if (_empireClass.WarModule.GetAllGarrisons() > GetAllGarrisons() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "AllGarrisons", rGarrison * 2);
+            }
+            else if (_empireClass.WarModule.GetAllGarrisons() > GetAllGarrisons())
             {
                 ChangeValueInThreatRatings(_empireClass, "AllGarrisons", rGarrison);
             }
-            else 
+            else
             {
                 ChangeValueInThreatRatings(_empireClass, "AllGarrisons", -rGarrison);
             }
+
         }
     }
 

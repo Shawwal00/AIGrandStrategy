@@ -51,7 +51,7 @@ public class AIMain : MonoBehaviour
     {
         startAI = false;
         _currentEmpire.EconomyModule.UpdateEmpireMoney();
-        _currentEmpire.WarModule.UpdateNonStaticThreatReasons();
+        _currentEmpire.WarModule.UpdateThreatReasons();
         _currentEmpire.DiplomacyModule.DiplomacyCheck();
         ConquerRegion(_currentEmpire);
        // UpdateAllThreatRatings(_currentEmpire);
