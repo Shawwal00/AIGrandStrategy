@@ -60,6 +60,7 @@ public class MapTile : MonoBehaviour
         conquerTileReasons[_otherEmpire]["TileReplenish"] = 0; // This is how fast the tile replenished
         conquerTileReasons[_otherEmpire]["Income"] = 0; // This is how much the tile produces
         conquerTileReasons[_otherEmpire]["EmpireConquer"] = 0; // This is how likely the it is that the AI will conquer the tile before you
+        conquerTileReasons[_otherEmpire]["Attacked"] = 0; // This is how likely it is that the empire will be attacked
     }
 
     /*
@@ -76,6 +77,7 @@ public class MapTile : MonoBehaviour
         total += conquerTileReasons[_otherEmpire]["TileReplenish"];
         total += conquerTileReasons[_otherEmpire]["Income"];
         total += conquerTileReasons[_otherEmpire]["EmpireConquer"];
+        total += conquerTileReasons[_otherEmpire]["Attacked"];
 
         return total;
     }

@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -43,6 +44,7 @@ public class WarModule : MonoBehaviour
     private int rTotalMoney = 20;
     private int rReplenishRate = 20;
     private int rGarrison = 20;
+    private int rAttacked = 60;
 
     //Tile reason values
     private int rTileBoardering = 60;
@@ -427,6 +429,15 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding(), thisEmpire);
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
 
+        //Checking to see if it is likely that another empire may attack you soon
+        foreach (var empire in boarderingEmpires)
+        {
+            if (empire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < empire.WarModule.GetWarDiplomacyValue() && empire.WarModule.GetAllTroopsIncludingAlliances() > (GetAllTroopsIncludingAlliances() * 0.9))
+            {
+                _tile.ChangeValueInTileReasons("Attacked", -rAttacked, thisEmpire);
+            }
+        }
+
         if (atWarEmpires.Count > 0)
         {
             int totalEnemyTroops = 0;
@@ -506,7 +517,7 @@ public class WarModule : MonoBehaviour
 
             if (_tile == lowestEnemyTile || _tile == secondLowestTile)
             {
-               // _tile.ChangeValueInTileReasons("YourTroops", -rOtherEmpireConquer, thisEmpire);
+                _tile.ChangeValueInTileReasons("YourTroops", -rOtherEmpireConquer, thisEmpire);
             }
         }
     }
