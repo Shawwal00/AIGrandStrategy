@@ -430,11 +430,14 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
 
         //Checking to see if it is likely that another empire may attack you soon
-        foreach (var empire in boarderingEmpires)
+        if (_tile.GetOwner() == 0)
         {
-            if (empire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < empire.WarModule.GetWarDiplomacyValue() && empire.WarModule.GetAllTroopsIncludingAlliances() > (GetAllTroopsIncludingAlliances() * 0.9))
+            foreach (var empire in boarderingEmpires)
             {
-                _tile.ChangeValueInTileReasons("Attacked", -rAttacked, thisEmpire);
+                if (empire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < empire.WarModule.GetWarDiplomacyValue() && empire.WarModule.GetAllTroopsIncludingAlliances() > (GetAllTroopsIncludingAlliances() * 0.9))
+                {
+                    _tile.ChangeValueInTileReasons("Attacked", -rAttacked, thisEmpire);
+                }
             }
         }
 
@@ -641,17 +644,16 @@ public class WarModule : MonoBehaviour
      */
     public EmpireClass GoToWarCheck()
     {
-        if (troopNumber > 100)
+        foreach (var empire in boarderingEmpires)
         {
-            foreach (var empire in boarderingEmpires)
+            if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire)) // Do not go to war with allies unless alliance is broken first
             {
-                if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire)) // Do not go to war with allies unless alliance is broken first
+                // && GetAllAllianceThreatRating(empire) > empire.WarModule.GetAllAllianceThreatRating(thisEmpire)
+                // Get the diplomacy and check if you have a negative relationship also check the threat rating
+                if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber
+                    && GetAllAllianceThreatRating(empire) < empire.WarModule.GetAllAllianceThreatRating(thisEmpire)) // Check if you are stronger then them
                 {
-                    // Get the diplomacy and check if you have a negative relationship also check the threat rating
-                    if (threatRatings[empire] >= threatValue && thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber)
-                    {
-                        return empire;
-                    }
+                    return empire;
                 }
             }
         }
