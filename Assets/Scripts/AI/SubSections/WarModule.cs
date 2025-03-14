@@ -426,7 +426,6 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("Garrison", -_tile.GetTroopPresent(), thisEmpire);
         _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding(), thisEmpire);
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
-        _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire );
 
         if (atWarEmpires.Count > 0)
         {
@@ -576,10 +575,6 @@ public class WarModule : MonoBehaviour
             {
                 if (thierAlly.GetEmpireNumber() == yourAlly.GetEmpireNumber()) //Same Ally
                 {
-                    Debug.Log(thisEmpire.GetEmpireColor());
-                    Debug.Log(_empireThatDeclaredWar.GetEmpireColor());
-                    Debug.Log(thierAlly.GetEmpireColor());
-                    Debug.Log(yourAlly.GetEmpireColor());
                     matchingAlliances.Add(thierAlly);
                 }
             }
@@ -699,6 +694,33 @@ public class WarModule : MonoBehaviour
         if (removeEmpireDefeated == true)
         {
             empiresDefeatedInBattle.Remove(_makePeaceEmpire);
+        }
+    }
+
+
+    /*
+     * The below function should be used when a battle with allies has taken place so that the casulaties can be spread evenly amongst all the empires
+     * @param int _casualtyAmount This is how many troops have been lost in the battle
+     * @param int _totalTroops This is the total amount of troops that took part in the battle
+     */ 
+    public void AlliedBattleTookPlace(int _casualtyAmount, int _totalTroops)
+    {
+        if (_casualtyAmount >= _totalTroops)
+        {
+            SetTroopNumber(0);
+            foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+            {
+                alliedEmpire.WarModule.SetTroopNumber(0);
+            }
+        }
+        else
+        {
+            float percentageTroopLost = ((_totalTroops - _casualtyAmount) / _totalTroops) * 100;
+            SetTroopNumber((int)(GetTroopNumber() / percentageTroopLost));
+            foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+            {
+                alliedEmpire.WarModule.SetTroopNumber((int)(alliedEmpire.WarModule.GetTroopNumber() / percentageTroopLost));
+            }
         }
     }
 
@@ -859,5 +881,18 @@ public class WarModule : MonoBehaviour
         }
 
         return totalThreatValue;
+    }
+
+    /*
+    * The below function can be used to get the all the troops + your alliance troops as well.
+    */
+    public int GetAllTroopsIncludingAlliances()
+    {
+        int totalTroops = troopNumber;
+        foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+        {
+            totalTroops += alliedEmpire.WarModule.GetTroopNumber();
+        }
+        return totalTroops;
     }
 }

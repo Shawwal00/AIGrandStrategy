@@ -146,10 +146,10 @@ public class AIMain : MonoBehaviour
                         //Debug.Log(_currentEmpire.GetEmpireNumber());
                         //Debug.Log(_currentEmpire.GetTroopNumber());
                         //Debug.Log(empire.GetTroopNumber());
-                        int newCurrentTroopNumber = _currentEmpire.WarModule.GetTroopNumber() - empire.WarModule.GetTroopNumber();
-                        int otherEmpireTroopNumber = empire.WarModule.GetTroopNumber() - _currentEmpire.WarModule.GetTroopNumber();
+                        int currentTroopNumber = _currentEmpire.WarModule.GetAllTroopsIncludingAlliances();
+                        int otherEmpireTroopNumber = empire.WarModule.GetAllTroopsIncludingAlliances();
 
-                        if (newCurrentTroopNumber > otherEmpireTroopNumber)
+                        if (currentTroopNumber > otherEmpireTroopNumber)
                         {
                             _currentEmpire.WarModule.AddToDefeatedEmpires(empire);
                             empire.WarModule.SetEmpireDefeatedTrue(_currentEmpire);
@@ -159,8 +159,8 @@ public class AIMain : MonoBehaviour
                             empire.WarModule.AddToDefeatedEmpires(_currentEmpire);
                             _currentEmpire.WarModule.SetEmpireDefeatedTrue(empire);
                         }
-                        _currentEmpire.WarModule.SetTroopNumber(newCurrentTroopNumber);
-                        empire.WarModule.SetTroopNumber(otherEmpireTroopNumber);
+                        _currentEmpire.WarModule.AlliedBattleTookPlace(otherEmpireTroopNumber, currentTroopNumber);
+                        empire.WarModule.AlliedBattleTookPlace(currentTroopNumber, otherEmpireTroopNumber);
                     }
                 }
             }
