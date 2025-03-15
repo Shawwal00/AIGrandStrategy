@@ -44,12 +44,12 @@ public class WarModule : MonoBehaviour
     private int rTotalMoney = 10;
     private int rReplenishRate = 15;
     private int rGarrison = 15;
-    private int rAttacked = 60;
 
     //Tile reason values
     private int rTileBoardering = 60;
     private int rYourTroops = 20;
     private int rOtherEmpireConquer = 50;
+    private int rAttacked = 60;
 
     private void Awake()
     {
@@ -351,36 +351,73 @@ public class WarModule : MonoBehaviour
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
                 UpdateReplinishAmount();
 
-                List<MapTile> mapTiles = lowestTile.GetAllConnectedTiles();
-
-                foreach (MapTile tile in mapTiles)
+                foreach (var empire in allEmpiresInGame)
                 {
-                    if (tile.GetOwner() != 0 && tile.GetOwner() != thisEmpire.GetEmpireNumber())
+                    CheckAllEmpireBoarders();
+                }
+            }
+        }
+    }
+
+    /*
+     * The below check all the tiles of an empire to see if they are still boardering or currently boardering an empire
+     */ 
+    public void CheckAllEmpireBoarders()
+    {
+        thisEmpire.GetExpandingTilesOfTile();
+        List<EmpireClass> foundEmpires = new List<EmpireClass>();
+        List<EmpireClass> notFoundEmpires = new List<EmpireClass>();
+
+        foreach (var empire in allEmpiresInGame)
+        {
+            notFoundEmpires.Add(empire);
+        }
+
+        foreach (MapTile tile in thisEmpire.ReturnExpandingTiles())
+        {
+            if (tile.GetOwner() != 0 && tile.GetOwner() != thisEmpire.GetEmpireNumber())
+            {
+                foreach (var empire in allEmpiresInGame)
+                {
+                    if (empire.GetEmpireNumber() == tile.GetOwner())
                     {
-                        bool empireFound = false;
-                        foreach (var empire in boarderingEmpires)
+                        if (!foundEmpires.Contains(empire))
                         {
-                            if (empire.GetEmpireNumber() == tile.GetOwner())
-                            {
-                                empireFound = true;
-                            }
+                            foundEmpires.Add(empire);
+                            break;
                         }
-                        if (empireFound == false)
-                        {
-                            EmpireClass otherEmpire = SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner());
-                            boarderingEmpires.Add(otherEmpire);
-                            otherEmpire.WarModule.OtherEmpireConquredNewTile(thisEmpire);
-
-                            ChangeValueInThreatRatings(otherEmpire, "Boardering", -rThreatBoardering);
-                            otherEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", -rThreatBoardering);
-
-                            // Set up the diplomacy of the other empire
-                            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(otherEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
-                            otherEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
-                        }
-                        break;
                     }
                 }
+            }
+        }
+
+        foreach (var foundEmpire in foundEmpires)
+        {
+            if (!boarderingEmpires.Contains(foundEmpire))
+            {
+                boarderingEmpires.Add(foundEmpire);
+
+                ChangeValueInThreatRatings(foundEmpire, "Boardering", rThreatBoardering);
+                foundEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", rThreatBoardering);
+
+                // Set up the diplomacy of the other empire
+                thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(foundEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
+                foundEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", -thisEmpire.DiplomacyModule.GetRBoarderingValue());
+            }
+            notFoundEmpires.Remove(foundEmpire);
+        }
+
+        foreach (var notFoundEmpire in notFoundEmpires)
+        {
+            if (boarderingEmpires.Contains(notFoundEmpire))
+            {
+                boarderingEmpires.Remove(notFoundEmpire);
+
+                ChangeValueInThreatRatings(notFoundEmpire, "Boardering", 0);
+                notFoundEmpire.WarModule.ChangeValueInThreatRatings(thisEmpire, "Boardering", 0);
+
+                thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(notFoundEmpire, "Boardering", 0);
+                notFoundEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Boardering", 0);
             }
         }
     }
@@ -560,15 +597,6 @@ public class WarModule : MonoBehaviour
         {
             allEmpiresInGame.Remove(_deadEmpire);
         }
-    }
-
-    /*
-     * The below function will occur if another empire has conqured a tile on the map
-     * @param EmpireClass _newBoarderingEmpire The newly encountered empire
-     */
-    public void OtherEmpireConquredNewTile(EmpireClass _newBoarderingEmpire)
-    {
-        boarderingEmpires.Add(_newBoarderingEmpire);
     }
 
     /*

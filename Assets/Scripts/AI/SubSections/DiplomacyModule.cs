@@ -294,8 +294,14 @@ public class DiplomacyModule : MonoBehaviour
             //Check to see if you like the empire
             // If not then see if you are weaker - Try to make the other empire like you.
 
-            if (thisEmpireOpinions[atWarEmpire] > makePeace || EmpireInDanger() == true && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace || atWarEmpire.DiplomacyModule.EmpireInDanger() == true )
+            if ((thisEmpireOpinions[atWarEmpire] > makePeace || EmpireInDanger() == true ) && (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace || atWarEmpire.DiplomacyModule.EmpireInDanger() == true))
             {
+                Debug.Log(thisEmpireOpinions[atWarEmpire]);
+                Debug.Log(makePeace);
+                Debug.Log(EmpireInDanger());
+                Debug.Log(atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire]);
+                Debug.Log(atWarEmpire.DiplomacyModule.EmpireInDanger());
+
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
 
@@ -362,7 +368,6 @@ public class DiplomacyModule : MonoBehaviour
                 {
                     if (thisEmpire.EconomyModule.GetCurrentMoney() * 0.5 > amountToIncrease/ moneyTimes)
                     {
-                        Debug.Log(amountToIncrease * moneyTimes);
                         GiftMoney(empireToImproveRelations, amountToIncrease * moneyTimes);
                     }
                 }
@@ -518,7 +523,6 @@ public class DiplomacyModule : MonoBehaviour
         {
             if (boarderingEmpire.WarModule.GetThreatRating(thisEmpire) < thisEmpire.WarModule.GetThreatRating(boarderingEmpire))
             {
-               // Debug.Log("In Danger" + thisEmpire.GetEmpireColor() + boarderingEmpire.GetEmpireColor());
                 inDanger = true;
             }
         }
