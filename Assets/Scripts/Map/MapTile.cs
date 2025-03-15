@@ -132,7 +132,7 @@ public class MapTile : MonoBehaviour
         {
             SetTroopPresent(Random.Range(15, 25));
             SetTroopAdding(Random.Range(3, 5));
-            SetIncome(Random.Range(20, 40));
+            SetIncome(Random.Range(10, 15));
         }
         else 
         {

@@ -39,11 +39,11 @@ public class WarModule : MonoBehaviour
 
     // Threat reason values
     private int rThreatBoardering = 40;
-    private int rTroops = 20;
-    private int rIncome = 20;
-    private int rTotalMoney = 20;
-    private int rReplenishRate = 20;
-    private int rGarrison = 20;
+    private int rTroops = 30;
+    private int rIncome = 10;
+    private int rTotalMoney = 10;
+    private int rReplenishRate = 15;
+    private int rGarrison = 15;
     private int rAttacked = 60;
 
     //Tile reason values
@@ -434,7 +434,7 @@ public class WarModule : MonoBehaviour
         {
             foreach (var empire in boarderingEmpires)
             {
-                if (empire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < empire.WarModule.GetWarDiplomacyValue() && empire.WarModule.GetAllTroopsIncludingAlliances() > (GetAllTroopsIncludingAlliances() * 0.9))
+                if (thisEmpire.DiplomacyModule.EmpireInDanger() == true)
                 {
                     _tile.ChangeValueInTileReasons("Attacked", -rAttacked, thisEmpire);
                 }
@@ -609,6 +609,7 @@ public class WarModule : MonoBehaviour
             }
         }
     
+    
 
         if (!atWarEmpires.Contains(_empireThatDeclaredWar))
         {
@@ -646,13 +647,14 @@ public class WarModule : MonoBehaviour
     {
         foreach (var empire in boarderingEmpires)
         {
-            if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire)) // Do not go to war with allies unless alliance is broken first
+            if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire) && !atWarEmpires.Contains(empire)) // Do not go to war with allies unless alliance is broken first
             {
                 // && GetAllAllianceThreatRating(empire) > empire.WarModule.GetAllAllianceThreatRating(thisEmpire)
                 // Get the diplomacy and check if you have a negative relationship also check the threat rating
                 if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber
-                    && GetAllAllianceThreatRating(empire) < empire.WarModule.GetAllAllianceThreatRating(thisEmpire)) // Check if you are stronger then them
+                    && GetAllAllianceThreatRating(empire) < empire.WarModule.GetAllAllianceThreatRating(thisEmpire) && thisEmpire.DiplomacyModule.EmpireInDanger() == false) // Check if you are stronger then them
                 {
+                    Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                     return empire;
                 }
             }
@@ -667,9 +669,7 @@ public class WarModule : MonoBehaviour
     public void MakePeace(EmpireClass _makePeaceEmpire)
     { 
 
-        Debug.Log("MakePeace");
-        Debug.Log(thisEmpire.GetEmpireColor());
-        Debug.Log(_makePeaceEmpire.GetEmpireColor());
+        Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + _makePeaceEmpire.GetEmpireColor());
         bool removeEmpirePeace = false;
         bool removeEmpireDefeated = false;
         foreach (var otherEmpire in atWarEmpires)

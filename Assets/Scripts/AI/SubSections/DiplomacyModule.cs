@@ -1,3 +1,4 @@
+using JetBrains.Annotations;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -16,8 +17,14 @@ public class DiplomacyModule : MonoBehaviour
                                                                                                   // private Dictionary<EmpireClass, int> opinionsOfYou = new Dictionary<EmpireClass, int>(); // other empire opinions of you
     private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
-    public int makeAllianceNumber = 40;
-    public int breakAllianceNumber = -50;
+    private int makeAllianceNumber = 40;
+    private int breakAllianceNumber = -50;
+
+    private int threatDanger = 10;
+    private int opinionDanger = 10;
+
+    private int moneyTimes = 1;
+
     //Favour
     private bool gainedFavour = false;
     private float giveFavourTimer = 30;
@@ -30,9 +37,8 @@ public class DiplomacyModule : MonoBehaviour
     private int rBoardering = 40;
     private int rWarDecrease = 1;
     private int rStrength = 20;
-    private int rComplement = 80;
+    private int rComplement = 10;
     private int rMoney = 0;
-    private int rGift = 0;
     private int rAllianceUpdate = 10;
     private int rBrokeAlliance = 50;
 
@@ -141,11 +147,10 @@ public class DiplomacyModule : MonoBehaviour
     {
         if (!alliedEmpires.Contains(_empire))
         {
-            Debug.Log("Made Alliance");
-            Debug.Log(thisEmpire.GetEmpireColor());
-            Debug.Log(_empire.GetEmpireColor());
+            Debug.Log("Made Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
             alliedEmpires.Add(_empire);
             _empire.DiplomacyModule.MakeAlliance(thisEmpire);
+            ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", 0);
             if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
             {
                 foreach (EmpireClass atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
@@ -167,7 +172,7 @@ public class DiplomacyModule : MonoBehaviour
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -rBrokeAlliance);
             alliedEmpires.Remove(_empire);
             _empire.DiplomacyModule.BreakAliiance(thisEmpire);
-             Debug.Log("Break Alliance");
+            Debug.Log("Break Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
         }
     }
 
@@ -177,30 +182,38 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GainFavour(EmpireClass _empire)
     {
-        ChangeValueInDiplomacyReasons(_empire, "Complement", rComplement);
-        _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Complement", rComplement);
-        gainedFavour = true;
+        if (gainedFavour == false)
+        {
+            ChangeValueInDiplomacyReasons(_empire, "Complement", rComplement);
+            _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Complement", rComplement);
+            gainedFavour = true;
+        }
     }
 
     /*
      * The below function is used to gift money to another empire so that thier opinion of you is increased
      * @param EmpireClass _empire This is the empire you are gifting money too
+     * @param int _ampount This is the amount of money that you want to gift to the empire - more money means they will like you more.
      */
-    private void GiftMoney(EmpireClass _empire)
+    private void GiftMoney(EmpireClass _empire, int _amount)
     {
+        thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
+        ChangeValueInDiplomacyReasons(_empire, "Gift", _amount/ moneyTimes);
+        StartCoroutine(EndGiftBonus(_empire, _amount/ moneyTimes));
 
     }
 
     /*
-     * The below function will be used to give tiles to another Empire
-     * @param EmpireClass _empire This is the empire that you are giving the tile to
-     * @param MapTile _tileToGive This is the tile that is being given
-     */
-    private void GiveTile(EmpireClass _empire, MapTile _tileToGive)
+    * The below function is used to end the positive effect from giving an Empire Money
+    * @param EmpireClass _empire This is the empire you are gifting money too
+    * @param int _ampount This is the amount of money that you want to gift to the empire - more money means they will like you more.
+    */
+    private IEnumerator EndGiftBonus(EmpireClass _empire, int _amount)
     {
-        _tileToGive.SetOwner(_empire.GetEmpireNumber());
+        yield return new WaitForSeconds(0.5f * _amount);
+        ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
+        moneyTimes += 1;
     }
-
 
     /*
      * This function will check the alliances of other empires and see if there are any that this empire likes
@@ -259,6 +272,7 @@ public class DiplomacyModule : MonoBehaviour
     {
         CheckOtherAllEmpiresAlliances();
         EmpireClass empireToImproveRelations = null;
+        int amountToIncrease = 0;
 
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
@@ -274,13 +288,13 @@ public class DiplomacyModule : MonoBehaviour
         }
 
         //See if you can make peace with the atWarEmpires
-       List<EmpireClass> empiresToMakePeaceWith = new List<EmpireClass>();
+        List<EmpireClass> empiresToMakePeaceWith = new List<EmpireClass>();
         foreach (var atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
         {
             //Check to see if you like the empire
             // If not then see if you are weaker - Try to make the other empire like you.
 
-            if (thisEmpireOpinions[atWarEmpire] > makePeace && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace)
+            if (thisEmpireOpinions[atWarEmpire] > makePeace || EmpireInDanger() == true && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace || atWarEmpire.DiplomacyModule.EmpireInDanger() == true )
             {
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
@@ -293,12 +307,14 @@ public class DiplomacyModule : MonoBehaviour
                     if (empireToImproveRelations == null)
                     {
                         empireToImproveRelations = atWarEmpire;
+                        amountToIncrease = atWarEmpire.DiplomacyModule.GetMakePeaceValue() - atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire];
                     }
                     else
                     {
                         if (thisEmpire.WarModule.GetAllAllianceThreatRating(atWarEmpire) > thisEmpire.WarModule.GetAllAllianceThreatRating(empireToImproveRelations))
                         {
                             empireToImproveRelations = atWarEmpire;
+                            amountToIncrease = atWarEmpire.DiplomacyModule.GetMakePeaceValue() - atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire];
                         }
                     }
                 }
@@ -320,12 +336,14 @@ public class DiplomacyModule : MonoBehaviour
                     if (empireToImproveRelations == null)
                     {
                         empireToImproveRelations = allEmpire;
+                        amountToIncrease = empireToImproveRelations.DiplomacyModule.GetMakeAllianceValue() - empireToImproveRelations.DiplomacyModule.thisEmpireOpinions[thisEmpire];
                     }
                     else
                     {
                         if (empireToImproveRelations.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire)) // Get the empire with the one you have the highest opinion of.
                         {
                             empireToImproveRelations = allEmpire;
+                            amountToIncrease = empireToImproveRelations.DiplomacyModule.GetMakeAllianceValue() - empireToImproveRelations.DiplomacyModule.thisEmpireOpinions[thisEmpire];
                         }
                     }
 
@@ -336,13 +354,19 @@ public class DiplomacyModule : MonoBehaviour
         // If you are weaker and likely to get attacked then try to make alliance
         if (empireToImproveRelations != null)
         {
-            //Try to ally with the currentStrongestEmpire
+            //Try to ally with the most likely to ally empire
             if (gainedFavour == false)
             {
                 empireToImproveRelations.DiplomacyModule.GainFavour(thisEmpire);
+                if (amountToIncrease > 10 && EmpireInDanger() == true)
+                {
+                    if (thisEmpire.EconomyModule.GetCurrentMoney() * 0.5 > amountToIncrease/ moneyTimes)
+                    {
+                        Debug.Log(amountToIncrease * moneyTimes);
+                        GiftMoney(empireToImproveRelations, amountToIncrease * moneyTimes);
+                    }
+                }
             }
-            // Try to give territory - do check
-            // Try to give money - do check
         }
     }
     /*
@@ -352,16 +376,6 @@ public class DiplomacyModule : MonoBehaviour
     public void DiplomacyCheck()
     {
         UpdateDiplomacy();
-        bool inDanger = false;
-
-        //Check if there is an empire that dislikes you and is stronger then you if so ally with any empire that likes you
-        foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
-        {
-            if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.WarModule.GetWarDiplomacyValue() || allEmpire.WarModule.GetThreatRating(thisEmpire) >= allEmpire.WarModule.GetThreatValue())
-            {
-                inDanger = true;
-            }
-        }
 
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
@@ -396,11 +410,10 @@ public class DiplomacyModule : MonoBehaviour
             }
             else
             {
-                if (inDanger == true)
+                if (EmpireInDanger() == true)
                 {
                     if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) > makeAllianceNumber)
                     {
-                        Debug.Log("InDangerAlliance");
                         MakeAlliance(allEmpire);
                     }
                 }
@@ -409,7 +422,7 @@ public class DiplomacyModule : MonoBehaviour
             List<EmpireClass> alliancesToBreak = new List<EmpireClass>();
             foreach (var alliedEmpire in alliedEmpires)
             {
-                if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(alliedEmpire) < breakAllianceNumber)
+                if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(alliedEmpire) < breakAllianceNumber && EmpireInDanger() == false)
                 {
                     alliancesToBreak.Add(thisEmpire);
                 }
@@ -422,54 +435,6 @@ public class DiplomacyModule : MonoBehaviour
         } 
     }
 
-    /*
-     * The below function will increase another empires opinion of you by a set amount
-     * @param EmpireClass _empire This is the empire whos opinion is increasing
-     * @param int _increaseBy This is how much it is increasing
-     */
-    //private void IncreaseOpinionsOfYou(EmpireClass _empire, int _increaseBy)
-    //{
-    //    if (_increaseBy > 0)
-    //    {
-    //        if (opinionsOfYou[_empire] < 100)
-    //        {
-    //            opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
-    //        }
-    //    }
-    //    else if (_increaseBy < 0)
-    //    {
-    //        if (opinionsOfYou[_empire] > -100)
-    //        {
-    //            opinionsOfYou[_empire] = opinionsOfYou[_empire] + _increaseBy;
-    //        }
-    //    }
-    //}
-
-    /*
-     * The below opinion will set the opinion of another empire to a specific number
-     * @param EmpireClass _empire This is the empire whos opinion of you will be inceasing
-     * @param int _setTo This is what the value will be set to
-     */
-    //private void SetOpinionsOfYou(EmpireClass _empire, int _setTo)
-    //{
-    //     opinionsOfYou[_empire] = _setTo;
-    //}
-
-    /*
-     * The below function will retun the empires opinion of the you
-     * @param EmpireClass _empire This is the empire whos opinion will be returned
-     * @return int opinionsOfYou[_empire] the number that the opinion is
-     */
-    //private int ReturnEmpireOpinionsOfYou(EmpireClass _empire)
-    //{
-    //    return opinionsOfYou[_empire];
-    //}
-
-    /*
-     *The below function will incrase your opinion of an empire by an amount
-     * @param EmpireClass _empire This is the empire whos opinion of you is increasing
-     * @param int _increaseBy This is how much it is increasing
-     */
     private void IncreaseThisEmpireOpinion(EmpireClass _empire, int _increaseBy)
     {
         if (_increaseBy > 0)
@@ -523,6 +488,41 @@ public class DiplomacyModule : MonoBehaviour
     public int GetRBoarderingValue()
     {
         return rBoardering;
+    }
+
+    /*
+     * The below function can be used to get the make peace value of an empire
+     */
+    public int GetMakePeaceValue()
+    {
+        return makePeace;
+    }
+
+    /*
+    * The below function can be used to get the make alliance value of an empire
+    */
+    public int GetMakeAllianceValue()
+    {
+        return makeAllianceNumber;
+    }
+
+    /*
+    * This will return true or false depending on if there is a boardering empire that is stonger then you
+    */
+    public bool EmpireInDanger()
+    {
+        bool inDanger = false;
+
+        //Check if there is an empire that dislikes you and is stronger then you
+        foreach (var boarderingEmpire in thisEmpire.WarModule.GetBoarderingEmpires())
+        {
+            if (boarderingEmpire.WarModule.GetThreatRating(thisEmpire) < thisEmpire.WarModule.GetThreatRating(boarderingEmpire))
+            {
+               // Debug.Log("In Danger" + thisEmpire.GetEmpireColor() + boarderingEmpire.GetEmpireColor());
+                inDanger = true;
+            }
+        }
+        return inDanger;
     }
 
 }
