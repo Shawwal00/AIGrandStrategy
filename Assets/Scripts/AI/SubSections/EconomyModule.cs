@@ -53,7 +53,7 @@ public class EconomyModule : MonoBehaviour
         }
         else 
         {
-            if (thisEmpire.ReturnOwnedTiles().Count > 5)
+            if (thisEmpire.GetOwnedTiles().Count > 5)
             {
                 if (moneyUpdateAmount / 2 > troopAmount)
                 {
@@ -91,7 +91,7 @@ public class EconomyModule : MonoBehaviour
     public void CalculateMoneyUpdateAmount()
     {
         moneyUpdateAmount = 0;
-        List<MapTile> yourTiles = thisEmpire.ReturnOwnedTiles();
+        List<MapTile> yourTiles = thisEmpire.GetOwnedTiles();
         foreach (MapTile tile in yourTiles)
         {
             moneyUpdateAmount += tile.GetIncome();

@@ -24,6 +24,8 @@ public class EmpireClass : MonoBehaviour
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
     private List<MapTile> expandingTiles; // All the tiles that this empire can expand to
 
+    private List<MapTile> allTilesWithBuildings; // This is a list of all the tiles which have a building
+
     private int empireNumber = 0;
 
     private Color empireColor = Color.white; // Is default to white but will be changed to another colour
@@ -60,13 +62,38 @@ public class EmpireClass : MonoBehaviour
     public void SetAllTilesList(List<MapTile> _newTileList)
     {
         allTilesList = _newTileList;
-        GetOwnedTiles();
+        UpdateOwnedTiles();
     }
+
+    /*
+     * The below function will return the current safest mine tile that the empire has
+     */
+    public MapTile GetSafestMineTile()
+    {
+
+    }
+
+    /*
+     * The below function will get the tiles that boarder another empire
+     */ 
+    public MapTile GetBoarderTilesWithThreateningEmpire()
+    {
+
+    }
+
+    /*
+     * The below function will return the safest plane tile that the empire has
+     */
+    public MapTile GetSafestPlaneTile()
+    {
+
+    }
+
 
     /*
      * The below function is used to get tiles that are owned by this empire specifically.
      */
-    public void GetOwnedTiles()
+    public void UpdateOwnedTiles()
     {
         ownedTiles.Clear();
         for (int i = 0; i < allTilesList.Count; i++)
@@ -85,7 +112,7 @@ public class EmpireClass : MonoBehaviour
     /*
      * The below function will get the tiles that are adjacent to a tile and put them into a list
      */
-    public void GetExpandingTilesOfTile()
+    public void UpdateExpandingTilesOfTile()
     {
         expandingTiles.Clear();
         for (int i = 0; i < ownedTiles.Count; i++)
@@ -141,7 +168,7 @@ public class EmpireClass : MonoBehaviour
      * The below will return all of the owned tiles
      * @return List<MapTile> ownedTiles This is all of the owned tiles
      */
-    public List<MapTile> ReturnOwnedTiles()
+    public List<MapTile> GetOwnedTiles()
     {
         return ownedTiles; 
     }
@@ -150,7 +177,7 @@ public class EmpireClass : MonoBehaviour
      * The below will return all of the expanding tiles
      * @return List<MapTile> expandingTiles This is all of the expanding tiles
      */
-    public List<MapTile> ReturnExpandingTiles()
+    public List<MapTile> GetExpandingTiles()
     {
         return expandingTiles;
     }
@@ -159,7 +186,7 @@ public class EmpireClass : MonoBehaviour
      * The below will return all of the tiles
      * @return List<MapTile> alTilesList This is a list of all the tiles
      */
-    public List<MapTile> ReturnAllTiles()
+    public List<MapTile> GetAllTiles()
     {
         return allTilesList;
     }

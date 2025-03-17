@@ -50,6 +50,8 @@ public class WarModule : MonoBehaviour
     private int rYourTroops = 20;
     private int rOtherEmpireConquer = 50;
     private int rAttacked = 60;
+    private int rMineTile = 40;
+    private int rPlainTile = 40;
 
     private void Awake()
     {
@@ -239,9 +241,9 @@ public class WarModule : MonoBehaviour
      */ 
     public void UpdateReplinishAmount()
     {
-        for (int i = 0; i < thisEmpire.ReturnOwnedTiles().Count; i++)
+        for (int i = 0; i < thisEmpire.GetOwnedTiles().Count; i++)
         {
-             troopReplenishAmount += thisEmpire.ReturnOwnedTiles()[i].GetTroopAdding();
+             troopReplenishAmount += thisEmpire.GetOwnedTiles()[i].GetTroopAdding();
         }
     }
 
@@ -251,7 +253,7 @@ public class WarModule : MonoBehaviour
     private void UpdateAllTroopCount()
     {
         updateTroopNumberTime += Time.deltaTime;
-        if (thisEmpire.ReturnOwnedTiles().Count > 0)
+        if (thisEmpire.GetOwnedTiles().Count > 0)
         {
             if (updateTroopNumberTime > 1)
             {
@@ -269,15 +271,15 @@ public class WarModule : MonoBehaviour
      */
     public void ConquerTerritory()
     {
-       thisEmpire.GetExpandingTilesOfTile();
-        int randomNumber = Random.Range(0, thisEmpire.ReturnExpandingTiles().Count);
+       thisEmpire.UpdateExpandingTilesOfTile();
+        int randomNumber = Random.Range(0, thisEmpire.GetExpandingTiles().Count);
         bool alliedTile = false;
-        if (thisEmpire.ReturnExpandingTiles().Count > 0)
+        if (thisEmpire.GetExpandingTiles().Count > 0)
         {
             MapTile lowestTile = null;
             int tileReasonValue = 0;
 
-            foreach (MapTile tile in thisEmpire.ReturnExpandingTiles())
+            foreach (MapTile tile in thisEmpire.GetExpandingTiles())
             {
                 alliedTile = false;
                 foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
@@ -364,7 +366,7 @@ public class WarModule : MonoBehaviour
      */ 
     public void CheckAllEmpireBoarders()
     {
-        thisEmpire.GetExpandingTilesOfTile();
+        thisEmpire.UpdateExpandingTilesOfTile();
         List<EmpireClass> foundEmpires = new List<EmpireClass>();
         List<EmpireClass> notFoundEmpires = new List<EmpireClass>();
 
@@ -373,7 +375,7 @@ public class WarModule : MonoBehaviour
             notFoundEmpires.Add(empire);
         }
 
-        foreach (MapTile tile in thisEmpire.ReturnExpandingTiles())
+        foreach (MapTile tile in thisEmpire.GetExpandingTiles())
         {
             if (tile.GetOwner() != 0 && tile.GetOwner() != thisEmpire.GetEmpireNumber())
             {
@@ -465,6 +467,15 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("Garrison", -_tile.GetTroopPresent(), thisEmpire);
         _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding(), thisEmpire);
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
+
+        if (_tile.thisTileType == MapTile.TileType.Mine)
+        {
+            _tile.ChangeValueInTileReasons("ImportantTile", rMineTile, thisEmpire);
+        }
+        else if (_tile.thisTileType == MapTile.TileType.Plain)
+        {
+            _tile.ChangeValueInTileReasons("ImportantTile", rPlainTile, thisEmpire);
+        }
 
         //Checking to see if it is likely that another empire may attack you soon
         if (_tile.GetOwner() == 0)
@@ -568,7 +579,7 @@ public class WarModule : MonoBehaviour
     public int GetAllGarrisons()
     {
         int totalGarrison = 0;
-        foreach (var tile in thisEmpire.ReturnOwnedTiles())
+        foreach (var tile in thisEmpire.GetOwnedTiles())
         {
             totalGarrison += tile.GetTroopPresent();
         }

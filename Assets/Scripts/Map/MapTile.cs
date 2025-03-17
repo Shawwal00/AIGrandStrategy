@@ -1,4 +1,5 @@
 
+using System;
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +32,9 @@ public class MapTile : MonoBehaviour
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
 
+    public enum TileType { None, Plain, Mine };
+    public TileType thisTileType = TileType.None;
+
     private Dictionary<EmpireClass,Dictionary< string, int>> conquerTileReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this tile may be conquered.
 
 
@@ -61,6 +65,7 @@ public class MapTile : MonoBehaviour
         conquerTileReasons[_otherEmpire]["Income"] = 0; // This is how much the tile produces
         conquerTileReasons[_otherEmpire]["EmpireConquer"] = 0; // This is how likely the it is that the AI will conquer the tile before you
         conquerTileReasons[_otherEmpire]["Attacked"] = 0; // This is how likely it is that the empire will be attacked
+        conquerTileReasons[_otherEmpire]["ImportantTile"] = 0; // This is if the tile is an important type
     }
 
     /*
@@ -78,6 +83,7 @@ public class MapTile : MonoBehaviour
         total += conquerTileReasons[_otherEmpire]["Income"];
         total += conquerTileReasons[_otherEmpire]["EmpireConquer"];
         total += conquerTileReasons[_otherEmpire]["Attacked"];
+        total += conquerTileReasons[_otherEmpire]["ImportantTile"];
 
         return total;
     }
@@ -130,9 +136,22 @@ public class MapTile : MonoBehaviour
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
         if (allTileData.ContainsKey(tileNumber) == false)
         {
-            SetTroopPresent(Random.Range(15, 25));
-            SetTroopAdding(Random.Range(3, 5));
-            SetIncome(Random.Range(10, 15));
+            SetTroopPresent(UnityEngine.Random.Range(15, 25));
+            SetTroopAdding(UnityEngine.Random.Range(3, 5));
+            SetIncome(UnityEngine.Random.Range(10, 15));
+            int tileRandom = UnityEngine.Random.Range(1, 25);
+            if (tileRandom < 15)
+            {
+                thisTileType = TileType.None;
+            }
+            else if (tileRandom > 15 && tileRandom < 20)
+            {
+                thisTileType = TileType.Plain;
+            }
+            else
+            {
+                thisTileType = TileType.Mine;
+            }
         }
         else 
         {
