@@ -36,6 +36,7 @@ public class MapTile : MonoBehaviour
     public TileType thisTileType = TileType.None;
 
     private Dictionary<EmpireClass,Dictionary< string, int>> conquerTileReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this tile may be conquered.
+    private Dictionary<EmpireClass, Dictionary<string, int>> buildFortReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this may have a fort built on it.
 
 
     private void Awake()
@@ -51,10 +52,51 @@ public class MapTile : MonoBehaviour
 
     }
 
+
+    /*
+    * The below function is used so that when the empires are set up the tiles will set up all the reasons to conquer for each empire
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    */
+    public void SetUpAllTileBuildReasons(EmpireClass _otherEmpire)
+    {
+        buildFortReasons[_otherEmpire] = new Dictionary<string, int>();
+        buildFortReasons[_otherEmpire]["Garrison"] = 0; // This is how much of a garrison the tile has
+        buildFortReasons[_otherEmpire]["TileReplenish"] = 0; // This is how fast the tile replenished
+        buildFortReasons[_otherEmpire]["Income"] = 0; // This is how much the tile produces
+    }
+
+
+    /*
+    * The below will loop through all the reasons and update the diplomacy of all the empires
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    * @retun int total This is all the added up reasons to conquer this tile
+    */
+    public int UpdateBuildFortForAllTiles(EmpireClass _otherEmpire)
+    {
+        int total = 0;
+        total += buildFortReasons[_otherEmpire]["Garrison"];
+        total += buildFortReasons[_otherEmpire]["TileReplenish"];
+        total += buildFortReasons[_otherEmpire]["Income"];
+
+        return total;
+    }
+
+
+    /*
+    * The below function is used to update the value for a reason why the tile reason has increased or decreased.
+    * @param string _reason This is the reason that the tile reason is increasing or decreasing
+    * @param int _newValue This is the new value that it will be set to.
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    */
+    public void ChangeValueInBuildFort(string _reason, int _newValue, EmpireClass _otherEmpire)
+    {
+        buildFortReasons[_otherEmpire][_reason] = _newValue;
+    }
+
     /*
      * The below function is used so that when the empires are set up the tiles will set up all the reasons to conquer for each empire
      * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
-     */ 
+     */
     public void SetUpAllTileConquerReasons(EmpireClass _otherEmpire)
     {
         conquerTileReasons[_otherEmpire] = new Dictionary<string, int>();

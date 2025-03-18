@@ -529,4 +529,20 @@ public class DiplomacyModule : MonoBehaviour
         return inDanger;
     }
 
+    /*
+     * The below function can be used to get a list of all the Empires that currently dislike this empire which are boardering it
+     */
+    public List<EmpireClass> EmpireDislikedBy()
+    {
+       List<EmpireClass> empiresToReturn = new List<EmpireClass>();
+       foreach (var boarderingEmpire in thisEmpire.WarModule.GetBoarderingEmpires())
+       {
+            if (boarderingEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < 0)
+            {
+                empiresToReturn.Add(boarderingEmpire);
+            }
+       }
+        return empiresToReturn;
+    }
 }
+

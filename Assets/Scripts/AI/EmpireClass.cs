@@ -66,29 +66,118 @@ public class EmpireClass : MonoBehaviour
     }
 
     /*
-     * The below function will return the current safest mine tile that the empire has
+     * The below function will return the current safest tile that the empire has of a particular type
+     * @param _type This is what type of tile you are searching for in particular
      */
-    public MapTile GetSafestMineTile()
+    public MapTile GetSafestMineTile(MapTile.TileType _type)
     {
+        UpdateOwnedTiles();
+        MapTile safeTile = null;
+        int tileDistance = 0;
+        List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
+        allEmpires.Remove(this);
 
+        foreach (MapTile tile in ownedTiles)
+        {
+            if (tile.thisTileType == _type)
+            {
+                if (safeTile == null)
+                {
+                    safeTile = tile;
+                }
+                else
+                {
+                    bool linkFound = false;
+                    List<MapTile> tilesToCheck = new List<MapTile>();
+                    List<MapTile> tilesToAdd = new List<MapTile>();
+                    int currentDistance = 0;
+                    foreach (var connectedTile in tile.GetAllConnectedTiles())
+                    {
+                        tilesToCheck.Add(connectedTile);
+                    }
+                    while (linkFound == false)
+                    {
+                        foreach (var tileCheck in tilesToCheck)
+                        {
+                            currentDistance += 1;
+                            foreach (var empire in allEmpires)
+                            {
+                                if (tileCheck.GetOwner() == empire.GetEmpireNumber())
+                                {
+                                    if (currentDistance < tileDistance)
+                                    {
+                                        safeTile = tile;
+                                        tileDistance = currentDistance;
+                                    }
+                                }
+                            }
+                            tilesToAdd.Add(tileCheck);
+                            tilesToCheck.Remove(tileCheck);
+                        }
+                        foreach (var tileAdd in tilesToAdd)
+                        {
+                            foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
+                            {
+                                tilesToCheck.Add(tileAddConnection);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return safeTile;
     }
 
     /*
      * The below function will get the tiles that boarder another empire
-     */ 
+     */
     public MapTile GetBoarderTilesWithThreateningEmpire()
     {
+        // Maybe change this so that it will protect tiles around important buildings first
+        UpdateOwnedTiles();
+        List<EmpireClass> threateningEmpires = DiplomacyModule.EmpireDislikedBy();
+        List<MapTile> allBoarderingTiles = new List<MapTile>();
+        foreach (MapTile tile in ownedTiles)
+        {
+            if (tile.thisTileType == MapTile.TileType.Plain)
+            {
+                foreach (var tileBoarder in tile.GetAllConnectedTiles())
+                {
+                    foreach (var empire in threateningEmpires)
+                    {
+                        if (tileBoarder.GetOwner() == empire.GetEmpireNumber())
+                        {
+                            allBoarderingTiles.Add(tile);
+                        }
+                    }
+                }
+            }
+        }
 
+        MapTile highestTile = null;
+        int highestValue = 0;
+        foreach (MapTile tile in allBoarderingTiles)
+        {
+            tile.ChangeValueInBuildFort("Garrison", tile.GetTroopPresent(), this);
+            tile.ChangeValueInBuildFort("TileReplenish", tile.GetTroopAdding(), this);
+            tile.ChangeValueInBuildFort("Income", tile.GetIncome(), this);
+            if (highestTile == null)
+            {
+                highestTile = tile;
+                highestValue = tile.UpdateBuildFortForAllTiles(this);
+            }
+            else
+            {
+                if (highestValue < tile.UpdateBuildFortForAllTiles(this))
+                {
+                    highestTile = tile;
+                    highestValue = tile.UpdateBuildFortForAllTiles(this);
+                }
+            }
+        }
+
+        return highestTile;
     }
-
-    /*
-     * The below function will return the safest plane tile that the empire has
-     */
-    public MapTile GetSafestPlaneTile()
-    {
-
-    }
-
 
     /*
      * The below function is used to get tiles that are owned by this empire specifically.
