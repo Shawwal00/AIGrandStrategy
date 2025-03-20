@@ -36,6 +36,7 @@ public class EmpireClass : MonoBehaviour
         allTilesList = new List<MapTile>();
         ownedTiles = new List<MapTile>();
         expandingTiles = new List<MapTile>();
+        allTilesWithBuildings = new List<MapTile>();
 
         //Gameobjects
         GameManager = GameObject.Find("GameManager");
@@ -67,19 +68,25 @@ public class EmpireClass : MonoBehaviour
 
     /*
      * The below function will return the current safest tile that the empire has of a particular type
-     * @param _type This is what type of tile you are searching for in particular
+     * @param MapTile.TileType _type This is what type of tile you are searching for in particular
+     * @param string _name This is the specific name of the type
      */
-    public MapTile GetSafestMineTile(MapTile.TileType _type)
+    public MapTile GetSafestTypeTile(MapTile.TileType _type, string _name)
     {
         UpdateOwnedTiles();
         MapTile safeTile = null;
         int tileDistance = 0;
         List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
-        allEmpires.Remove(this);
+        List<EmpireClass> copyAllEmpires = new List<EmpireClass>();
+        foreach (var empires in allEmpires)
+        {
+            copyAllEmpires.Add(empires);
+        }
+        copyAllEmpires.Remove(this);
 
         foreach (MapTile tile in ownedTiles)
         {
-            if (tile.thisTileType == _type)
+            if (tile.thisTileType == _type && tile.buildingData.GetBuildingDataOwned(_name) == 0)
             {
                 if (safeTile == null)
                 {
@@ -87,20 +94,21 @@ public class EmpireClass : MonoBehaviour
                 }
                 else
                 {
-                    bool linkFound = false;
                     List<MapTile> tilesToCheck = new List<MapTile>();
                     List<MapTile> tilesToAdd = new List<MapTile>();
+                    List<MapTile> tileChecked = new List<MapTile>();
+                    List<MapTile> copyTileList = new List<MapTile>();
                     int currentDistance = 0;
                     foreach (var connectedTile in tile.GetAllConnectedTiles())
                     {
                         tilesToCheck.Add(connectedTile);
                     }
-                    while (linkFound == false)
+                    while (tilesToCheck.Count > 0)
                     {
                         foreach (var tileCheck in tilesToCheck)
                         {
                             currentDistance += 1;
-                            foreach (var empire in allEmpires)
+                            foreach (var empire in copyAllEmpires)
                             {
                                 if (tileCheck.GetOwner() == empire.GetEmpireNumber())
                                 {
@@ -111,14 +119,24 @@ public class EmpireClass : MonoBehaviour
                                     }
                                 }
                             }
-                            tilesToAdd.Add(tileCheck);
-                            tilesToCheck.Remove(tileCheck);
+                            copyTileList.Add(tileCheck);
                         }
+
+                        foreach (var copyTile in copyTileList)
+                        {
+                            tilesToAdd.Add(copyTile);
+                            tilesToCheck.Remove(copyTile);
+                            tileChecked.Add(copyTile);
+                        }
+
                         foreach (var tileAdd in tilesToAdd)
                         {
                             foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
                             {
-                                tilesToCheck.Add(tileAddConnection);
+                                if (!(tileChecked.Contains(tileAddConnection)))
+                                {
+                                    tilesToCheck.Add(tileAddConnection);
+                                }
                             }
                         }
                     }
@@ -134,6 +152,48 @@ public class EmpireClass : MonoBehaviour
     public MapTile GetBoarderTilesWithThreateningEmpire()
     {
         // Maybe change this so that it will protect tiles around important buildings first
+        int amonuntOfTilesProtected = 0;
+        int highestAmountOfTilesProtected = 0;
+        MapTile bestTile = null;
+
+        foreach (var tile in allTilesWithBuildings)
+        {
+            //Get the one with the most protection around it
+            foreach (var connections in tile.GetAllConnectedTiles())
+            {
+                if (connections.thisTileType == MapTile.TileType.Plain && connections.buildingData.GetBuildingDataOwned("Fort") == 0)
+                {
+                    amonuntOfTilesProtected += 1;
+                }
+            }
+
+            if (bestTile == null)
+            {
+                bestTile = tile;
+                highestAmountOfTilesProtected = amonuntOfTilesProtected;
+            }
+            else
+            {
+                if (amonuntOfTilesProtected > highestAmountOfTilesProtected)
+                {
+                    bestTile = tile;
+                    highestAmountOfTilesProtected = amonuntOfTilesProtected;
+                }
+            }
+        }
+
+        if (bestTile != null)
+        {
+            foreach (var tile in bestTile.GetAllConnectedTiles())
+            {
+                if (tile.buildingData.GetBuildingDataOwned("Fort") == 0)
+                {
+                    return tile;
+                }
+            }
+        }
+
+        // If not protecting high value tile then protect boarder against an empire
         UpdateOwnedTiles();
         List<EmpireClass> threateningEmpires = DiplomacyModule.EmpireDislikedBy();
         List<MapTile> allBoarderingTiles = new List<MapTile>();
@@ -158,20 +218,23 @@ public class EmpireClass : MonoBehaviour
         int highestValue = 0;
         foreach (MapTile tile in allBoarderingTiles)
         {
-            tile.ChangeValueInBuildFort("Garrison", tile.GetTroopPresent(), this);
-            tile.ChangeValueInBuildFort("TileReplenish", tile.GetTroopAdding(), this);
-            tile.ChangeValueInBuildFort("Income", tile.GetIncome(), this);
-            if (highestTile == null)
+            if (tile.buildingData.GetBuildingDataOwned("Fort") == 0)
             {
-                highestTile = tile;
-                highestValue = tile.UpdateBuildFortForAllTiles(this);
-            }
-            else
-            {
-                if (highestValue < tile.UpdateBuildFortForAllTiles(this))
+                tile.ChangeValueInBuildFort("Garrison", tile.GetTroopPresent(), this);
+                tile.ChangeValueInBuildFort("TileReplenish", tile.GetTroopAdding(), this);
+                tile.ChangeValueInBuildFort("Income", tile.GetIncome(), this);
+                if (highestTile == null)
                 {
                     highestTile = tile;
                     highestValue = tile.UpdateBuildFortForAllTiles(this);
+                }
+                else
+                {
+                    if (highestValue < tile.UpdateBuildFortForAllTiles(this))
+                    {
+                        highestTile = tile;
+                        highestValue = tile.UpdateBuildFortForAllTiles(this);
+                    }
                 }
             }
         }
@@ -206,7 +269,7 @@ public class EmpireClass : MonoBehaviour
         expandingTiles.Clear();
         for (int i = 0; i < ownedTiles.Count; i++)
         {
-          List<MapTile> tempList = ownedTiles[i].GetAllConnectedTiles();
+            List<MapTile> tempList = ownedTiles[i].GetAllConnectedTiles();
             for (int j = 0; j < tempList.Count; j++)
             {
                 if (tempList[j].GetOwner() != empireNumber)
@@ -229,7 +292,7 @@ public class EmpireClass : MonoBehaviour
     /*
      * Return the empire number
      * @return int empireNumber This is the empire number
-     */ 
+     */
     public int GetEmpireNumber()
     {
         return empireNumber;
@@ -259,7 +322,7 @@ public class EmpireClass : MonoBehaviour
      */
     public List<MapTile> GetOwnedTiles()
     {
-        return ownedTiles; 
+        return ownedTiles;
     }
 
     /*
@@ -278,5 +341,13 @@ public class EmpireClass : MonoBehaviour
     public List<MapTile> GetAllTiles()
     {
         return allTilesList;
+    }
+
+    /*
+     * This will a list of all the tiles with special buildings on them
+     */ 
+    public List<MapTile> GetAllTilesWithSpecialBuildings()
+    {
+        return allTilesWithBuildings;
     }
 }

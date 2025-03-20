@@ -14,7 +14,7 @@ using UnityEngine.Serialization;
 public class MapTile : MonoBehaviour
 {
 
-    private BuildingData buildingData;
+    public BuildingData buildingData;
 
     private GameObject GameManager;
 
@@ -67,7 +67,7 @@ public class MapTile : MonoBehaviour
 
 
     /*
-    * The below will loop through all the reasons and update the diplomacy of all the empires
+    * The below will loop through all the reasons and update the reasons to build a fort on a specific tile
     * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
     * @retun int total This is all the added up reasons to conquer this tile
     */
@@ -81,11 +81,10 @@ public class MapTile : MonoBehaviour
         return total;
     }
 
-
     /*
-    * The below function is used to update the value for a reason why the tile reason has increased or decreased.
+    * The below function is used to update the value for a reason why to build a fort has increased or decreased.
     * @param string _reason This is the reason that the tile reason is increasing or decreasing
-    * @param int _newValue This is the new value that it will be set to.
+    * @param int _newValue This is the new value that it will be set to.s
     * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
     */
     public void ChangeValueInBuildFort(string _reason, int _newValue, EmpireClass _otherEmpire)

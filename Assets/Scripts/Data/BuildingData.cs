@@ -31,7 +31,7 @@ public class BuildingData : MonoBehaviour
         allBuildingData[_buildingType]["Built"] = _owned;
     }
 
-    public int GetBuiildingDataOwned(string _buildingType)
+    public int GetBuildingDataOwned(string _buildingType)
     {
         return allBuildingData[_buildingType]["Built"];
     }

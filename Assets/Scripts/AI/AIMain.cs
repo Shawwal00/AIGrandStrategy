@@ -53,8 +53,8 @@ public class AIMain : MonoBehaviour
         _currentEmpire.EconomyModule.UpdateEmpireMoney();
         _currentEmpire.WarModule.UpdateThreatReasons();
         _currentEmpire.DiplomacyModule.DiplomacyCheck();
+        _currentEmpire.EconomyModule.BuildBuilding();
         ConquerRegion(_currentEmpire);
-       // UpdateAllThreatRatings(_currentEmpire);
         EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
         if (warCheck != null)
         {
