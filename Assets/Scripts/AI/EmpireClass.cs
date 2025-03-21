@@ -19,6 +19,7 @@ public class EmpireClass : MonoBehaviour
     public DiplomacyModule DiplomacyModule; // Handles everything related to diplomacy
     public WarModule WarModule; // Handles everyrything related to war
     public EconomyModule EconomyModule; // Handles everything related to the economy
+    public InternalModule InternalModule; // Handles everything occuring inside the empire
 
     private List<MapTile> allTilesList; //All the tiles on the board
     private List<MapTile> ownedTiles; // All the tiles owned by this empire
@@ -49,10 +50,12 @@ public class EmpireClass : MonoBehaviour
         DiplomacyModule = this.AddComponent<DiplomacyModule>();
         WarModule = this.AddComponent<WarModule>();
         EconomyModule = this.AddComponent<EconomyModule>();
+        InternalModule = this.AddComponent<InternalModule>();
 
         WarModule.SetThisEmpire(this);
         DiplomacyModule.SetThisEmpire(this);
         EconomyModule.SetThisEmpire(this);
+        InternalModule.SetThisEmpire(this);
     }
 
     /*

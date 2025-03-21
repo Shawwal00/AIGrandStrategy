@@ -260,6 +260,7 @@ public class WarModule : MonoBehaviour
         {
             if (updateTroopNumberTime > 1)
             {
+                Debug.Log(thisEmpire.EconomyModule.GetTrainTroops());
                 if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
                     AddToTroopNumber(troopReplenishAmount);

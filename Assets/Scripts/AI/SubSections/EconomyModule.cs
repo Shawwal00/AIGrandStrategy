@@ -22,6 +22,8 @@ public class EconomyModule : MonoBehaviour
 
     private int surplasValue = 0;
 
+    private float negativeTime = 0;
+
     //Building Reasons
     private int rTraining = 20;
     private int rSpecialTiles = 20;
@@ -229,57 +231,25 @@ public class EconomyModule : MonoBehaviour
     }
 
     /*
-     * This function is used by the AI to check if they should continue to train troops or if they should stop.
-     */
-    public void CheckTrainTroops()
-    {
-        //Check if at war - do max
-        //If not at war then do half
-
-        int troopAmount = thisEmpire.WarModule.GetTroopNumber();
-
-        if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
-        {
-            if (moneyUpdateAmount > troopAmount)
-            {
-                trainTroops = true;
-            }
-            else
-            {
-                trainTroops = false;
-            }
-        }
-        else 
-        {
-            if (thisEmpire.GetOwnedTiles().Count > 5)
-            {
-                if (moneyUpdateAmount / 2 > troopAmount)
-                {
-                    trainTroops = true;
-                }
-                else
-                {
-                    trainTroops = false;
-                }
-            }
-        }
-
-        //If at war and losing then do over assuming you will not become bankrupt
-    }
-
-    /*
      * The below function is used in AIMain to update the total amount of money that this empire has
      */
     public void UpdateEmpireMoney()
     {
-        CheckTrainTroops();
         totalAmountOfMoney += moneyUpdateAmount;
         int troopAmount = thisEmpire.WarModule.GetTroopNumber();
         totalAmountOfMoney = totalAmountOfMoney - troopAmount;
 
         if (totalAmountOfMoney <= 0)
         {
-           // Debug.Log("This empire should get downsides");
+            // Debug.Log("This empire should get downsides");
+            negativeTime += Time.deltaTime;
+        }
+        else
+        {
+            if (negativeTime > 0)
+            {
+                negativeTime = 0;
+            }
         }
         surplasValue = (troopAmount * 10) + 100;
     }
@@ -334,10 +304,27 @@ public class EconomyModule : MonoBehaviour
     }
 
     /*
+     * This fuction is to set the train troops to a new value
+     * @param bool _newTrainTroops This is the new value of the train troops
+     */ 
+    public void SetTrainTroops(bool _newTrainTroops)
+    {
+        trainTroops = _newTrainTroops;
+    }
+
+    /*
      * The below function is used to return the train troops bool value
      */ 
     public bool GetTrainTroops()
     {
         return trainTroops;
+    }
+
+    /*
+     * The below function will return the current negative time of an empire which is how long they have been in debt
+     */ 
+    public float GetNegativeTime()
+    {
+        return negativeTime;
     }
 }
