@@ -296,12 +296,7 @@ public class DiplomacyModule : MonoBehaviour
 
             if ((thisEmpireOpinions[atWarEmpire] > makePeace || EmpireInDanger() == true ) && (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace || atWarEmpire.DiplomacyModule.EmpireInDanger() == true))
             {
-                Debug.Log(thisEmpireOpinions[atWarEmpire]);
-                Debug.Log(makePeace);
-                Debug.Log(EmpireInDanger());
-                Debug.Log(atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire]);
-                Debug.Log(atWarEmpire.DiplomacyModule.EmpireInDanger());
-
+                Debug.Log(thisEmpireOpinions[atWarEmpire].ToString() + "  " + makePeace.ToString() + "  " + EmpireInDanger() + "  " + atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire].ToString() + "  " + atWarEmpire.DiplomacyModule.EmpireInDanger().ToString());
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
 

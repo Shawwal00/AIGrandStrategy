@@ -52,6 +52,9 @@ public class WarModule : MonoBehaviour
     private int rAttacked = 60;
     private int rMineTile = 40;
     private int rPlainTile = 40;
+    private int rFortBuilt = -60;
+    private int rMineBuilt = 40;
+    private int rBarracksBuilt = 40;
 
     private void Awake()
     {
@@ -475,6 +478,21 @@ public class WarModule : MonoBehaviour
         else if (_tile.thisTileType == MapTile.TileType.Plain)
         {
             _tile.ChangeValueInTileReasons("ImportantTile", rPlainTile, thisEmpire);
+        }
+
+        if (_tile.buildingData.GetBuildingDataOwned("Mine") == 1)
+        {
+            _tile.ChangeValueInTileReasons("MineBuilt", rMineBuilt, thisEmpire);
+        }
+
+        if (_tile.buildingData.GetBuildingDataOwned("Barracks") == 1)
+        {
+            _tile.ChangeValueInTileReasons("BarracksBuilt", rBarracksBuilt, thisEmpire);
+        }
+
+        if (_tile.buildingData.GetBuildingDataOwned("Fort") == 1)
+        {
+            _tile.ChangeValueInTileReasons("FortBuilt", rFortBuilt, thisEmpire);
         }
 
         //Checking to see if it is likely that another empire may attack you soon

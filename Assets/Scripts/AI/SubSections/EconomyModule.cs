@@ -198,33 +198,33 @@ public class EconomyModule : MonoBehaviour
          }
          if (highestNumber > 0)
          {
-             if (totalAmountOfMoney > thisEmpire.WarModule.GetTroopNumber() + 150)
-             {
-                 MapTile tile = null;
-                 if (highestName == "Mine")
-                 {
-                     tile = thisEmpire.GetSafestTypeTile(MapTile.TileType.Mine, "Mine");
-                 }
-                 else if (highestName == "Barracks")
-                 {
-                     tile = thisEmpire.GetSafestTypeTile(MapTile.TileType.Plain, "Barracks");
-                 }
-                 else if (highestName == "Fort")
-                 {
-                     tile = thisEmpire.GetBoarderTilesWithThreateningEmpire();
-                 }
+            MapTile tile = null;
+            if (highestName == "Mine")
+            {
+                tile = thisEmpire.GetSafestTypeTile(MapTile.TileType.Mine, "Mine");
+            }
+            else if (highestName == "Barracks")
+            {
+                tile = thisEmpire.GetSafestTypeTile(MapTile.TileType.Plain, "Barracks");
+            }
+            else if (highestName == "Fort")
+            {
+                tile = thisEmpire.GetBoarderTilesWithThreateningEmpire();
+            }
 
-                 if (tile != null)
-                 {
-                    Debug.Log(thisEmpire.GetEmpireNumber());
-                    Debug.Log(highestName);
-                    Debug.Log(tile.GetTileNumber());
+            if (tile != null)
+            {
+                if (totalAmountOfMoney > thisEmpire.WarModule.GetTroopNumber() + tile.buildingData.GetBuildingDataPrice(highestName) * 1.5)
+                {
+                    Debug.Log(thisEmpire.GetEmpireNumber().ToString() + highestName + tile.GetTileNumber().ToString());
                     if (tile.buildingData.GetBuildingDataOwned(highestName) == 0)
                     {
                         tile.buildingData.ChangeDataOwned(highestName, 1);
+                        SetCurrentMoney(totalAmountOfMoney - tile.buildingData.GetBuildingDataPrice(highestName));
+                        tile.BuildingBuilt(highestName);
                     }
-                 }
-             }
+                }
+            }
          }
     }
 

@@ -26,13 +26,33 @@ public class BuildingData : MonoBehaviour
         allBuildingData["Barracks"]["Built"] = 0;
     }
 
+    /*
+     * This changes the data of the tile so that one of the buildings is now set to owned.
+     * @param string _buildingType This is what building ownership you are changing
+     * @param int _owned This is what the the new value for the build will be
+     */
     public void ChangeDataOwned(string _buildingType, int _owned)
     {
         allBuildingData[_buildingType]["Built"] = _owned;
     }
 
+    /*
+     * This get the Built of a specific building.
+     * @param string _buildingType This is the specifc buildType for which you are getting the data for
+     * @return int allBuildingData[_buildingType]["Built"] This is if the building has been built on this tile or not
+     */
     public int GetBuildingDataOwned(string _buildingType)
     {
         return allBuildingData[_buildingType]["Built"];
+    }
+
+    /*
+    * This get the Built of a specific building.
+    * @param string _buildingType This is the specifc buildType for which you are getting the data for
+    * @return int allBuildingData[_buildingType]["Price"] This is the price to build this building
+    */
+    public int GetBuildingDataPrice(string _buildingType)
+    {
+        return allBuildingData[_buildingType]["Price"];
     }
 }

@@ -107,6 +107,9 @@ public class MapTile : MonoBehaviour
         conquerTileReasons[_otherEmpire]["EmpireConquer"] = 0; // This is how likely the it is that the AI will conquer the tile before you
         conquerTileReasons[_otherEmpire]["Attacked"] = 0; // This is how likely it is that the empire will be attacked
         conquerTileReasons[_otherEmpire]["ImportantTile"] = 0; // This is if the tile is an important type
+        conquerTileReasons[_otherEmpire]["MineBuilt"] = 0; // This is if there is a mine built on this tile
+        conquerTileReasons[_otherEmpire]["BarracksBuilt"] = 0; // This is if there is a barracks built on this tile
+        conquerTileReasons[_otherEmpire]["FortBuilt"] = 0; // This is if there is a fort built on this tile
     }
 
     /*
@@ -125,6 +128,9 @@ public class MapTile : MonoBehaviour
         total += conquerTileReasons[_otherEmpire]["EmpireConquer"];
         total += conquerTileReasons[_otherEmpire]["Attacked"];
         total += conquerTileReasons[_otherEmpire]["ImportantTile"];
+        total += conquerTileReasons[_otherEmpire]["MineBuilt"];
+        total += conquerTileReasons[_otherEmpire]["BarracksBuilt"];
+        total += conquerTileReasons[_otherEmpire]["FortBuilt"];
 
         return total;
     }
@@ -181,11 +187,11 @@ public class MapTile : MonoBehaviour
             SetTroopAdding(UnityEngine.Random.Range(3, 5));
             SetIncome(UnityEngine.Random.Range(10, 15));
             int tileRandom = UnityEngine.Random.Range(1, 25);
-            if (tileRandom < 15)
+            if (tileRandom <= 15)
             {
                 thisTileType = TileType.None;
             }
-            else if (tileRandom > 15 && tileRandom < 20)
+            else if (tileRandom > 15 && tileRandom < 19)
             {
                 thisTileType = TileType.Plain;
             }
@@ -236,6 +242,26 @@ public class MapTile : MonoBehaviour
         else
         {
             GetComponent<MeshRenderer>().material.color = empire.GetEmpireColor();
+        }
+    }
+
+    /*
+     * The below function is used when a new building has been built so that its effects can be updated on the tile
+     * @Param string _buildingName This is the name of the building that is has been built
+     */ 
+    public void BuildingBuilt(string _buildingName)
+    {
+        if (_buildingName == "Mine")
+        {
+            SetIncome(GetIncome() + 30);
+        }
+        else if (_buildingName == "Barracks")
+        {
+            SetTroopAdding(GetTroopAdding() + 5);
+        }
+        else if (_buildingName == "Fort")
+        {
+            SetTroopPresent(GetTroopPresent() + 50);
         }
     }
 
