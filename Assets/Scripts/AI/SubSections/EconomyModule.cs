@@ -263,7 +263,7 @@ public class EconomyModule : MonoBehaviour
         List<MapTile> yourTiles = thisEmpire.GetOwnedTiles();
         foreach (MapTile tile in yourTiles)
         {
-            moneyUpdateAmount += tile.GetIncome();
+            moneyUpdateAmount += tile.GetIncome() + tile.GetCurrentPopulation()/20;
         }
     }
 

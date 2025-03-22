@@ -31,6 +31,8 @@ public class MapTile : MonoBehaviour
 
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
+    private int currentPopulation = 0; // The population within this tile
+    private int addingPopulation = 0; // The amount of population that is added to this tile;
 
     public enum TileType { None, Plain, Mine };
     public TileType thisTileType = TileType.None;
@@ -185,6 +187,8 @@ public class MapTile : MonoBehaviour
         {
             SetTroopPresent(UnityEngine.Random.Range(15, 25));
             SetTroopAdding(UnityEngine.Random.Range(3, 5));
+            SetCurrentPopulation(UnityEngine.Random.Range(50, 75));
+            SetAddingPopulation(UnityEngine.Random.Range(10, 15));
             SetIncome(UnityEngine.Random.Range(10, 15));
             int tileRandom = UnityEngine.Random.Range(1, 25);
             if (tileRandom <= 15)
@@ -326,5 +330,41 @@ public class MapTile : MonoBehaviour
     public int GetIncome()
     {
         return income;
+    }
+
+    /*
+     * The below function is used to set the population of this tile
+     * @param int _newPopulation This is the new population
+     */
+    public void SetCurrentPopulation(int _newPopulation)
+    {
+        currentPopulation = _newPopulation;
+    }
+
+    /*
+     * The below function is used to set the adding population of a tile
+     * @param int _newAddingPopulation This is the new adding population
+     */ 
+    public void SetAddingPopulation(int _newAddingPopulation)
+    {
+        addingPopulation = _newAddingPopulation;
+    }
+
+    /*
+     * The below will return this tiles adding population
+     * @return int addingPopulation This is current adding population number
+     */ 
+    public int GetAddingPopulation()
+    {
+        return addingPopulation;
+    }
+
+    /*
+     * The below will return the current population
+     * @return int currentPopulation This is the current population of this tile
+     */ 
+    public int GetCurrentPopulation()
+    {
+        return currentPopulation;
     }
 }

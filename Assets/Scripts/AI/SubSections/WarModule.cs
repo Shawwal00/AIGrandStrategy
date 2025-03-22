@@ -353,6 +353,7 @@ public class WarModule : MonoBehaviour
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(10);
+                lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * (int)0.9);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
                 UpdateReplinishAmount();

@@ -15,6 +15,8 @@ public class InternalModule : MonoBehaviour
 
     private int changeTrainTroops = 0;
 
+    private float updatePopulationTime = 0;
+
     //Train Troops reasons
     private int rNegative = 30;
     private int rDuration = 10;
@@ -31,6 +33,16 @@ public class InternalModule : MonoBehaviour
         thisEmpire = _thisEmpire;
     }
 
+    /*
+     * THe below function is used to update the population of an empire
+     */
+    public void UpdatePopulation()
+    {
+        foreach (var tile in thisEmpire.GetOwnedTiles())
+        {
+            tile.SetCurrentPopulation(tile.GetCurrentPopulation() + tile.GetAddingPopulation());
+        }
+    }
 
     /*
      * The below function is used to go through and update anything relating to this module.
@@ -89,6 +101,19 @@ public class InternalModule : MonoBehaviour
         else if (UpdateTrainTroopReasons() < changeTrainTroops && thisEmpire.EconomyModule.GetTrainTroops() == true)
         {
             thisEmpire.EconomyModule.SetTrainTroops(false);
+        }
+
+        if (updatePopulationTime == 0)
+        {
+            UpdatePopulation();
+        }
+        else
+        {
+            updatePopulationTime += Time.deltaTime;
+            if (updatePopulationTime > 2)
+            {
+                updatePopulationTime = 0;
+            }
         }
 
     }
