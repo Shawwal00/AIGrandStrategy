@@ -262,6 +262,7 @@ public class WarModule : MonoBehaviour
             if (updateTroopNumberTime > 1)
             {
                 int totalPopulation = 0;
+                int totalCorruptPopulation = 0;
                 foreach (var tile in thisEmpire.GetOwnedTiles())
                 {
                     totalPopulation += tile.GetCurrentPopulation();
@@ -269,7 +270,7 @@ public class WarModule : MonoBehaviour
 
                 if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
-                    AddToTroopNumber(troopReplenishAmount + totalPopulation / 50);
+                    AddToTroopNumber(troopReplenishAmount + totalPopulation / 50 - totalCorruptPopulation/40);
                 }
                 updateTroopNumberTime = 0;
             }
@@ -359,6 +360,7 @@ public class WarModule : MonoBehaviour
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(10);
                 lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
+                lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 0.9f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
                 UpdateReplinishAmount();

@@ -84,47 +84,47 @@ public class InternalModule : MonoBehaviour
     {
         if (thisEmpire.EconomyModule.GetCurrentMoney() < 0)
         {
-            ChangeValueInTileReasons("Negative", -rNegative);
+            ChangeValueInTrainTroopReasons("Negative", -rNegative);
         }
         else 
         {
-            ChangeValueInTileReasons("Negative", rNegative);
+            ChangeValueInTrainTroopReasons("Negative", rNegative);
         }
 
         if (thisEmpire.EconomyModule.GetNegativeTime() > 0)
         {
-            ChangeValueInTileReasons("Duration", -rDuration - ((int)thisEmpire.EconomyModule.GetNegativeTime() / 5));
+            ChangeValueInTrainTroopReasons("Duration", -rDuration - ((int)thisEmpire.EconomyModule.GetNegativeTime() / 5));
         }
         else
         {
-            ChangeValueInTileReasons("Duration", rDuration);
+            ChangeValueInTrainTroopReasons("Duration", rDuration);
         }
 
         if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
         {
-            ChangeValueInTileReasons("AtWar", rAtWar);
+            ChangeValueInTrainTroopReasons("AtWar", rAtWar);
         }
         else 
         {
-            ChangeValueInTileReasons("AtWar", -rAtWar);
+            ChangeValueInTrainTroopReasons("AtWar", -rAtWar);
         }
 
         if(thisEmpire.EconomyModule.GetIncomeValue() > thisEmpire.WarModule.GetTroopNumber())
         {
-            ChangeValueInTileReasons("PositiveIncome", rPositiveIncome);
+            ChangeValueInTrainTroopReasons("PositiveIncome", rPositiveIncome);
         }
         else
         {
-            ChangeValueInTileReasons("PositiveIncome", -rPositiveIncome);
+            ChangeValueInTrainTroopReasons("PositiveIncome", -rPositiveIncome);
         }
 
         if (thisEmpire.GetOwnedTiles().Count <= 5)
         {
-            ChangeValueInTileReasons("SmallEmpire", rSmallEmpire);
+            ChangeValueInTrainTroopReasons("SmallEmpire", rSmallEmpire);
         }
         else
         {
-            ChangeValueInTileReasons("SmallEmpire", 0);
+            ChangeValueInTrainTroopReasons("SmallEmpire", 0);
         }
 
         if (UpdateTrainTroopReasons() >= changeTrainTroops && thisEmpire.EconomyModule.GetTrainTroops() == false)
@@ -149,6 +149,27 @@ public class InternalModule : MonoBehaviour
             }
         }
 
+        int totalCorruptPopulation = 0;
+        foreach (var tile in thisEmpire.GetOwnedTiles())
+        {
+            if (tile.GetCorruptPopulation() > 0)
+            {
+                tile.SetCorruptPopulation(tile.GetCorruptPopulation() * 0.99f);
+                totalCorruptPopulation += tile.GetCorruptPopulation();
+            }
+        }
+
+        if (totalCorruptPopulation > 0)
+        {
+            if ((int)thisEmpire.EconomyModule.GetNegativeTime() > 0)
+            {
+                thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - totalCorruptPopulation / 50 - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10); // Take into account negative time
+            }
+            else
+            {
+                thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - totalCorruptPopulation / 50);
+            }
+        }
     }
 
     /*
@@ -184,7 +205,7 @@ public class InternalModule : MonoBehaviour
     * @param string _reason This is the reason that the tile reason is increasing or decreasing
     * @param int _newValue This is the new value that it will be set to.
     */
-    public void ChangeValueInTileReasons(string _reason, int _newValue)
+    public void ChangeValueInTrainTroopReasons(string _reason, int _newValue)
     {
         trainTroopsReasons[_reason] = _newValue;
     }

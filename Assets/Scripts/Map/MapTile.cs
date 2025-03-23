@@ -35,6 +35,8 @@ public class MapTile : MonoBehaviour
     private int addingPopulation = 0; // The amount of population that is added to this tile
     private int currentAmeneties = 0; // This is the current amount of ameneties that is present in this population
 
+    private int corruptPopulation = 0; // This is the amount of corrupt population that is within this tile
+
     public enum TileType { None, Plain, Mine };
     public TileType thisTileType = TileType.None;
 
@@ -342,6 +344,10 @@ public class MapTile : MonoBehaviour
     public void SetCurrentPopulation(float _newPopulation)
     {
         currentPopulation = (int)_newPopulation;
+        if (corruptPopulation < 0)
+        {
+            corruptPopulation = 0;
+        }
     }
 
     /*
@@ -387,5 +393,32 @@ public class MapTile : MonoBehaviour
     public int GetAmeneties()
     {
         return currentAmeneties;
+    }
+
+    /*
+     * The below function is used to set the new corrupt population
+     * @param float _newAmount This is the new number that corruptPopulation will be set to
+     */
+    public void SetCorruptPopulation(float _newAmount)
+    {
+        corruptPopulation = (int)_newAmount;
+        if (corruptPopulation < 0)
+        {
+            corruptPopulation = 0;
+        }
+
+        if (corruptPopulation > currentPopulation / 5)
+        {
+            corruptPopulation = currentPopulation / 5;
+        }
+    }
+
+    /*
+     * The below function is used to get the corrupt population number
+     * @return int corruptPopulation This is how much corrupt population is present in this tile.
+     */ 
+    public int GetCorruptPopulation()
+    {
+        return corruptPopulation;
     }
 }

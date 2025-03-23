@@ -241,7 +241,6 @@ public class EconomyModule : MonoBehaviour
 
         if (totalAmountOfMoney <= 0)
         {
-            // Debug.Log("This empire should get downsides");
             negativeTime += Time.deltaTime;
         }
         else
@@ -252,6 +251,19 @@ public class EconomyModule : MonoBehaviour
             }
         }
         surplasValue = (troopAmount * 10) + 100;
+
+        if (negativeTime > 0)
+        {
+            int totalCorruptPopulation = 0;
+            foreach (var tile in thisEmpire.GetOwnedTiles())
+            {
+                if (tile.GetCorruptPopulation() > 0)
+                {
+                   // tile.SetCorruptPopulation((tile.GetCorruptPopulation() * 1.02f) + negativeTime * 20);
+                    totalCorruptPopulation += tile.GetCorruptPopulation();
+                }
+            }
+        }
     }
 
     /*
@@ -263,7 +275,7 @@ public class EconomyModule : MonoBehaviour
         List<MapTile> yourTiles = thisEmpire.GetOwnedTiles();
         foreach (MapTile tile in yourTiles)
         {
-            moneyUpdateAmount += tile.GetIncome() + tile.GetCurrentPopulation()/20;
+            moneyUpdateAmount += tile.GetIncome() + tile.GetCurrentPopulation()/20 - tile.GetCorruptPopulation()/15;
         }
     }
 

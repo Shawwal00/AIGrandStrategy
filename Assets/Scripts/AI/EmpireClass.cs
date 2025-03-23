@@ -293,37 +293,48 @@ public class EmpireClass : MonoBehaviour
         // Migrate to boardering empires
         // Migrate 0.01 % of your owned tiles to each other empire assuming that they have enough ameneties - split between all the tiles - so split between 0.3%
 
-        List<EmpireClass> happyEmpires = new List<EmpireClass>();
-        foreach (var empire in WarModule.GetBoarderingEmpires())
-        {
-            if (empire.GetPopulationMigrating() == false)
-            {
-                happyEmpires.Add(empire);
-            }
-        }
+        //Migrate if no ameneties
 
-        if (happyEmpires.Count > 0)
+        if (populationMigrating == true)
         {
+            List<EmpireClass> happyEmpires = new List<EmpireClass>();
+            foreach (var empire in WarModule.GetBoarderingEmpires())
+            {
+                if (empire.GetPopulationMigrating() == false)
+                {
+                    happyEmpires.Add(empire);
+                }
+            }
+
             float totalPopulationChange = 0;
             foreach (var tile in ownedTiles)
             {
-                totalPopulationChange += tile.GetCurrentPopulation() - (tile.GetCurrentPopulation() *  0.97f);
+                totalPopulationChange += tile.GetCurrentPopulation() - (tile.GetCurrentPopulation() * 0.97f);
                 tile.SetCurrentPopulation(tile.GetCurrentPopulation() * 0.97f);
             }
 
-            float perEmpire = totalPopulationChange / happyEmpires.Count;
-            foreach (var empire in happyEmpires)
+
+            if (happyEmpires.Count > 0)
             {
-                float addPerTile = perEmpire / empire.ownedTiles.Count;
-                foreach (var tile in empire.ownedTiles)
+                float perEmpire = totalPopulationChange / happyEmpires.Count;
+                foreach (var empire in happyEmpires)
                 {
-                    tile.SetCurrentPopulation(tile.GetCurrentPopulation() + addPerTile);
+                    float addPerTile = perEmpire / empire.ownedTiles.Count;
+                    foreach (var tile in empire.ownedTiles)
+                    {
+                        tile.SetCurrentPopulation(tile.GetCurrentPopulation() + addPerTile);
+                    }
                 }
             }
-        }
-        else
-        {
-            // If no other empire then convert to corrupt population
+            else
+            {
+                // If no other empire then convert to corrupt population
+                foreach (var tile in ownedTiles)
+                {
+                    float addPerTile = totalPopulationChange / ownedTiles.Count;
+                    tile.SetCorruptPopulation(tile.GetCorruptPopulation() + addPerTile/2);
+                }
+            }
         }
     }
 
