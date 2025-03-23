@@ -14,7 +14,7 @@ public class DiplomacyModule : MonoBehaviour
     private EmpireClass thisEmpire;
     private List<EmpireClass> alliedEmpires; // A list of allied empires
     private Dictionary<EmpireClass, int> thisEmpireOpinions = new Dictionary<EmpireClass, int>(); // This empires opinions of other empire
-                                                                                                  // private Dictionary<EmpireClass, int> opinionsOfYou = new Dictionary<EmpireClass, int>(); // other empire opinions of you
+    private List<EmpireClass> allMetEmpires = new List<EmpireClass>();
     private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
     private int makeAllianceNumber = 40;
@@ -41,6 +41,7 @@ public class DiplomacyModule : MonoBehaviour
     private int rMoney = 0;
     private int rAllianceUpdate = 10;
     private int rBrokeAlliance = 50;
+    private int rAmeneties = 50;
 
     private void Awake()
     {
@@ -82,6 +83,7 @@ public class DiplomacyModule : MonoBehaviour
             total += allReasons[otherEmpire]["Gift"];
             total += allReasons[otherEmpire]["Alliances"];
             total += allReasons[otherEmpire]["BrokeAlliance"];
+            total += 
 
             thisEmpireOpinions[otherEmpire] = total;
         }
@@ -112,8 +114,10 @@ public class DiplomacyModule : MonoBehaviour
         allReasons[_otherEmpire]["Gift"] = 0; //This is if the other empire has given you a gift
         allReasons[_otherEmpire]["Alliances"] = 0; // This is if the other empire has alliances that you do not like.
         allReasons[_otherEmpire]["BrokeAlliance"] = 0; // This is if the other empire has broken an alliance with you
-        allReasons[_otherEmpire]["Winning"] = 0; //This is if you are currently winning the war you are in - if you are at war with them.
+        allReasons[_otherEmpire]["Ameneties"] = 0; //This is if the empire has ameneties that you need.
         // opinionsOfYou[_empire] = 0;
+
+        allMetEmpires.Add(_otherEmpire);
     }
 
     /*
@@ -538,6 +542,22 @@ public class DiplomacyModule : MonoBehaviour
             }
        }
         return empiresToReturn;
+    }
+
+    /*
+     * The below function will get all the empires that this empire has met
+     */ 
+    public List<EmpireClass> GetMetEmpires()
+    {
+        return allMetEmpires;
+    }
+
+    /*
+     * The below function will return the value change when an empire does not have enough ameneties.
+     */
+    public int GetAmenetiesReason()
+    {
+        return rAmeneties;
     }
 }
 

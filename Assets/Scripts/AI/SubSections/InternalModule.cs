@@ -17,6 +17,8 @@ public class InternalModule : MonoBehaviour
 
     private float updatePopulationTime = 0;
 
+    private bool notEnoughAmeneties = false;
+
     //Train Troops reasons
     private int rNegative = 30;
     private int rDuration = 10;
@@ -31,6 +33,8 @@ public class InternalModule : MonoBehaviour
     public void SetThisEmpire(EmpireClass _thisEmpire)
     {
         thisEmpire = _thisEmpire;
+
+        SetUpAllTrainTroopReasons();
     }
 
     /*
@@ -38,9 +42,38 @@ public class InternalModule : MonoBehaviour
      */
     public void UpdatePopulation()
     {
+        int totalPopulation = 0;
+        int totalAmeneties = 0;
         foreach (var tile in thisEmpire.GetOwnedTiles())
         {
             tile.SetCurrentPopulation(tile.GetCurrentPopulation() + tile.GetAddingPopulation());
+            totalPopulation += tile.GetCurrentPopulation();
+            totalAmeneties += tile.GetAmeneties();
+        }
+        if (totalAmeneties * 1000 < totalPopulation)
+        {
+            if (notEnoughAmeneties == false)
+            {
+                notEnoughAmeneties = true;
+                foreach (var empire in thisEmpire.DiplomacyModule.GetMetEmpires())
+                {
+                    thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(empire, "Ameneties", thisEmpire.DiplomacyModule.GetAmenetiesReason());
+                }
+                thisEmpire.SetPopulationMigrating(true);
+            }
+        }
+        else
+        {
+            if (notEnoughAmeneties == true)
+            {
+                notEnoughAmeneties = false;
+                foreach (var empire in thisEmpire.DiplomacyModule.GetMetEmpires())
+                {
+                    thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(empire, "Ameneties", 0);
+                }
+                thisEmpire.SetPopulationMigrating(false);
+            }
+            
         }
     }
 

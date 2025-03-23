@@ -31,6 +31,8 @@ public class EmpireClass : MonoBehaviour
 
     private Color empireColor = Color.white; // Is default to white but will be changed to another colour
 
+    private bool populationMigrating = false;
+
     private void Awake()
     {
         // Lists
@@ -283,6 +285,48 @@ public class EmpireClass : MonoBehaviour
         }
     }
 
+    /*
+     * The below function is used to migrate the population of an empire to another empire
+     */
+    public void MigratePopulation()
+    {
+        // Migrate to boardering empires
+        // Migrate 0.01 % of your owned tiles to each other empire assuming that they have enough ameneties - split between all the tiles - so split between 0.3%
+
+        List<EmpireClass> happyEmpires = new List<EmpireClass>();
+        foreach (var empire in WarModule.GetBoarderingEmpires())
+        {
+            if (empire.GetPopulationMigrating() == false)
+            {
+                happyEmpires.Add(empire);
+            }
+        }
+
+        if (happyEmpires.Count > 0)
+        {
+            float totalPopulationChange = 0;
+            foreach (var tile in ownedTiles)
+            {
+                totalPopulationChange += tile.GetCurrentPopulation() - (tile.GetCurrentPopulation() *  0.97f);
+                tile.SetCurrentPopulation(tile.GetCurrentPopulation() * 0.97f);
+            }
+
+            float perEmpire = totalPopulationChange / happyEmpires.Count;
+            foreach (var empire in happyEmpires)
+            {
+                float addPerTile = perEmpire / empire.ownedTiles.Count;
+                foreach (var tile in empire.ownedTiles)
+                {
+                    tile.SetCurrentPopulation(tile.GetCurrentPopulation() + addPerTile);
+                }
+            }
+        }
+        else
+        {
+            // If no other empire then convert to corrupt population
+        }
+    }
+
     /* 
      * This function will set the new empire number
      * @param int _newEmpireNumber This is the new empire number
@@ -348,9 +392,28 @@ public class EmpireClass : MonoBehaviour
 
     /*
      * This will a list of all the tiles with special buildings on them
-     */ 
+     * @retun List<MapTile> allTilesWithBuildings This is a list of all tiles which have special buildings on them
+     */
     public List<MapTile> GetAllTilesWithSpecialBuildings()
     {
         return allTilesWithBuildings;
+    }
+
+    /*
+     * The below function will set the population migrating to a new value
+     * @param bool _newValue This is the new value for if a population is migrating or not.
+     */
+    public void SetPopulationMigrating(bool _newValue)
+    {
+        populationMigrating = _newValue;
+    }
+
+    /*
+     * The below function will get the value of populationMigrating
+     * @return bool populationMigrating This is if the population is migrating or not
+     */ 
+    public bool GetPopulationMigrating()
+    {
+        return populationMigrating; 
     }
 }

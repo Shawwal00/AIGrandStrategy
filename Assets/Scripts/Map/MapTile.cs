@@ -32,7 +32,8 @@ public class MapTile : MonoBehaviour
     private int troopPresent = 0; // This is how many troops are present within the territory
     private int troopAdding = 0;  // This is how many troops will be added to the provinence every second
     private int currentPopulation = 0; // The population within this tile
-    private int addingPopulation = 0; // The amount of population that is added to this tile;
+    private int addingPopulation = 0; // The amount of population that is added to this tile
+    private int currentAmeneties = 0; // This is the current amount of ameneties that is present in this population
 
     public enum TileType { None, Plain, Mine };
     public TileType thisTileType = TileType.None;
@@ -190,6 +191,8 @@ public class MapTile : MonoBehaviour
             SetCurrentPopulation(UnityEngine.Random.Range(50, 75));
             SetAddingPopulation(UnityEngine.Random.Range(10, 15));
             SetIncome(UnityEngine.Random.Range(10, 15));
+            SetAmeneties(UnityEngine.Random.Range(1, 3));
+
             int tileRandom = UnityEngine.Random.Range(1, 25);
             if (tileRandom <= 15)
             {
@@ -334,11 +337,11 @@ public class MapTile : MonoBehaviour
 
     /*
      * The below function is used to set the population of this tile
-     * @param int _newPopulation This is the new population
+     * @param float _newPopulation This is the new population
      */
-    public void SetCurrentPopulation(int _newPopulation)
+    public void SetCurrentPopulation(float _newPopulation)
     {
-        currentPopulation = _newPopulation;
+        currentPopulation = (int)_newPopulation;
     }
 
     /*
@@ -366,5 +369,23 @@ public class MapTile : MonoBehaviour
     public int GetCurrentPopulation()
     {
         return currentPopulation;
+    }
+
+    /*
+     * The below function will be used to set the ameneties for this tile
+     * @param int _newAmeneties This is the new amount of ameneties that is present on this tile
+     */ 
+    public void SetAmeneties(int _newAmeneties)
+    {
+        currentAmeneties = _newAmeneties;
+    }
+
+    /*
+     * The below function will return the tiles current ameneties
+     * @return int currentAmeneties This is the current ameneties for this tile
+     */ 
+    public int GetAmeneties()
+    {
+        return currentAmeneties;
     }
 }

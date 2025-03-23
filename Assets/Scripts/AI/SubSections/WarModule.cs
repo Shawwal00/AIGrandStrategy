@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -260,10 +261,15 @@ public class WarModule : MonoBehaviour
         {
             if (updateTroopNumberTime > 1)
             {
-                Debug.Log(thisEmpire.EconomyModule.GetTrainTroops());
+                int totalPopulation = 0;
+                foreach (var tile in thisEmpire.GetOwnedTiles())
+                {
+                    totalPopulation += tile.GetCurrentPopulation();
+                }
+
                 if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
-                    AddToTroopNumber(troopReplenishAmount);
+                    AddToTroopNumber(troopReplenishAmount + totalPopulation / 50);
                 }
                 updateTroopNumberTime = 0;
             }
@@ -276,7 +282,6 @@ public class WarModule : MonoBehaviour
     public void ConquerTerritory()
     {
        thisEmpire.UpdateExpandingTilesOfTile();
-        int randomNumber = Random.Range(0, thisEmpire.GetExpandingTiles().Count);
         bool alliedTile = false;
         if (thisEmpire.GetExpandingTiles().Count > 0)
         {
@@ -353,7 +358,7 @@ public class WarModule : MonoBehaviour
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(10);
-                lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * (int)0.9);
+                lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
                 UpdateReplinishAmount();
