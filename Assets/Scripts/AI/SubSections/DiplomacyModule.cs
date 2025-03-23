@@ -83,7 +83,7 @@ public class DiplomacyModule : MonoBehaviour
             total += allReasons[otherEmpire]["Gift"];
             total += allReasons[otherEmpire]["Alliances"];
             total += allReasons[otherEmpire]["BrokeAlliance"];
-            total += 
+            total += allReasons[otherEmpire]["Ameneties"];
 
             thisEmpireOpinions[otherEmpire] = total;
         }
