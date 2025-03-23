@@ -50,6 +50,7 @@ public class AIMain : MonoBehaviour
     private IEnumerator MainLoop(EmpireClass _currentEmpire)
     {
         startAI = false;
+        _currentEmpire.MigratePopulation();
         _currentEmpire.InternalModule.UpdateInternals();
         _currentEmpire.EconomyModule.UpdateEmpireMoney();
         _currentEmpire.WarModule.UpdateThreatReasons();
