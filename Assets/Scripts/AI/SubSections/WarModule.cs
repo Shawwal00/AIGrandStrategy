@@ -40,20 +40,20 @@ public class WarModule : MonoBehaviour
 
     // Threat reason values
     private int rThreatBoardering = 40;
-    private int rTroops = 30;
+    private int rTroops = 50;
     private int rIncome = 10;
     private int rTotalMoney = 10;
     private int rReplenishRate = 15;
     private int rGarrison = 15;
 
     //Tile reason values
-    private int rTileBoardering = 60;
-    private int rYourTroops = 20;
-    private int rOtherEmpireConquer = 50;
-    private int rAttacked = 60;
+    private int rTileBoardering = 30;
+    private int rYourTroops = 40;
+    private int rOtherEmpireConquer = 20;
+    private int rAttacked = 30;
     private int rMineTile = 40;
     private int rPlainTile = 40;
-    private int rFortBuilt = -60;
+    private int rFortBuilt = -40;
     private int rMineBuilt = 40;
     private int rBarracksBuilt = 40;
 
@@ -80,7 +80,7 @@ public class WarModule : MonoBehaviour
         if (empireDefeated == true)
         {
             armyDestroyedTime += Time.deltaTime;
-            if (armyDestroyedTime > 2)
+            if (armyDestroyedTime > 3)
             {
                 empireDefeated = false;
                 armyDestroyedTime = 0;
@@ -270,7 +270,7 @@ public class WarModule : MonoBehaviour
 
                 if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
-                    AddToTroopNumber(troopReplenishAmount + totalPopulation / 50 - totalCorruptPopulation/40);
+                    AddToTroopNumber(troopReplenishAmount + (totalPopulation / 50) - (totalCorruptPopulation/40));
                 }
                 updateTroopNumberTime = 0;
             }
@@ -355,6 +355,7 @@ public class WarModule : MonoBehaviour
                     }
                 }
             }
+
             if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber && tileReasonValue > conquerTileValue)
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
@@ -447,9 +448,10 @@ public class WarModule : MonoBehaviour
         bool tileBoardering = false;
         foreach (var boarderingTile in _tile.GetAllConnectedTiles())
         {
+            bool thisConnectionBoardering = true;
             if (boarderingTile.GetOwner() == 0)
             {
-                tileBoardering = false;
+                thisConnectionBoardering = false;
             }
             else
             {
@@ -457,7 +459,7 @@ public class WarModule : MonoBehaviour
                 {
                     if (boarderingTile.GetOwner() == warEmpires.GetEmpireNumber())
                     {
-                        tileBoardering = false;
+                        thisConnectionBoardering = false;
                     }
                 }
 
@@ -465,9 +467,28 @@ public class WarModule : MonoBehaviour
                 {
                     if (boarderingTile.GetOwner() == diplomacyEmpires.GetEmpireNumber())
                     {
-                        tileBoardering = false;
+                        thisConnectionBoardering = false;
                     }
                 }
+
+                foreach (var alreadyBoardering in boarderingEmpires)
+                {
+                    if (boarderingTile.GetOwner() == alreadyBoardering.GetEmpireNumber())
+                    {
+                        thisConnectionBoardering = false;
+                    }
+                }
+            }
+
+            if (boarderingTile.GetOwner() == thisEmpire.GetEmpireNumber())
+            {
+                thisConnectionBoardering = false;
+            }
+
+            if (thisConnectionBoardering == true)
+            {
+                tileBoardering = true;
+                break;
             }
         }
 

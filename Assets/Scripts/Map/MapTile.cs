@@ -104,7 +104,7 @@ public class MapTile : MonoBehaviour
     public void SetUpAllTileConquerReasons(EmpireClass _otherEmpire)
     {
         conquerTileReasons[_otherEmpire] = new Dictionary<string, int>();
-        conquerTileReasons[_otherEmpire]["BoarderingAnotherEmpire"] = 0; // This is if the tile is boardering another empire
+        conquerTileReasons[_otherEmpire]["Boardering"] = 0; // This is if the tile is boardering another empire
         conquerTileReasons[_otherEmpire]["Garrison"] = 0; // This is how much of a garrison the tile has
         conquerTileReasons[_otherEmpire]["YourTroops"] = 0; // This is the empires troops and if it has enough to take the tile or if at war to win against the warring empire - should not take tiles if it will lose
         conquerTileReasons[_otherEmpire]["TileReplenish"] = 0; // This is how fast the tile replenished
@@ -125,7 +125,7 @@ public class MapTile : MonoBehaviour
     public int UpdateTileReasonsOfAllEmpires(EmpireClass _otherEmpire)
     {
         int total = 0;
-        total += conquerTileReasons[_otherEmpire]["BoarderingAnotherEmpire"];
+        total += conquerTileReasons[_otherEmpire]["Boardering"];
         total += conquerTileReasons[_otherEmpire]["Garrison"];
         total += conquerTileReasons[_otherEmpire]["YourTroops"];
         total += conquerTileReasons[_otherEmpire]["TileReplenish"];

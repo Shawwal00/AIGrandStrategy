@@ -14,15 +14,15 @@ public class BuildingData : MonoBehaviour
     private void Awake()
     {
         allBuildingData["Fort"] = new Dictionary<string, int>(); // Can go on any tile
-        allBuildingData["Fort"]["Price"] = 100;
+        allBuildingData["Fort"]["Price"] = 1000;
         allBuildingData["Fort"]["Built"] = 0;
 
         allBuildingData["Mine"] = new Dictionary<string, int>(); // Specific on mine tiles
-        allBuildingData["Mine"]["Price"] = 100;
+        allBuildingData["Mine"]["Price"] = 1000;
         allBuildingData["Mine"]["Built"] = 0;
 
         allBuildingData["Barracks"] = new Dictionary<string, int>(); // Can go on plain tiles
-        allBuildingData["Barracks"]["Price"] = 100;
+        allBuildingData["Barracks"]["Price"] = 1000;
         allBuildingData["Barracks"]["Built"] = 0;
     }
 
