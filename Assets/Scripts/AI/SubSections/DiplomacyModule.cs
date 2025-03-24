@@ -201,9 +201,9 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GiftMoney(EmpireClass _empire, int _amount)
     {
-        Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount);
+        Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
         thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
-        ChangeValueInDiplomacyReasons(_empire, "Gift", _amount/ moneyTimes);
+        _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Gift", _amount/ moneyTimes);
         StartCoroutine(EndGiftBonus(_empire, _amount/ moneyTimes));
 
     }
@@ -216,7 +216,7 @@ public class DiplomacyModule : MonoBehaviour
     private IEnumerator EndGiftBonus(EmpireClass _empire, int _amount)
     {
         yield return new WaitForSeconds(0.5f * _amount);
-        ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
+        _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
         moneyTimes += 1;
     }
 
