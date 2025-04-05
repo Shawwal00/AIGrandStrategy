@@ -45,6 +45,8 @@ public class WarModule : MonoBehaviour
     private int rTotalMoney = 10;
     private int rReplenishRate = 15;
     private int rGarrison = 15;
+    private int rMorePopulation = 5;
+    private int rMoreCorruptPopulation = 5;
 
     //Tile reason values
     private int rTileBoardering = 30;
@@ -56,6 +58,8 @@ public class WarModule : MonoBehaviour
     private int rFortBuilt = -40;
     private int rMineBuilt = 40;
     private int rBarracksBuilt = 40;
+    private int rDividePopulationValue = 500;
+    private int rDivideCorruptPopulationValue = 500;
 
     private void Awake()
     {
@@ -179,6 +183,31 @@ public class WarModule : MonoBehaviour
                 ChangeValueInThreatRatings(_empireClass, "AllGarrisons", -rGarrison);
             }
 
+            if (_empireClass.GetAllPopulation() > thisEmpire.GetAllPopulation() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", rMorePopulation * 2);
+            }
+            else if (_empireClass.GetAllPopulation() > thisEmpire.GetAllPopulation())
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", rMorePopulation);
+            }
+            else
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", -rMorePopulation);
+            }
+
+            if (_empireClass.GetAllCorruptPopulation() > thisEmpire.GetAllCorruptPopulation() * 2)
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", rMoreCorruptPopulation * 2);
+            }
+            else if (_empireClass.GetAllCorruptPopulation() > thisEmpire.GetAllCorruptPopulation())
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", rMoreCorruptPopulation);
+            }
+            else
+            {
+                ChangeValueInThreatRatings(_empireClass, "Population", -rMoreCorruptPopulation);
+            }
         }
     }
 
@@ -196,6 +225,8 @@ public class WarModule : MonoBehaviour
         threatRatingReasons[_otherEmpire]["TotalMoney"] = 0; // This is the total amount of money that they have
         threatRatingReasons[_otherEmpire]["ReplenishRate"] = 0; // This is how fast there troops would replenish with all thier lands
         threatRatingReasons[_otherEmpire]["AllGarrisons"] = 0; // This is how much all thier garrisons add up to.
+        threatRatingReasons[_otherEmpire]["Population"] = 0; // This is if the other empire has a higher population then you.
+        threatRatingReasons[_otherEmpire]["CorruptPopulation"] = 0; // This is if the other empire has a higher corrupt population then you.
     }
 
     /*
@@ -214,6 +245,8 @@ public class WarModule : MonoBehaviour
             total += threatRatingReasons[otherEmpire]["TotalMoney"];
             total += threatRatingReasons[otherEmpire]["ReplenishRate"];
             total += threatRatingReasons[otherEmpire]["AllGarrisons"];
+            total += threatRatingReasons[otherEmpire]["Population"];
+            total += threatRatingReasons[otherEmpire]["CorruptPopulation"];
 
             threatRatings[otherEmpire] = total;
         }
@@ -500,6 +533,9 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("Garrison", -_tile.GetTroopPresent(), thisEmpire);
         _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding(), thisEmpire);
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
+        _tile.ChangeValueInTileReasons("Population", _tile.GetCurrentPopulation() / rDividePopulationValue, thisEmpire);
+        _tile.ChangeValueInTileReasons("CorruptPopulation",  -(_tile.GetCorruptPopulation() / rDivideCorruptPopulationValue), thisEmpire);
+
 
         if (_tile.thisTileType == MapTile.TileType.Mine)
         {

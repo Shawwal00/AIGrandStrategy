@@ -115,6 +115,8 @@ public class MapTile : MonoBehaviour
         conquerTileReasons[_otherEmpire]["MineBuilt"] = 0; // This is if there is a mine built on this tile
         conquerTileReasons[_otherEmpire]["BarracksBuilt"] = 0; // This is if there is a barracks built on this tile
         conquerTileReasons[_otherEmpire]["FortBuilt"] = 0; // This is if there is a fort built on this tile
+        conquerTileReasons[_otherEmpire]["Population"] = 0; // This is if there is a high population on this tile
+        conquerTileReasons[_otherEmpire]["CorruptPopulation"] = 0; // This is if there is a high corrupt population on this tile
     }
 
     /*
@@ -136,6 +138,8 @@ public class MapTile : MonoBehaviour
         total += conquerTileReasons[_otherEmpire]["MineBuilt"];
         total += conquerTileReasons[_otherEmpire]["BarracksBuilt"];
         total += conquerTileReasons[_otherEmpire]["FortBuilt"];
+        total += conquerTileReasons[_otherEmpire]["Population"];
+        total += conquerTileReasons[_otherEmpire]["CorruptPopulation"];
 
         return total;
     }

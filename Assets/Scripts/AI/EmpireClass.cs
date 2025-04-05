@@ -78,19 +78,19 @@ public class EmpireClass : MonoBehaviour
      */
     public MapTile GetSafestTypeTile(MapTile.TileType _type, string _name)
     {
-        UpdateOwnedTiles();
-        MapTile safeTile = null;
-        int tileDistance = 0;
-        List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
-        List<EmpireClass> copyAllEmpires = new List<EmpireClass>();
+         UpdateOwnedTiles();
+         MapTile safeTile = null;
+         int tileDistance = 0;
+         List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
+         List<EmpireClass> copyAllEmpires = new List<EmpireClass>();
         foreach (var empires in allEmpires)
         {
-            copyAllEmpires.Add(empires);
+             copyAllEmpires.Add(empires);
         }
-        copyAllEmpires.Remove(this);
+         copyAllEmpires.Remove(this);
 
-        foreach (MapTile tile in ownedTiles)
-        {
+       foreach (MapTile tile in ownedTiles)
+       {
             if (tile.thisTileType == _type && tile.buildingData.GetBuildingDataOwned(_name) == 0)
             {
                 if (safeTile == null)
@@ -104,50 +104,50 @@ public class EmpireClass : MonoBehaviour
                     List<MapTile> tileChecked = new List<MapTile>();
                     List<MapTile> copyTileList = new List<MapTile>();
                     int currentDistance = 0;
-                    foreach (var connectedTile in tile.GetAllConnectedTiles())
-                    {
+                   foreach (var connectedTile in tile.GetAllConnectedTiles())
+                   {
                         tilesToCheck.Add(connectedTile);
-                    }
-                    while (tilesToCheck.Count > 0)
-                    {
+                   }
+                   while (tilesToCheck.Count > 0)
+                   {
                         foreach (var tileCheck in tilesToCheck)
-                        {
-                            currentDistance += 1;
-                            foreach (var empire in copyAllEmpires)
-                            {
-                                if (tileCheck.GetOwner() == empire.GetEmpireNumber())
-                                {
-                                    if (currentDistance < tileDistance)
-                                    {
-                                        safeTile = tile;
-                                        tileDistance = currentDistance;
-                                    }
-                                }
-                            }
-                            copyTileList.Add(tileCheck);
-                        }
+                          {
+                              currentDistance += 1;
+                              foreach (var empire in copyAllEmpires)
+                              {
+                                  if (tileCheck.GetOwner() == empire.GetEmpireNumber())
+                                  {
+                                      if (currentDistance < tileDistance) 
+                                      {
+                                          safeTile = tile;
+                                          tileDistance = currentDistance;
+                                      }
+                                  }
+                              }
+                              copyTileList.Add(tileCheck);
+                          }
 
-                        foreach (var copyTile in copyTileList)
-                        {
-                            tilesToAdd.Add(copyTile);
-                            tilesToCheck.Remove(copyTile);
-                            tileChecked.Add(copyTile);
-                        }
+                          foreach (var copyTile in copyTileList)
+                          {
+                              tilesToAdd.Add(copyTile);
+                              tilesToCheck.Remove(copyTile);
+                              tileChecked.Add(copyTile);
+                          }
 
-                        foreach (var tileAdd in tilesToAdd)
-                        {
-                            foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
-                            {
-                                if (!(tileChecked.Contains(tileAddConnection)))
-                                {
-                                    tilesToCheck.Add(tileAddConnection);
-                                }
-                            }
-                        }
-                    }
+                          foreach (var tileAdd in tilesToAdd)
+                          {
+                              foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
+                              {
+                                  if (!(tileChecked.Contains(tileAddConnection)))
+                                  {
+                                      tilesToCheck.Add(tileAddConnection);
+                                  }
+                              }
+                          }
+                   }
                 }
             }
-        }
+       }
         return safeTile;
     }
 
@@ -156,6 +156,7 @@ public class EmpireClass : MonoBehaviour
      */
     public MapTile GetBoarderTilesWithThreateningEmpire()
     {
+        
         // Maybe change this so that it will protect tiles around important buildings first
         int amonuntOfTilesProtected = 0;
         int highestAmountOfTilesProtected = 0;
@@ -243,6 +244,7 @@ public class EmpireClass : MonoBehaviour
                 }
             }
         }
+        
 
         return highestTile;
     }
@@ -336,6 +338,36 @@ public class EmpireClass : MonoBehaviour
                 }
             }
         }
+    }
+
+    /*
+     * Used to get the total population of the empire
+     * @return int total This is the total amount of population inside an empire
+     */ 
+    public int GetAllPopulation()
+    {
+        UpdateOwnedTiles();
+        int total = 0;
+        foreach (var tile in ownedTiles)
+        {
+            total += tile.GetCurrentPopulation();
+        }
+        return total;
+    }
+
+    /*
+   * Used to get the total corrupt population of the empire
+   * @return int total This is the total amount of corrupt population inside an empire
+   */
+    public int GetAllCorruptPopulation()
+    {
+        UpdateOwnedTiles();
+        int total = 0;
+        foreach (var tile in ownedTiles)
+        {
+            total += tile.GetCorruptPopulation();
+        }
+        return total;
     }
 
     /* 

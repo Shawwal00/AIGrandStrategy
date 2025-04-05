@@ -203,6 +203,7 @@ public class DiplomacyModule : MonoBehaviour
     {
         Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
         thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
+        _empire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() + (_amount / moneyTimes));
         _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Gift", _amount/ moneyTimes);
         StartCoroutine(EndGiftBonus(_empire, _amount/ moneyTimes));
 

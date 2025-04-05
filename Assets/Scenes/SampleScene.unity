@@ -352,8 +352,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardPiece: {fileID: 2405219306843889906, guid: 90dabf60debd24e43b5f804bab737121, type: 3}
-  boardLengthX: 5
-  boardLengthY: 5
+  boardLengthX: 10
+  boardLengthY: 10
   startLocation: {fileID: 1945516724}
   allMaterials:
   - {fileID: 2100000, guid: 0533c97785a0b31469f221645445726b, type: 2}
