@@ -78,19 +78,19 @@ public class EmpireClass : MonoBehaviour
      */
     public MapTile GetSafestTypeTile(MapTile.TileType _type, string _name)
     {
-         UpdateOwnedTiles();
-         MapTile safeTile = null;
-         int tileDistance = 0;
-         List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
-         List<EmpireClass> copyAllEmpires = new List<EmpireClass>();
+        UpdateOwnedTiles();
+        MapTile safeTile = null;
+        int tileDistance = 0;
+        List<EmpireClass> allEmpires = WarModule.GetAllEmpiresInGame();
+        List<EmpireClass> copyAllEmpires = new List<EmpireClass>();
         foreach (var empires in allEmpires)
         {
-             copyAllEmpires.Add(empires);
+            copyAllEmpires.Add(empires);
         }
-         copyAllEmpires.Remove(this);
+        copyAllEmpires.Remove(this);
 
-       foreach (MapTile tile in ownedTiles)
-       {
+        foreach (MapTile tile in ownedTiles)
+        {
             if (tile.thisTileType == _type && tile.buildingData.GetBuildingDataOwned(_name) == 0)
             {
                 if (safeTile == null)
@@ -101,53 +101,76 @@ public class EmpireClass : MonoBehaviour
                 {
                     List<MapTile> tilesToCheck = new List<MapTile>();
                     List<MapTile> tilesToAdd = new List<MapTile>();
-                    List<MapTile> tileChecked = new List<MapTile>();
+                    List<int> tileChecked = new List<int>();
                     List<MapTile> copyTileList = new List<MapTile>();
                     int currentDistance = 0;
-                   foreach (var connectedTile in tile.GetAllConnectedTiles())
-                   {
+                    foreach (var connectedTile in tile.GetAllConnectedTiles())
+                    {
                         tilesToCheck.Add(connectedTile);
-                   }
-                   while (tilesToCheck.Count > 0)
-                   {
+                    }
+                    while (tilesToCheck.Count > 0)
+                    {
                         foreach (var tileCheck in tilesToCheck)
-                          {
-                              currentDistance += 1;
-                              foreach (var empire in copyAllEmpires)
-                              {
-                                  if (tileCheck.GetOwner() == empire.GetEmpireNumber())
-                                  {
-                                      if (currentDistance < tileDistance) 
-                                      {
-                                          safeTile = tile;
-                                          tileDistance = currentDistance;
-                                      }
-                                  }
-                              }
-                              copyTileList.Add(tileCheck);
-                          }
+                        {
+                            currentDistance += 1;
+                            foreach (var empire in copyAllEmpires)
+                            {
+                                if (tileCheck.GetOwner() == empire.GetEmpireNumber())
+                                {
+                                    if (currentDistance < tileDistance)
+                                    {
+                                        safeTile = tile;
+                                        tileDistance = currentDistance;
+                                    }
+                                }
+                            }
+                            bool numberFound = false;
+                            foreach (var number in tileChecked)
+                            {
+                                if (number == tileCheck.GetTileNumber())
+                                {
+                                    numberFound = true;
+                                    break;
+                                }
+                            }
+                            if (numberFound == false)
+                            {
+                                copyTileList.Add(tileCheck);
+                            }
+                        }
 
-                          foreach (var copyTile in copyTileList)
-                          {
-                              tilesToAdd.Add(copyTile);
-                              tilesToCheck.Remove(copyTile);
-                              tileChecked.Add(copyTile);
-                          }
+                        foreach (var copyTile in copyTileList)
+                        {
+                            tilesToAdd.Add(copyTile);
+                            tilesToCheck.Remove(copyTile);
+                            tileChecked.Add(copyTile.GetTileNumber());
+                        }
 
-                          foreach (var tileAdd in tilesToAdd)
-                          {
-                              foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
-                              {
-                                  if (!(tileChecked.Contains(tileAddConnection)))
-                                  {
-                                      tilesToCheck.Add(tileAddConnection);
-                                  }
-                              }
-                          }
-                   }
+                        copyTileList.Clear();
+
+                        foreach (var tileAdd in tilesToAdd)
+                        {
+                            foreach (var tileAddConnection in tileAdd.GetAllConnectedTiles())
+                            {
+                                bool numberFound = false;
+                                foreach (var number in tileChecked)
+                                {
+                                    if (number == tileAddConnection.GetTileNumber())
+                                    {
+                                        numberFound = true;
+                                        break;
+                                    }
+                                }
+                                if (numberFound == false)
+                                {
+                                    copyTileList.Add(tileAddConnection);
+                                }
+                            }
+                        }
+                    }
                 }
             }
-       }
+        }
         return safeTile;
     }
 
