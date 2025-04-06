@@ -85,21 +85,21 @@ public class MapBoard : MonoBehaviour
         // Below this is working out the X Connections
         for (int i = 0; i <= yFirstLimit; i++)
         {
-            completeList[i].AddConnectionTile(completeList[i + x]);
+            completeList[i].AddConnectionTile(completeList[i + y]);
         }
 
         if (completeList.Count > y * 2)
         {
             for (int i = yFirstLimit + 1; i < yLastLimit; i++)
             {
-                completeList[i].AddConnectionTile(completeList[i - x]);
-                completeList[i].AddConnectionTile(completeList[i + x]);
+                completeList[i].AddConnectionTile(completeList[i - y]);
+                completeList[i].AddConnectionTile(completeList[i + y]);
             }
         }
 
         for (int i = yLastLimit; i < completeList.Count; i++)
         {
-            completeList[i].AddConnectionTile(completeList[i - x]);
+            completeList[i].AddConnectionTile(completeList[i - y]);
         }
     }
 
