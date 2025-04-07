@@ -77,7 +77,7 @@ public class AIMain : MonoBehaviour
         _currentEmpire.WarModule.ConquerTerritory();
         for (int j = 0; j < allAIEmpireClasses.Count; j++)
         {
-            allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.returnTileList());
+            allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.ReturnTileList());
         }
     }
 

@@ -15,7 +15,7 @@ public class MapBoard : MonoBehaviour
   
   //Used in Other Scripts
   private List<MapTile>  allTilePieces;
-  private Renderer pieceRenderer;
+  private Renderer boardRenderer;
   
   private MapTile copyBoardPiece;
   private int yFirstLimit;
@@ -25,7 +25,7 @@ public class MapBoard : MonoBehaviour
   { 
     allTilePieces = new List<MapTile>();
     startLocation.transform.position = new Vector3(0, 0, 0);
-    pieceRenderer = boardPiece.GetComponent<Renderer>();
+    boardRenderer = boardPiece.GetComponent<Renderer>();
   }
 
     /*
@@ -40,14 +40,14 @@ public class MapBoard : MonoBehaviour
             {
                 copyBoardPiece = Instantiate(boardPiece, startLocation.transform.position, startLocation.transform.rotation);
                 startLocation.transform.position = new Vector3(startLocation.transform.position.x, 
-                startLocation.transform.position.y + pieceRenderer.bounds.size.y, startLocation.transform.position.z );
+                startLocation.transform.position.y + boardRenderer.bounds.size.y, startLocation.transform.position.z );
                 allTilePieces.Add(copyBoardPiece);
                 copyBoardPiece.SetTileNumber(tileNumber);
 
                 tileNumber++;
             }
-            startLocation.transform.position = new Vector3(startLocation.transform.position.x + pieceRenderer.bounds.size.x,
-            startLocation.transform.position.y - pieceRenderer.bounds.size.y * boardLengthY, 
+            startLocation.transform.position = new Vector3(startLocation.transform.position.x + boardRenderer.bounds.size.x,
+            startLocation.transform.position.y - boardRenderer.bounds.size.y * boardLengthY, 
             startLocation.transform.position.z);
         }
         AddAllConnections(allTilePieces, boardLengthX, boardLengthY);
@@ -108,8 +108,17 @@ public class MapBoard : MonoBehaviour
      * This returns a list of all the tiles
      * @return List<MapTile> allBoardPieces The list of all the tiles
      */ 
-    public List<MapTile> returnTileList()
+    public List<MapTile> ReturnTileList()
     {
         return allTilePieces;
+    }
+
+    /*
+     * The below returns the board renderer
+     * 
+     */ 
+    public Renderer ReturnRenderer()
+    {
+        return boardRenderer;
     }
 }

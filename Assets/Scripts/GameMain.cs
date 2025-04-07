@@ -12,7 +12,9 @@ public class GameMain : MonoBehaviour
 {
     //Scripts
     [SerializeField] public MapBoard Board;
+    [SerializeField] public CameraController cameraController;
     [SerializeField] public SetUpEmpires EmpireSetUp;
+    [SerializeField] public Cursor cursor;
 
     private void Start()
     {
@@ -22,6 +24,8 @@ public class GameMain : MonoBehaviour
 
     private void Update()
     {
-        
+        cameraController.MoveCamera();
+        cursor.MouseMovement();
+        cursor.TileCursor();
     }
 }

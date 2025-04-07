@@ -32,7 +32,7 @@ public class SetUpEmpires : MonoBehaviour
         int curerntAIOwner = 1;
         EmpireClass copyEmpirePiece;
 
-        List<MapTile> allTilesList = MapBoardScript.returnTileList();
+        List<MapTile> allTilesList = MapBoardScript.ReturnTileList();
         for (int i = 0; i < spawnPositions.Count; i++)
         {
             for (int j = 0; j < allTilesList.Count; j++)
