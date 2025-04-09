@@ -42,6 +42,7 @@ public class MapTile : MonoBehaviour
 
     private Dictionary<EmpireClass,Dictionary< string, int>> conquerTileReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this tile may be conquered.
     private Dictionary<EmpireClass, Dictionary<string, int>> buildFortReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this may have a fort built on it.
+    private Dictionary<EmpireClass, Dictionary<string, int>> tileMoveReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that an empire might move units to here.
 
 
     private void Awake()
@@ -95,6 +96,53 @@ public class MapTile : MonoBehaviour
     public void ChangeValueInBuildFort(string _reason, int _newValue, EmpireClass _otherEmpire)
     {
         buildFortReasons[_otherEmpire][_reason] = _newValue;
+    }
+
+    /*
+    * The below function is used so that when the empires are set up the tiles will set up all the reasons to move units to it
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    */
+    public void SetUpAllTileMoveReasons(EmpireClass _otherEmpire)
+    {
+        tileMoveReasons[_otherEmpire] = new Dictionary<string, int>();
+        tileMoveReasons[_otherEmpire]["ImportantConnectingTile"] = 0; // This is if the tile has an important building connected to it
+        tileMoveReasons[_otherEmpire]["EnoughTroopsWar"] = 0; // This is if the tile has a positive amount of troops for all the tiles connected to it for enemy empires
+        tileMoveReasons[_otherEmpire]["MineBuilt"] = 0; // This is if there is a mine built on this tile
+        tileMoveReasons[_otherEmpire]["BarracksBuilt"] = 0; // This is if there is a barracks built on this tile
+        tileMoveReasons[_otherEmpire]["FortBuilt"] = 0; // This is if there is a fort built on this tile
+        tileMoveReasons[_otherEmpire]["EnoughTroopsDefault"] = 0; // This is if the tile has a positive amount of troops for a single non empire tile
+        tileMoveReasons[_otherEmpire]["LikelyWar"] = 0; // This is if the tile is boardering an empire that might go to war with you soon
+    }
+
+
+    /*
+    * The below will loop through all the reasons and update the reasons to move a unit to this tile
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    * @retun int total This is all the added up reasons to conquer this tile
+    */
+    public int UpdateTileMoveForAllTile(EmpireClass _otherEmpire)
+    {
+        int total = 0;
+        total += tileMoveReasons[_otherEmpire]["ImportantConnectingTile"];
+        total += tileMoveReasons[_otherEmpire]["EnoughTroopsWar"];
+        total += tileMoveReasons[_otherEmpire]["MineBuilt"];
+        total += tileMoveReasons[_otherEmpire]["BarracksBuilt"];
+        total += tileMoveReasons[_otherEmpire]["FortBuilt"];
+        total += tileMoveReasons[_otherEmpire]["EnoughTroopsDefault"];
+        total += tileMoveReasons[_otherEmpire]["LikelyWar"];
+
+        return total;
+    }
+
+    /*
+    * The below function is used to update the value for a reason why to move to a tile.
+    * @param string _reason This is the reason that the tile reason is increasing or decreasing
+    * @param int _newValue This is the new value that it will be set to.s
+    * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
+    */
+    public void ChangeValueInTileMove(string _reason, int _newValue, EmpireClass _otherEmpire)
+    {
+        tileMoveReasons[_otherEmpire][_reason] = _newValue;
     }
 
     /*
@@ -424,5 +472,40 @@ public class MapTile : MonoBehaviour
     public int GetCorruptPopulation()
     {
         return corruptPopulation;
+    }
+
+    /*
+     * If the tile is safe for a specific empire - so not 0 or at war or threatning
+     */ 
+    public bool IsTileSafe(EmpireClass _empire)
+    {
+        if (GetOwner() == _empire.GetEmpireNumber())
+        {
+            return true;
+        }
+        else if (GetOwner() == 0)
+        {
+            return false;
+        }
+
+        List<EmpireClass> atWarEmpires = _empire.WarModule.GetAtWarEmpires();
+        List<EmpireClass> threateningEmpires = _empire.DiplomacyModule.GetDislikedEmpires();
+        foreach (var empire in atWarEmpires)
+        {
+            if (GetOwner() == empire.GetEmpireNumber())
+            {
+                return false;
+            }
+        }
+
+        foreach (var empire in threateningEmpires)
+        {
+            if (GetOwner() == empire.GetEmpireNumber())
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 }

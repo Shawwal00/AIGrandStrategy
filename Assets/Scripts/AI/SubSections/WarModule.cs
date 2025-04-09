@@ -61,6 +61,13 @@ public class WarModule : MonoBehaviour
     private int rDividePopulationValue = 500;
     private int rDivideCorruptPopulationValue = 500;
 
+
+    //Move To tile reasons
+    private int rImportantTile = 40;
+    private int rWarTroops = 60;
+    private int rNeutralTroops = 20;
+    private int rDislikedEmpire = 10;
+
     private void Awake()
     {
         //Gameobject
@@ -285,7 +292,7 @@ public class WarModule : MonoBehaviour
     }
 
     /*
-     * This gets all the tiles owned by the empire and adds to the total empire troop count.
+     * This updates all the tiles with thier new troops.
      */
     private void UpdateAllTroopCount()
     {
@@ -294,16 +301,12 @@ public class WarModule : MonoBehaviour
         {
             if (updateTroopNumberTime > 1)
             {
-                int totalPopulation = 0;
-                int totalCorruptPopulation = 0;
                 foreach (var tile in thisEmpire.GetOwnedTiles())
                 {
-                    totalPopulation += tile.GetCurrentPopulation();
-                }
-
-                if (thisEmpire.EconomyModule.GetTrainTroops())
-                {
-                    AddToTroopNumber(troopReplenishAmount + (totalPopulation / 50) - (totalCorruptPopulation/40));
+                    if (thisEmpire.EconomyModule.GetTrainTroops())
+                    {
+                        tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40));
+                    }
                 }
                 updateTroopNumberTime = 0;
             }
@@ -311,23 +314,89 @@ public class WarModule : MonoBehaviour
     }
 
     /*
-     * The below function is used when the AI captures a new tile
+     * The below function is used to check if the AI should conquer any available tiles or not
      */
     public void ConquerTerritory()
     {
-       thisEmpire.UpdateExpandingTilesOfTile();
+        //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
+        // If at war go to a frontline if less troops
+        foreach (var ownedTile in thisEmpire.GetOwnedTiles())
+        {
+            int tilesSafeCount = 0;
+            foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
+            {
+                bool alliedTrue = false;
+                bool owned = false;
+                foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                {
+                    if (expandingConnection.GetOwner() == alliedEmpire.GetEmpireNumber())
+                    {
+                        alliedTrue = true;
+                    }
+                }
+
+                if (expandingConnection.GetOwner() != thisEmpire.GetEmpireNumber())
+                {
+                    owned = true;
+                }
+
+                if (alliedTrue == false && owned == false)
+                {
+                    tilesSafeCount += 1;
+                }
+            }
+
+
+            if (ownedTile.GetAllConnectedTiles().Count == tilesSafeCount) // Move troops all connections to this tile are safe
+            {
+                //Check all boardering tiles 
+                //Check tile reasons on why to move to this tile
+                // Pick the tile with the highest reason
+                // For reasons check indivigual tile and if a hostile force is connected to it on another tile
+
+
+                List<MapTile> tileEdges = thisEmpire.GetTileAtEdge();
+                MapTile highestReason = null;
+                int reasonNumber = 0;
+                foreach (var tile in tileEdges)
+                {
+                    if (highestReason == null)
+                    {
+                        highestReason = tile;
+                        UpdateTileMoveReasons(highestReason);
+                        reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                    }
+                    else
+                    {
+                        UpdateTileMoveReasons(tile);
+                        if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
+                        {
+                            highestReason = tile;
+                            reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                        }
+                    }
+                }
+
+                // Now need to pathfind to highest reason somehow.
+            }
+        }
+
+        thisEmpire.UpdateExpandingTilesOfTile();
         bool alliedTile = false;
-        if (thisEmpire.GetExpandingTiles().Count > 0)
+        // Loop through all your owned tiles
+        // for each of those geet expanding tiles 
+        // If expanding greater then - then do reason check to see if you should conquer the tile
+
+        foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
             MapTile lowestTile = null;
             int tileReasonValue = 0;
-
-            foreach (MapTile tile in thisEmpire.GetExpandingTiles())
+            foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
             {
                 alliedTile = false;
                 foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                 {
-                    if (alliedEmpire.GetEmpireNumber() == tile.GetOwner())
+                    if (alliedEmpire.GetEmpireNumber() == expandingConnection.GetOwner())
                     {
                         alliedTile = true;
                         break;
@@ -337,36 +406,36 @@ public class WarModule : MonoBehaviour
                 {
                     if (lowestTile == null)
                     {
-                        if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                        if (expandingConnection.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(expandingConnection.GetOwner()).WarModule.GetEmpireDefeated() == true)
                         {
-                            CheckTileForReasons(tile, false);
-                            lowestTile = tile;
-                            tileReasonValue = tile.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                            CheckTileForReasons(expandingConnection, false);
+                            lowestTile = expandingConnection;
+                            tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
                         }
                     }
                     else
                     {
-                        if (tile.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(tile.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                        if (expandingConnection.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(expandingConnection.GetOwner()).WarModule.GetEmpireDefeated() == true)
                         {
-                            CheckTileForReasons(tile, false);
+                            CheckTileForReasons(expandingConnection, false);
 
-                            if (tile.UpdateTileReasonsOfAllEmpires(thisEmpire) > tileReasonValue)
+                            if (expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire) > tileReasonValue)
                             {
-                                tileReasonValue = tile.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                                lowestTile = tile;
+                                tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                                lowestTile = expandingConnection;
                             }
                             ;
-                            foreach (var secondTile in tile.GetAllConnectedTiles())
+                            foreach (var secondTile in expandingConnection.GetAllConnectedTiles())
                             {
                                 if (secondTile.GetOwner() != thisEmpire.GetEmpireNumber())
                                 {
                                     CheckTileForReasons(secondTile, false);
-                                    int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + tile.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 2;
+                                    int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 2;
 
                                     if (secondAverage > tileReasonValue)
                                     {
-                                        tileReasonValue = tile.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                                        lowestTile = tile;
+                                        tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                                        lowestTile = expandingConnection;
                                     }
                                 }
                                 foreach (var thirdTile in secondTile.GetAllConnectedTiles())
@@ -374,12 +443,12 @@ public class WarModule : MonoBehaviour
                                     if (thirdTile.GetOwner() != thisEmpire.GetEmpireNumber())
                                     {
                                         CheckTileForReasons(thirdTile, false);
-                                        int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + tile.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 3;
+                                        int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 3;
 
                                         if (thirdAverage > tileReasonValue)
                                         {
-                                            tileReasonValue = tile.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                                            lowestTile = tile;
+                                            tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                                            lowestTile = expandingConnection;
                                         }
                                     }
                                 }
@@ -388,15 +457,13 @@ public class WarModule : MonoBehaviour
                     }
                 }
             }
-
-            if (lowestTile != null && lowestTile.GetTroopPresent() < troopNumber && tileReasonValue > conquerTileValue)
+            if (lowestTile != null && lowestTile.GetTroopPresent() < ownedTile.GetTroopPresent() && tileReasonValue > conquerTileValue)
             {
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
-                lowestTile.SetTroopPresent(10);
+                lowestTile.SetTroopPresent(ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent());
                 lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
                 lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 0.9f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
-                SetTroopNumber(troopNumber - lowestTile.GetTroopPresent());
                 UpdateReplinishAmount();
 
                 foreach (var empire in allEmpiresInGame)
@@ -408,8 +475,88 @@ public class WarModule : MonoBehaviour
     }
 
     /*
+     * Will update the reasons for moving to a specific tile
+     * @param MapTile _tile This is the tile that you are using
+     */
+    public void UpdateTileMoveReasons(MapTile _tile)
+    {
+        Dictionary<EmpireClass, int> totalTroops = new Dictionary<EmpireClass, int>();
+        foreach (var empire in atWarEmpires)
+        {
+            totalTroops[empire] = 0;
+        }
+
+        int totalNeutralTroops = 0;
+        bool dislikedEmpire = false;
+        foreach (var connectTile in _tile.GetAllConnectedTiles())
+        {
+            if (connectTile.thisTileType != MapTile.TileType.Plain)
+            {
+                _tile.ChangeValueInTileMove("ImportantConnectingTile", rImportantTile, thisEmpire);
+            }
+            foreach (var empire in atWarEmpires)
+            {
+                if (connectTile.GetOwner() == empire.GetEmpireNumber())
+                {
+                    totalTroops[empire] += totalTroops[empire];
+                }
+            }
+            if (connectTile.buildingData.GetBuildingDataOwned("Mine") == 1)
+            {
+                connectTile.ChangeValueInTileMove("MineBuilt", rMineBuilt, thisEmpire);
+            }
+
+            if (connectTile.buildingData.GetBuildingDataOwned("Barracks") == 1)
+            {
+                connectTile.ChangeValueInTileMove("BarracksBuilt", rBarracksBuilt, thisEmpire);
+            }
+
+            if (connectTile.buildingData.GetBuildingDataOwned("Fort") == 1)
+            {
+                connectTile.ChangeValueInTileMove("FortBuilt", rFortBuilt, thisEmpire);
+            }
+            if (connectTile.GetOwner() == 0)
+            {
+                totalNeutralTroops += connectTile.GetTroopPresent();
+            }
+
+            foreach (var empire in thisEmpire.DiplomacyModule.GetDislikedEmpires())
+            {
+                if (connectTile.GetOwner() == empire.GetEmpireNumber())
+                {
+                    dislikedEmpire = true;
+                    break;
+                }
+            }
+        }
+        if (dislikedEmpire == true)
+        {
+            _tile.ChangeValueInTileMove("LikelyWar", rDislikedEmpire, thisEmpire);
+        }
+
+        if (totalNeutralTroops > _tile.GetTroopPresent())
+        {
+            _tile.ChangeValueInTileMove("EnoughTroopsDefault", rNeutralTroops, thisEmpire);
+        }
+
+
+        int totalTroopsRequired = 0;
+        foreach (var empire in atWarEmpires)
+        {
+            totalTroopsRequired += totalTroops[empire];
+        }
+
+        if (totalTroopsRequired > _tile.GetTroopPresent())
+        {
+            _tile.ChangeValueInTileMove("EnoughTroopsWar", rWarTroops, thisEmpire);
+        }
+
+
+    }
+
+    /*
      * The below check all the tiles of an empire to see if they are still boardering or currently boardering an empire
-     */ 
+     */
     public void CheckAllEmpireBoarders()
     {
         thisEmpire.UpdateExpandingTilesOfTile();
@@ -919,10 +1066,10 @@ public class WarModule : MonoBehaviour
      * This will add to the empires troop number
      * @param int _addTroopNumber The amount of new troops you will be adding
      */
-    public void AddToTroopNumber(int _addTroopNumber)
-    {
-        troopNumber += _addTroopNumber;
-    }
+   // public void AddToTroopNumber(int _addTroopNumber)
+   // {
+   //     troopNumber += _addTroopNumber;
+   // }
 
     /*
      * The below will set the empires troop number

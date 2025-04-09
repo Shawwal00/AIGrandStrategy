@@ -57,7 +57,7 @@ public class SetUpEmpires : MonoBehaviour
             for (int h = 0; h < empiresInGame.Count; h++)
             {
                 allTilesList[j].SetUpAllTileConquerReasons(empiresInGame[h]);
-                allTilesList[j].SetUpAllTileBuildReasons(empiresInGame[h]);
+                allTilesList[j].SetUpAllTileMoveReasons(empiresInGame[h]);
             }
         }
 

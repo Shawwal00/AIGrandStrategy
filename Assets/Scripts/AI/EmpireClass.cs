@@ -224,7 +224,7 @@ public class EmpireClass : MonoBehaviour
 
         // If not protecting high value tile then protect boarder against an empire
         UpdateOwnedTiles();
-        List<EmpireClass> threateningEmpires = DiplomacyModule.EmpireDislikedBy();
+        List<EmpireClass> threateningEmpires = DiplomacyModule.GetDislikedEmpires();
         List<MapTile> allBoarderingTiles = new List<MapTile>();
         foreach (MapTile tile in ownedTiles)
         {
@@ -236,7 +236,10 @@ public class EmpireClass : MonoBehaviour
                     {
                         if (tileBoarder.GetOwner() == empire.GetEmpireNumber())
                         {
-                            allBoarderingTiles.Add(tile);
+                            if (!(allBoarderingTiles.Contains(tile)))
+                            {
+                                allBoarderingTiles.Add(tile);
+                            }
                         }
                     }
                 }
@@ -270,6 +273,34 @@ public class EmpireClass : MonoBehaviour
         
 
         return highestTile;
+    }
+
+    /*
+     * The below function is used to get the tiles that are at the edge of this empire assuming that they boarder an unconquered tile or a threatening empire
+     */
+    public List<MapTile> GetTileAtEdge()
+    {
+        UpdateOwnedTiles();
+        List<EmpireClass> alliedEmpires = DiplomacyModule.GetAlliedEmpires();
+        List<MapTile> allBoarderingTiles = new List<MapTile>();
+        foreach (MapTile tile in ownedTiles)
+        {
+            foreach (var tileBoarder in tile.GetAllConnectedTiles())
+            {
+                foreach (var empire in alliedEmpires)
+                {
+                    if (tileBoarder.GetOwner() == 0 || tileBoarder.GetOwner() == empire.GetEmpireNumber())
+                    {
+                        if (!(allBoarderingTiles.Contains(tile)))
+                        {
+                            allBoarderingTiles.Add(tile);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        return allBoarderingTiles;
     }
 
     /*
