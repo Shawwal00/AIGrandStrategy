@@ -112,6 +112,9 @@ public class MapTile : MonoBehaviour
         tileMoveReasons[_otherEmpire]["FortBuilt"] = 0; // This is if there is a fort built on this tile
         tileMoveReasons[_otherEmpire]["EnoughTroopsDefault"] = 0; // This is if the tile has a positive amount of troops for a single non empire tile
         tileMoveReasons[_otherEmpire]["LikelyWar"] = 0; // This is if the tile is boardering an empire that might go to war with you soon
+        tileMoveReasons[_otherEmpire]["Distance"] = 0; // This is how far away the tile is
+        tileMoveReasons[_otherEmpire]["TroopDiffrence"] = 0; // This is the troop distance between this tile and another enemie's boardering tile
+        tileMoveReasons[_otherEmpire]["War"] = 0; // This is the tile is boardering an empire you are at war with
     }
 
 
@@ -130,6 +133,9 @@ public class MapTile : MonoBehaviour
         total += tileMoveReasons[_otherEmpire]["FortBuilt"];
         total += tileMoveReasons[_otherEmpire]["EnoughTroopsDefault"];
         total += tileMoveReasons[_otherEmpire]["LikelyWar"];
+        total += tileMoveReasons[_otherEmpire]["Distance"];
+        total += tileMoveReasons[_otherEmpire]["TroopDiffrence"];
+        total += tileMoveReasons[_otherEmpire]["War"];
 
         return total;
     }

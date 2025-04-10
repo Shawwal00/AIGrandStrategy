@@ -69,6 +69,8 @@ public class WarModule : MonoBehaviour
     private int rWarTroops = 60;
     private int rNeutralTroops = 20;
     private int rDislikedEmpire = 10;
+    private int mDistance = 3;
+    private int rWarEmpire = 40;
 
     private void Awake()
     {
@@ -375,12 +377,12 @@ public class WarModule : MonoBehaviour
                             {
                                 //Check if the unit can reach there
                                 highestReason = tile;
-                                UpdateTileMoveReasons(highestReason);
+                                UpdateTileMoveReasons(highestReason, ownedTile);
                                 reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
                             }
                             else
                             {
-                                UpdateTileMoveReasons(tile);
+                                UpdateTileMoveReasons(tile, ownedTile);
                                 if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
                                 {
                                     highestReason = tile;
@@ -588,7 +590,7 @@ public class WarModule : MonoBehaviour
      * Will update the reasons for moving to a specific tile
      * @param MapTile _tile This is the tile that you are using
      */
-    public void UpdateTileMoveReasons(MapTile _tile)
+    public void UpdateTileMoveReasons(MapTile _tile, MapTile _currentTile)
     {
         Dictionary<EmpireClass, int> totalTroops = new Dictionary<EmpireClass, int>();
         foreach (var empire in atWarEmpires)
@@ -598,6 +600,7 @@ public class WarModule : MonoBehaviour
 
         int totalNeutralTroops = 0;
         bool dislikedEmpire = false;
+        bool warEmpire = false;
         foreach (var connectTile in _tile.GetAllConnectedTiles())
         {
             if (connectTile.thisTileType != MapTile.TileType.Plain)
@@ -609,6 +612,7 @@ public class WarModule : MonoBehaviour
                 if (connectTile.GetOwner() == empire.GetEmpireNumber())
                 {
                     totalTroops[empire] += totalTroops[empire];
+                    warEmpire = true;
                 }
             }
             if (connectTile.buildingData.GetBuildingDataOwned("Mine") == 1)
@@ -644,6 +648,11 @@ public class WarModule : MonoBehaviour
             _tile.ChangeValueInTileMove("LikelyWar", rDislikedEmpire, thisEmpire);
         }
 
+        if (warEmpire == true)
+        {
+            _tile.ChangeValueInTileMove("War", rWarEmpire, thisEmpire);
+        }
+
         if (totalNeutralTroops > _tile.GetTroopPresent())
         {
             _tile.ChangeValueInTileMove("EnoughTroopsDefault", rNeutralTroops, thisEmpire);
@@ -659,9 +668,20 @@ public class WarModule : MonoBehaviour
         if (totalTroopsRequired > _tile.GetTroopPresent())
         {
             _tile.ChangeValueInTileMove("EnoughTroopsWar", rWarTroops, thisEmpire);
+
+            int neededTroops = totalTroopsRequired - _tile.GetTroopPresent();
+            _tile.ChangeValueInTileMove("TroopDiffrence", neededTroops/10, thisEmpire);
         }
 
+        List<MapTile> reachedTiles = null;
+        ExpandingBFS(_currentTile, _tile, out reachedTiles);
 
+        int rDistance = reachedTiles.Count * mDistance;
+        if (rDistance > rWarTroops)
+        {
+            rDistance = rWarTroops - 10;
+        }
+        _tile.ChangeValueInTileMove("Distance", -rDistance, thisEmpire);
     }
 
     /*
