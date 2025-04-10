@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Threading.Tasks;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
@@ -24,9 +26,9 @@ public class WarModule : MonoBehaviour
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); 
     private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that an empire feels threatened by another empire.
 
-    private bool empireDefeated = false;
-    private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
-    private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
+    //private bool empireDefeated = false;
+   // private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
+   // private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
 
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
@@ -88,7 +90,7 @@ public class WarModule : MonoBehaviour
         UpdateAllTroopCount();
 
         //The below is if you have been defeated then check to see if your army can be restored
-        if (empireDefeated == true)
+       /* if (empireDefeated == true)
         {
             armyDestroyedTime += Time.deltaTime;
             if (armyDestroyedTime > 3)
@@ -97,7 +99,7 @@ public class WarModule : MonoBehaviour
                 armyDestroyedTime = 0;
                 empireThatDefeatedYou.WarModule.RemoveEmpireFromeDefeatedList(thisEmpire);
             }
-        }
+        }*/
     }
 
     /*
@@ -320,9 +322,12 @@ public class WarModule : MonoBehaviour
     {
         //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
         // If at war go to a frontline if less troops
+
+       // thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
-            int tilesSafeCount = 0;
+           Task.Delay(10000);
+           int tilesSafeCount = 0;
             foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
             {
                 bool alliedTrue = false;
@@ -354,30 +359,82 @@ public class WarModule : MonoBehaviour
                 // Pick the tile with the highest reason
                 // For reasons check indivigual tile and if a hostile force is connected to it on another tile
 
-
                 List<MapTile> tileEdges = thisEmpire.GetTileAtEdge();
+                List<MapTile> ignoreTiles = new List<MapTile>();
+                Dictionary<MapTile, MapTile> tileCameFrom = new Dictionary<MapTile, MapTile>();
+                bool foundTile = false;
                 MapTile highestReason = null;
-                int reasonNumber = 0;
-                foreach (var tile in tileEdges)
+                while (foundTile == false)
                 {
-                    if (highestReason == null)
+                    int reasonNumber = 0;
+                    foreach (var tile in tileEdges)
                     {
-                        highestReason = tile;
-                        UpdateTileMoveReasons(highestReason);
-                        reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                        if (!(ignoreTiles.Contains(highestReason)))
+                        {
+                            if (highestReason == null)
+                            {
+                                //Check if the unit can reach there
+                                highestReason = tile;
+                                UpdateTileMoveReasons(highestReason);
+                                reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                            }
+                            else
+                            {
+                                UpdateTileMoveReasons(tile);
+                                if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
+                                {
+                                    highestReason = tile;
+                                    reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                                }
+                            }
+                        }
+                    }
+                    //Pathfinding check
+                    List<MapTile> reachedTiles = null;
+                    tileCameFrom = ExpandingBFS(ownedTile, highestReason, out reachedTiles);
+
+                    if (reachedTiles.Contains(highestReason))
+                    {
+                        foundTile = true;
                     }
                     else
                     {
-                        UpdateTileMoveReasons(tile);
-                        if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
-                        {
-                            highestReason = tile;
-                            reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
-                        }
+                        ignoreTiles.Add(highestReason);
                     }
+
+                    if (tileEdges.Count == ignoreTiles.Count)
+                    {
+                        break;
+                    }
+
                 }
 
-                // Now need to pathfind to highest reason somehow.
+                //Move to first value in tilecamefrom
+                if (foundTile == true)
+                {
+                    List<MapTile> path = new List<MapTile>();
+                    MapTile currentPathTile = null;
+                    path.Add(highestReason);
+                    bool tileFound = false;
+                    currentPathTile = highestReason;
+                    while (tileFound == false)
+                    {
+                        currentPathTile = tileCameFrom[currentPathTile];
+                        if (currentPathTile == null)
+                        {
+                            tileFound = true;
+                        }
+                        else
+                        {
+                            path.Add(currentPathTile);
+                        }
+
+                    }
+
+                    MapTile tileToGoTo = path[path.Count - 2];
+                    ownedTile.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
+                    tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
+                }
             }
         }
 
@@ -389,6 +446,7 @@ public class WarModule : MonoBehaviour
 
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
+            Task.Delay(10000);
             MapTile lowestTile = null;
             int tileReasonValue = 0;
             foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
@@ -404,9 +462,18 @@ public class WarModule : MonoBehaviour
                 }
                 if (alliedTile == false)
                 {
+                    bool warEmpire = false;
+                    foreach (var empire in atWarEmpires)
+                    {
+                        if (expandingConnection.GetOwner() == empire.GetEmpireNumber())
+                        {
+                            warEmpire = true;
+                            break;
+                        }
+                    }
                     if (lowestTile == null)
                     {
-                        if (expandingConnection.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(expandingConnection.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                        if (expandingConnection.GetOwner() == 0 || warEmpire == true)
                         {
                             CheckTileForReasons(expandingConnection, false);
                             lowestTile = expandingConnection;
@@ -415,7 +482,7 @@ public class WarModule : MonoBehaviour
                     }
                     else
                     {
-                        if (expandingConnection.GetOwner() == 0 || SetUpEmpires.GetSpecificEmpireClassBasedOnOwner(expandingConnection.GetOwner()).WarModule.GetEmpireDefeated() == true)
+                        if (expandingConnection.GetOwner() == 0 || warEmpire == true )
                         {
                             CheckTileForReasons(expandingConnection, false);
 
@@ -472,6 +539,49 @@ public class WarModule : MonoBehaviour
                 }
             }
         }
+    }
+
+    /*
+     * The below is the pathfinding which is used o move units - Currently it is BFS only
+     * @param MapTile _currentTile This is the current tile the unit is on
+     * @param MapTile _destinationTile This is the tile that the unit will move towards
+     * @return Dictionary<MapTile, MapTile> tileCameFrom This is the order of tiles that the unit should move to
+     */
+    public Dictionary<MapTile, MapTile> ExpandingBFS(MapTile _currentTile, MapTile _destinationTile, out List<MapTile> reached)
+    {
+        List<MapTile> frontier = new List<MapTile>();
+        reached = new List<MapTile>();
+        Dictionary<MapTile, MapTile> tileCameFrom = new Dictionary<MapTile, MapTile>();
+        MapTile currentTile = null;
+
+        frontier.Add(_currentTile);
+        tileCameFrom.Add(_currentTile, null);
+
+        //While will check every tile
+        while (frontier.Count > 0)
+        {
+            currentTile = frontier[0];
+
+            foreach (var tile in currentTile.GetAllConnectedTiles()) 
+            {
+                //Will not add if already in reached or frontier or the tile is not owned by you
+                if (!reached.Contains(tile) && !frontier.Contains(tile) && tile.GetOwner() == thisEmpire.GetEmpireNumber())
+                {
+                    frontier.Add(tile);
+                    tileCameFrom.Add(tile, currentTile);
+                }
+            }
+            reached.Add(currentTile);
+            frontier.Remove(currentTile);
+
+            if (reached.Contains(_destinationTile))
+            {
+                break;
+            }
+        }
+        reached.Remove(reached[0]); // Remove the starting tile
+
+        return tileCameFrom;
     }
 
     /*
@@ -1013,8 +1123,8 @@ public class WarModule : MonoBehaviour
      */
     public void SetEmpireDefeatedTrue(EmpireClass _newEmpireThatDefeatedYou)
     {
-        empireDefeated = true;
-        empireThatDefeatedYou = _newEmpireThatDefeatedYou;
+        //empireDefeated = true;
+        //empireThatDefeatedYou = _newEmpireThatDefeatedYou;
     }
 
     /*
@@ -1100,10 +1210,11 @@ public class WarModule : MonoBehaviour
      * Returns if the empire has been defeated
      * @return bool empireDefeated This will return if you have been defeated in battle or not
      */
-    public bool GetEmpireDefeated()
-    {
-        return empireDefeated;
-    }
+     
+    //public bool GetEmpireDefeated()
+    //{
+        //return empireDefeated;
+   //}
 
     /*
      * This function will return the replenish amount of the empire

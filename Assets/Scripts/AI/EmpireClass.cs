@@ -276,27 +276,23 @@ public class EmpireClass : MonoBehaviour
     }
 
     /*
-     * The below function is used to get the tiles that are at the edge of this empire assuming that they boarder an unconquered tile or a threatening empire
+     * The below function is used to get the tiles that are at the edge of this empire 
      */
     public List<MapTile> GetTileAtEdge()
     {
-        UpdateOwnedTiles();
-        List<EmpireClass> alliedEmpires = DiplomacyModule.GetAlliedEmpires();
+        List<EmpireClass> atWarEmpires = WarModule.GetAtWarEmpires();
         List<MapTile> allBoarderingTiles = new List<MapTile>();
         foreach (MapTile tile in ownedTiles)
         {
             foreach (var tileBoarder in tile.GetAllConnectedTiles())
             {
-                foreach (var empire in alliedEmpires)
+                if (tileBoarder.GetOwner() != GetEmpireNumber())
                 {
-                    if (tileBoarder.GetOwner() == 0 || tileBoarder.GetOwner() == empire.GetEmpireNumber())
+                    if (!(allBoarderingTiles.Contains(tile)))
                     {
-                        if (!(allBoarderingTiles.Contains(tile)))
-                        {
-                            allBoarderingTiles.Add(tile);
-                        }
-                        break;
+                        allBoarderingTiles.Add(tile);
                     }
+                    break;
                 }
             }
         }

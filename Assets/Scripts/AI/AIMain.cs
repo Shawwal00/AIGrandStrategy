@@ -63,8 +63,8 @@ public class AIMain : MonoBehaviour
             _currentEmpire.WarModule.EmpireAtWarWith(warCheck);
             warCheck.WarModule.EmpireAtWarWith(_currentEmpire);
         }
-        FightOtherEmpire(_currentEmpire);
-        yield return new WaitForSeconds(0.1f);
+       // FightOtherEmpire(_currentEmpire);
+        yield return new WaitForSeconds(1f);
         startAI = true;
     }
 
@@ -111,7 +111,7 @@ public class AIMain : MonoBehaviour
      * The below function is used to fight another enemy empire AI
      * param EmpireClass _currentEmpire This is the empire who is attacking
      */
-    private void FightOtherEmpire(EmpireClass _currentEmpire)
+    /*private void FightOtherEmpire(EmpireClass _currentEmpire)
     {
         if (_currentEmpire.WarModule.GetAtWarEmpires().Count > 0) // Only occur if at war with an empire
         {
@@ -164,7 +164,7 @@ public class AIMain : MonoBehaviour
                 }
             }
         }
-    }
+    }*/
 
     /*
      * The below function can be used to return a list of all of the empires
