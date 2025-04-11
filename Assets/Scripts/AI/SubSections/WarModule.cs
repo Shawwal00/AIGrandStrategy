@@ -328,114 +328,120 @@ public class WarModule : MonoBehaviour
        // thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
-           Task.Delay(10000);
-           int tilesSafeCount = 0;
-            foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
+            if (ownedTile.GetTroopPresent() > 10)
             {
-                bool alliedTrue = false;
-                bool owned = false;
-                foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                Task.Delay(10000);
+                int tilesSafeCount = 0;
+                foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
                 {
-                    if (expandingConnection.GetOwner() == alliedEmpire.GetEmpireNumber())
+                    bool alliedTrue = false;
+                    bool owned = false;
+                    foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                     {
-                        alliedTrue = true;
+                        if (expandingConnection.GetOwner() == alliedEmpire.GetEmpireNumber())
+                        {
+                            alliedTrue = true;
+                        }
+                    }
+
+                    if (expandingConnection.GetOwner() != thisEmpire.GetEmpireNumber())
+                    {
+                        owned = true;
+                    }
+
+                    if (alliedTrue == false && owned == false)
+                    {
+                        tilesSafeCount += 1;
                     }
                 }
 
-                if (expandingConnection.GetOwner() != thisEmpire.GetEmpireNumber())
+
+                if (ownedTile.GetAllConnectedTiles().Count == tilesSafeCount) // Move troops all connections to this tile are safe
                 {
-                    owned = true;
-                }
+                    //Check all boardering tiles 
+                    //Check tile reasons on why to move to this tile
+                    // Pick the tile with the highest reason
+                    // For reasons check indivigual tile and if a hostile force is connected to it on another tile
 
-                if (alliedTrue == false && owned == false)
-                {
-                    tilesSafeCount += 1;
-                }
-            }
-
-
-            if (ownedTile.GetAllConnectedTiles().Count == tilesSafeCount) // Move troops all connections to this tile are safe
-            {
-                //Check all boardering tiles 
-                //Check tile reasons on why to move to this tile
-                // Pick the tile with the highest reason
-                // For reasons check indivigual tile and if a hostile force is connected to it on another tile
-
-                List<MapTile> tileEdges = thisEmpire.GetTileAtEdge();
-                List<MapTile> ignoreTiles = new List<MapTile>();
-                Dictionary<MapTile, MapTile> tileCameFrom = new Dictionary<MapTile, MapTile>();
-                bool foundTile = false;
-                MapTile highestReason = null;
-                while (foundTile == false)
-                {
-                    int reasonNumber = 0;
-                    foreach (var tile in tileEdges)
+                    List<MapTile> tileEdges = thisEmpire.GetTileAtEdge();
+                    List<MapTile> ignoreTiles = new List<MapTile>();
+                    Dictionary<MapTile, MapTile> tileCameFrom = new Dictionary<MapTile, MapTile>();
+                    bool foundTile = false;
+                    MapTile highestReason = null;
+                    while (foundTile == false)
                     {
-                        if (!(ignoreTiles.Contains(highestReason)))
+                        int reasonNumber = 0;
+                        foreach (var tile in tileEdges)
                         {
-                            if (highestReason == null)
+                            if (!(ignoreTiles.Contains(highestReason)))
                             {
-                                //Check if the unit can reach there
-                                highestReason = tile;
-                                UpdateTileMoveReasons(highestReason, ownedTile);
-                                reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
-                            }
-                            else
-                            {
-                                UpdateTileMoveReasons(tile, ownedTile);
-                                if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
+                                if (highestReason == null)
                                 {
+                                    //Check if the unit can reach there
                                     highestReason = tile;
+                                    UpdateTileMoveReasons(highestReason, ownedTile);
                                     reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                                }
+                                else
+                                {
+                                    UpdateTileMoveReasons(tile, ownedTile);
+                                    if (reasonNumber < tile.UpdateTileMoveForAllTile(thisEmpire))
+                                    {
+                                        highestReason = tile;
+                                        reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
+                                    }
                                 }
                             }
                         }
-                    }
-                    //Pathfinding check
-                    List<MapTile> reachedTiles = null;
-                    tileCameFrom = ExpandingBFS(ownedTile, highestReason, out reachedTiles);
+                        //Pathfinding check
+                        List<MapTile> reachedTiles = null;
+                        tileCameFrom = ExpandingBFS(ownedTile, highestReason, out reachedTiles);
 
-                    if (reachedTiles.Contains(highestReason))
-                    {
-                        foundTile = true;
-                    }
-                    else
-                    {
-                        ignoreTiles.Add(highestReason);
-                    }
-
-                    if (tileEdges.Count == ignoreTiles.Count)
-                    {
-                        break;
-                    }
-
-                }
-
-                //Move to first value in tilecamefrom
-                if (foundTile == true)
-                {
-                    List<MapTile> path = new List<MapTile>();
-                    MapTile currentPathTile = null;
-                    path.Add(highestReason);
-                    bool tileFound = false;
-                    currentPathTile = highestReason;
-                    while (tileFound == false)
-                    {
-                        currentPathTile = tileCameFrom[currentPathTile];
-                        if (currentPathTile == null)
+                        if (reachedTiles.Contains(highestReason))
                         {
-                            tileFound = true;
+                            foundTile = true;
                         }
                         else
                         {
-                            path.Add(currentPathTile);
+                            ignoreTiles.Add(highestReason);
+                        }
+
+                        if (tileEdges.Count == ignoreTiles.Count)
+                        {
+                            break;
                         }
 
                     }
 
-                    MapTile tileToGoTo = path[path.Count - 2];
-                    ownedTile.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
-                    tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
+                    //Move to first value in tilecamefrom
+                    if (foundTile == true)
+                    {
+                        List<MapTile> path = new List<MapTile>();
+                        MapTile currentPathTile = null;
+                        path.Add(highestReason);
+                        bool tileFound = false;
+                        currentPathTile = highestReason;
+                        while (tileFound == false)
+                        {
+                            currentPathTile = tileCameFrom[currentPathTile];
+                            if (currentPathTile == null)
+                            {
+                                tileFound = true;
+                            }
+                            else
+                            {
+                                path.Add(currentPathTile);
+                            }
+
+                        }
+                        MapTile tileToGoTo = path[path.Count - 2];
+                        if (tileToGoTo.GetTileNumber() == 1)
+                        {
+                            Debug.Log("here");
+                        }
+                        tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
+                        ownedTile.SetTroopPresent(1);
+                    }
                 }
             }
         }

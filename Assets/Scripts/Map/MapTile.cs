@@ -3,6 +3,7 @@ using System;
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -15,12 +16,13 @@ public class MapTile : MonoBehaviour
 {
 
     public BuildingData buildingData;
-
     private GameObject GameManager;
 
     //Scripts
     private TileData TileData;
     private SetUpEmpires SetUpEmpires;
+
+    private GameObject currentTroopNumber;
 
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
@@ -54,8 +56,8 @@ public class MapTile : MonoBehaviour
         TileData = GameManager.GetComponent<TileData>();
         SetUpEmpires = GameManager.GetComponent<SetUpEmpires>();
 
-        buildingData = this.AddComponent<BuildingData>();
-
+        buildingData = GetComponent<BuildingData>();
+        currentTroopNumber = transform.Find("Canvas").Find("CurrentTroopNumber").gameObject;
     }
 
 
@@ -348,6 +350,7 @@ public class MapTile : MonoBehaviour
     public void SetTroopPresent(int _troopPresent)
     {
         troopPresent = _troopPresent;
+        currentTroopNumber.GetComponent<TextMeshProUGUI>().text = _troopPresent.ToString();
     }
 
     /*
