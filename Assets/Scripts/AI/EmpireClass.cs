@@ -32,6 +32,7 @@ public class EmpireClass : MonoBehaviour
     private Color empireColor = Color.white; // Is default to white but will be changed to another colour
 
     private bool populationMigrating = false;
+    private bool destoryed = false;
 
     private void Awake()
     {
@@ -315,6 +316,7 @@ public class EmpireClass : MonoBehaviour
         if (ownedTiles.Count == 0)
         {
             AiMain.EmpireDestroyed(this);
+            destoryed = true;
         }
     }
 
@@ -388,6 +390,8 @@ public class EmpireClass : MonoBehaviour
                 }
             }
         }
+
+        FunctionFinished();
     }
 
     /*
@@ -508,5 +512,28 @@ public class EmpireClass : MonoBehaviour
     public bool GetPopulationMigrating()
     {
         return populationMigrating; 
+    }
+
+
+    public IEnumerator DelayAction(int _delayTime)
+    {
+        yield return new WaitForSeconds(_delayTime);
+    }
+
+    /*
+     * Checks if this empire is destroyed or not
+     * @return bool destroyed This is if the empire is destroyed or not
+     */ 
+    public bool GetDestoryed()
+    {
+        return destoryed;
+    }
+
+    /*
+     * This lets the AiMain know that the current function that this empire is running is finished.
+     */
+    public void FunctionFinished()
+    {
+        AiMain.setInFunctionToFalse(false);
     }
 }

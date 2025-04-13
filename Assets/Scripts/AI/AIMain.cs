@@ -1,9 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 
 /*
- * This script handles the all the overall functions.
+ * This script handles the all the overall functions fo the ai empires.
 */
 
 public class AIMain : MonoBehaviour
@@ -13,10 +14,14 @@ public class AIMain : MonoBehaviour
 
     private List<EmpireClass> allAIEmpireClasses;
     private bool startAI = false;
+    private bool inForLoop = false;
+    private bool inFunction = false;
+    private List<EmpireClass> toDestroy;
 
     private void Awake()
     {
         allAIEmpireClasses = new List<EmpireClass>();
+        toDestroy = new List<EmpireClass>();
     }
 
     /*
@@ -34,12 +39,40 @@ public class AIMain : MonoBehaviour
 
     private void Update()
     {
-        if (startAI == true)
+        StartCoroutine(StartLoop());
+    }
+
+    /*
+     * This stars the main for loop for the ai empires
+     */ 
+    private IEnumerator StartLoop()
+    {
+        if (startAI == true && inForLoop == false)
         {
-            for (int i = 0; i < allAIEmpireClasses.Count; i++)
+            inForLoop = true;
+            foreach (var empire in allAIEmpireClasses)
             {
-                StartCoroutine(MainLoop(allAIEmpireClasses[i]));
+                while (startAI == false)
+                {
+                    yield return new WaitForSeconds(0.1f);
+                }
+                if (startAI == true)
+                {
+                    StartCoroutine(MainLoop(empire));
+                }
             }
+
+            foreach (var destroyedEmpire in toDestroy)
+            {
+                foreach (var empire in allAIEmpireClasses)
+                {
+                    empire.WarModule.OtherEmpireDied(destroyedEmpire);
+                }
+
+                allAIEmpireClasses.Remove(destroyedEmpire);
+            }
+            toDestroy.Clear();
+            inForLoop = false;
         }
     }
 
@@ -49,23 +82,75 @@ public class AIMain : MonoBehaviour
      */
     private IEnumerator MainLoop(EmpireClass _currentEmpire)
     {
-        startAI = false;
-        _currentEmpire.MigratePopulation();
-        _currentEmpire.InternalModule.UpdateInternals();
-        _currentEmpire.EconomyModule.UpdateEmpireMoney();
-        _currentEmpire.WarModule.UpdateThreatReasons();
-        _currentEmpire.DiplomacyModule.DiplomacyCheck();
-        _currentEmpire.EconomyModule.BuildBuilding();
-        ConquerRegion(_currentEmpire);
-        EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
-        if (warCheck != null)
+        if (_currentEmpire.GetDestoryed() == false)
         {
-            _currentEmpire.WarModule.EmpireAtWarWith(warCheck);
-            warCheck.WarModule.EmpireAtWarWith(_currentEmpire);
+            startAI = false;
+            inFunction = true;
+            _currentEmpire.WarModule.UpdateAllTroopCount();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.MigratePopulation();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.InternalModule.UpdateInternals();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.EconomyModule.UpdateEmpireMoney();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.WarModule.UpdateThreatReasons();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.DiplomacyModule.DiplomacyCheck();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            _currentEmpire.EconomyModule.BuildBuilding();
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            inFunction = true;
+            StartCoroutine(_currentEmpire.WarModule.ConquerTerritory());
+            while (inFunction == true)
+            {
+                yield return new WaitForSeconds(0.01f);
+            }
+            EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
+            if (warCheck != null)
+            {
+                _currentEmpire.WarModule.EmpireAtWarWith(warCheck);
+                warCheck.WarModule.EmpireAtWarWith(_currentEmpire);
+            }
+            yield return new WaitForSeconds(0.1f);
+            startAI = true;
         }
-       // FightOtherEmpire(_currentEmpire);
-        yield return new WaitForSeconds(1f);
-        startAI = true;
+    }
+
+    /*
+     * This is to let the main loop know that the current function has been finished.
+     * @param bool _value The new value to set inFunction to
+     */ 
+    public void setInFunctionToFalse(bool _value)
+    {
+        inFunction = _value;
     }
 
     /*
@@ -75,10 +160,10 @@ public class AIMain : MonoBehaviour
     private void ConquerRegion(EmpireClass _currentEmpire)
     {
         _currentEmpire.WarModule.ConquerTerritory();
-        for (int j = 0; j < allAIEmpireClasses.Count; j++)
-        {
-            allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.ReturnTileList());
-        }
+        //for (int j = 0; j < allAIEmpireClasses.Count; j++)
+        //{
+        //    allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.ReturnTileList());
+        //}
     }
 
     /*
@@ -99,12 +184,7 @@ public class AIMain : MonoBehaviour
    */
     public void EmpireDestroyed(EmpireClass _destroyedEmpire)
     {
-        foreach (var empire in allAIEmpireClasses)
-        {
-            empire.WarModule.OtherEmpireDied(_destroyedEmpire);
-        }
-
-        allAIEmpireClasses.Remove(_destroyedEmpire);
+        toDestroy.Add(_destroyedEmpire);
     }
 
     /*

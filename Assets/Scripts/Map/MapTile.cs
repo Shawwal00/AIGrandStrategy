@@ -23,6 +23,7 @@ public class MapTile : MonoBehaviour
     private SetUpEmpires SetUpEmpires;
 
     private GameObject currentTroopNumber;
+    private GameObject currentIncomeNumber;
 
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
@@ -58,6 +59,7 @@ public class MapTile : MonoBehaviour
 
         buildingData = GetComponent<BuildingData>();
         currentTroopNumber = transform.Find("Canvas").Find("CurrentTroopNumber").gameObject;
+        currentIncomeNumber = transform.Find("Canvas").Find("CurrentIncomeNumber").gameObject;
     }
 
 
@@ -387,6 +389,7 @@ public class MapTile : MonoBehaviour
     public void SetIncome(int _newIncome)
     {
         income = _newIncome;
+        currentIncomeNumber.GetComponent<TextMeshProUGUI>().text = _newIncome.ToString();
     }
 
     /*

@@ -228,6 +228,7 @@ public class EconomyModule : MonoBehaviour
                 }
             }
          }
+        thisEmpire.FunctionFinished();
     }
 
     /*
@@ -264,6 +265,8 @@ public class EconomyModule : MonoBehaviour
                 }
             }
         }
+
+        thisEmpire.FunctionFinished();
     }
 
     /*

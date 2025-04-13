@@ -89,7 +89,7 @@ public class WarModule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateAllTroopCount();
+        //UpdateAllTroopCount();
 
         //The below is if you have been defeated then check to see if your army can be restored
        /* if (empireDefeated == true)
@@ -220,6 +220,7 @@ public class WarModule : MonoBehaviour
                 ChangeValueInThreatRatings(_empireClass, "Population", -rMoreCorruptPopulation);
             }
         }
+        thisEmpire.FunctionFinished();
     }
 
     /*
@@ -298,13 +299,13 @@ public class WarModule : MonoBehaviour
     /*
      * This updates all the tiles with thier new troops.
      */
-    private void UpdateAllTroopCount()
+    public void UpdateAllTroopCount()
     {
-        updateTroopNumberTime += Time.deltaTime;
+      //  updateTroopNumberTime += Time.deltaTime;
         if (thisEmpire.GetOwnedTiles().Count > 0)
         {
-            if (updateTroopNumberTime > 1)
-            {
+          //  if (updateTroopNumberTime > 1)
+           // {
                 foreach (var tile in thisEmpire.GetOwnedTiles())
                 {
                     if (thisEmpire.EconomyModule.GetTrainTroops())
@@ -312,25 +313,25 @@ public class WarModule : MonoBehaviour
                         tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40));
                     }
                 }
-                updateTroopNumberTime = 0;
-            }
+            //    updateTroopNumberTime = 0;
+           // }
         }
+        thisEmpire.FunctionFinished();
     }
 
     /*
      * The below function is used to check if the AI should conquer any available tiles or not
      */
-    public void ConquerTerritory()
+    public IEnumerator ConquerTerritory()
     {
         //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
         // If at war go to a frontline if less troops
 
-       // thisEmpire.UpdateOwnedTiles();
+        // thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
             if (ownedTile.GetTroopPresent() > 10)
             {
-                Task.Delay(10000);
                 int tilesSafeCount = 0;
                 foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
                 {
@@ -416,6 +417,7 @@ public class WarModule : MonoBehaviour
                     //Move to first value in tilecamefrom
                     if (foundTile == true)
                     {
+                        yield return new WaitForSeconds(0.1f);
                         List<MapTile> path = new List<MapTile>();
                         MapTile currentPathTile = null;
                         path.Add(highestReason);
@@ -435,12 +437,8 @@ public class WarModule : MonoBehaviour
 
                         }
                         MapTile tileToGoTo = path[path.Count - 2];
-                        if (tileToGoTo.GetTileNumber() == 1)
-                        {
-                            Debug.Log("here");
-                        }
-                        tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
-                        ownedTile.SetTroopPresent(1);
+                       tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
+                       ownedTile.SetTroopPresent(1);
                     }
                 }
             }
@@ -454,7 +452,6 @@ public class WarModule : MonoBehaviour
 
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
-            Task.Delay(10000);
             MapTile lowestTile = null;
             int tileReasonValue = 0;
             foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
@@ -534,8 +531,10 @@ public class WarModule : MonoBehaviour
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() < ownedTile.GetTroopPresent() && tileReasonValue > conquerTileValue)
             {
+                yield return new WaitForSeconds(0.1f);
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent());
+                ownedTile.SetTroopPresent(1);
                 lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
                 lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 0.9f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
@@ -547,6 +546,8 @@ public class WarModule : MonoBehaviour
                 }
             }
         }
+
+        thisEmpire.FunctionFinished();
     }
 
     /*

@@ -438,7 +438,8 @@ public class DiplomacyModule : MonoBehaviour
             {
                 BreakAliiance(alliance);
             }
-        } 
+        }
+        thisEmpire.FunctionFinished();
     }
 
     private void IncreaseThisEmpireOpinion(EmpireClass _empire, int _increaseBy)

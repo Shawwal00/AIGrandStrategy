@@ -170,6 +170,8 @@ public class InternalModule : MonoBehaviour
                 thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - totalCorruptPopulation / 50);
             }
         }
+
+        thisEmpire.FunctionFinished();
     }
 
     /*
