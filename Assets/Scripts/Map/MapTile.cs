@@ -166,7 +166,6 @@ public class MapTile : MonoBehaviour
         tileMoveReasons[_otherEmpire]["War"] = 0; // This is the tile is boardering an empire you are at war with
     }
 
-
     /*
     * The below will loop through all the reasons and update the reasons to move a unit to this tile
     * @param EmpireClass _otherEmpire This is the other empire that the tile reasons will be set up for
@@ -299,7 +298,7 @@ public class MapTile : MonoBehaviour
             SetTroopAdding(UnityEngine.Random.Range(3, 5));
             SetCurrentPopulation(UnityEngine.Random.Range(50, 75));
             SetAddingPopulation(UnityEngine.Random.Range(10, 15));
-            SetIncome(UnityEngine.Random.Range(10, 15));
+            SetIncome(UnityEngine.Random.Range(20, 25));
             SetAmeneties(UnityEngine.Random.Range(1, 3));
             SetCorruptPopulation(UnityEngine.Random.Range(1, 3));
 

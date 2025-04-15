@@ -20,8 +20,8 @@ public class InternalModule : MonoBehaviour
     private bool notEnoughAmeneties = false;
 
     //Train Troops reasons
-    private int rNegative = 30;
-    private int rDuration = 10;
+    private int rNegative = 50;
+    private int rDuration = 20;
     private int rAtWar = 20;
     private int rPositiveIncome = 40;
     private int rSmallEmpire = 80;

@@ -218,7 +218,7 @@ public class EconomyModule : MonoBehaviour
             {
                 if (totalAmountOfMoney > thisEmpire.WarModule.GetTroopNumber() + tile.buildingData.GetBuildingDataPrice(highestName) * 1.5)
                 {
-                    Debug.Log(thisEmpire.GetEmpireNumber().ToString() + highestName + tile.GetTileNumber().ToString());
+                    //Debug.Log(thisEmpire.GetEmpireNumber().ToString() + highestName + tile.GetTileNumber().ToString());
                     if (tile.buildingData.GetBuildingDataOwned(highestName) == 0)
                     {
                         tile.buildingData.ChangeDataOwned(highestName, 1);
@@ -237,7 +237,18 @@ public class EconomyModule : MonoBehaviour
     public void UpdateEmpireMoney()
     {
         totalAmountOfMoney += moneyUpdateAmount;
-        int troopAmount = thisEmpire.WarModule.GetTroopNumber();
+        int troopAmount = 0;
+        foreach (MapTile tile in thisEmpire.GetOwnedTiles())
+        {
+            if (trainTroops == true)
+            {
+                troopAmount += tile.GetTroopPresent();
+            }
+            else
+            {
+                troopAmount += tile.GetTroopPresent()/2;
+            }
+        }
         totalAmountOfMoney = totalAmountOfMoney - troopAmount;
 
         if (totalAmountOfMoney <= 0)

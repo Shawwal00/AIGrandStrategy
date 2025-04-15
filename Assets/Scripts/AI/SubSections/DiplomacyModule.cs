@@ -17,7 +17,7 @@ public class DiplomacyModule : MonoBehaviour
     private List<EmpireClass> allMetEmpires = new List<EmpireClass>();
     private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
-    private int makeAllianceNumber = 40;
+    private int makeAllianceNumber = 20;
     private int breakAllianceNumber = -50;
 
     private int threatDanger = 10;
@@ -31,7 +31,7 @@ public class DiplomacyModule : MonoBehaviour
     private float currentFavourTimer = 0;
 
     private int strongEnough = 40; // This is the value at which this empire will consider another empire to be strong
-    private int makePeace = 40; // This is the value at which an empire will make peace if they feel that another empire is stronger then them.
+    private int makePeace = 80; // This is the value at which an empire will make peace if they feel that another empire is stronger then them.
 
     //All Value Reasons
     private int rBoardering = 40;
@@ -201,7 +201,7 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GiftMoney(EmpireClass _empire, int _amount)
     {
-        Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
+       // Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
         thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
         _empire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() + (_amount / moneyTimes));
         _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Gift", _amount/ moneyTimes);
@@ -300,7 +300,7 @@ public class DiplomacyModule : MonoBehaviour
             //Check to see if you like the empire
             // If not then see if you are weaker - Try to make the other empire like you.
 
-            if ((thisEmpireOpinions[atWarEmpire] > makePeace || EmpireInDanger() == true ) && (atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace || atWarEmpire.DiplomacyModule.EmpireInDanger() == true))
+            if (thisEmpireOpinions[atWarEmpire] > makePeace  && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace )
             {
                 Debug.Log(thisEmpireOpinions[atWarEmpire].ToString() + "  " + makePeace.ToString() + "  " + EmpireInDanger() + "  " + atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire].ToString() + "  " + atWarEmpire.DiplomacyModule.EmpireInDanger().ToString());
                 empiresToMakePeaceWith.Add(atWarEmpire);
@@ -412,16 +412,6 @@ public class DiplomacyModule : MonoBehaviour
                 if (atWar == false)
                 {
                     MakeAlliance(allEmpire);
-                }
-            }
-            else
-            {
-                if (EmpireInDanger() == true)
-                {
-                    if (allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) > makeAllianceNumber)
-                    {
-                        MakeAlliance(allEmpire);
-                    }
                 }
             }
 
