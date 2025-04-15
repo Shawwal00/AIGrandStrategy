@@ -26,9 +26,15 @@ public class WarModule : MonoBehaviour
     private Dictionary<EmpireClass, int> threatRatings = new Dictionary<EmpireClass, int>(); 
     private Dictionary<EmpireClass, Dictionary<string, int>> threatRatingReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that an empire feels threatened by another empire.
 
+    //Army Movements
+    private Dictionary<MapTile, Dictionary<MapTile, MapTile>> tileMovementPathfinding = new Dictionary<MapTile, Dictionary<MapTile, MapTile>>();
+    private Dictionary<MapTile, MapTile> tileMovementRefrecnes = new Dictionary<MapTile, MapTile>();
+    private Dictionary<MapTile, int> tileTroopMovement = new Dictionary<MapTile, int>();
+    private List<MapTile> tileMovementList = new List<MapTile>();
+
     //private bool empireDefeated = false;
-   // private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
-   // private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
+    // private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
+    // private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
 
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
@@ -71,6 +77,8 @@ public class WarModule : MonoBehaviour
     private int rDislikedEmpire = 10;
     private int mDistance = 3;
     private int rWarEmpire = 40;
+
+    float delay = 0.0f;
 
     private void Awake()
     {
@@ -310,6 +318,10 @@ public class WarModule : MonoBehaviour
                 {
                     if (thisEmpire.EconomyModule.GetTrainTroops())
                     {
+                    if (tile.GetTroopPresent() > tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40))
+                    {
+                        Debug.Log("123");
+                    }
                         tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40));
                     }
                 }
@@ -417,32 +429,44 @@ public class WarModule : MonoBehaviour
                     //Move to first value in tilecamefrom
                     if (foundTile == true)
                     {
-                        yield return new WaitForSeconds(0.1f);
-                        List<MapTile> path = new List<MapTile>();
-                        MapTile currentPathTile = null;
-                        path.Add(highestReason);
-                        bool tileFound = false;
-                        currentPathTile = highestReason;
-                        while (tileFound == false)
-                        {
-                            currentPathTile = tileCameFrom[currentPathTile];
-                            if (currentPathTile == null)
-                            {
-                                tileFound = true;
-                            }
-                            else
-                            {
-                                path.Add(currentPathTile);
-                            }
-
-                        }
-                        MapTile tileToGoTo = path[path.Count - 2];
-                       tileToGoTo.SetTroopPresent(ownedTile.GetTroopPresent() - 1);
-                       ownedTile.SetTroopPresent(1);
+                        tileMovementList.Add(ownedTile);
+                        tileMovementRefrecnes[ownedTile] = highestReason;
+                        tileTroopMovement[ownedTile] = ownedTile.GetTroopPresent() - 1;
+                        tileMovementPathfinding[ownedTile] = tileCameFrom;
                     }
                 }
             }
         }
+
+        foreach (MapTile tile in tileMovementList)
+        {
+            yield return new WaitForSeconds(delay);
+            List<MapTile> path = new List<MapTile>();
+            MapTile currentPathTile = null;
+            path.Add(tileMovementRefrecnes[tile]);
+            bool tileFound = false;
+            currentPathTile = tileMovementRefrecnes[tile];
+            while (tileFound == false)
+            {
+                currentPathTile = tileMovementPathfinding[tile][currentPathTile];
+                if (currentPathTile == null)
+                {
+                    tileFound = true;
+                }
+                else
+                {
+                    path.Add(currentPathTile);
+                }
+
+            }
+            MapTile tileToGoTo = path[path.Count - 2];
+            tileToGoTo.SetTroopPresent(tileToGoTo.GetTroopPresent() + tileTroopMovement[tile]);
+            tile.SetTroopPresent(1);
+        }
+        tileMovementList.Clear();
+        tileMovementPathfinding.Clear();
+        tileTroopMovement.Clear();
+        tileMovementRefrecnes.Clear();
 
         thisEmpire.UpdateExpandingTilesOfTile();
         bool alliedTile = false;
@@ -531,7 +555,7 @@ public class WarModule : MonoBehaviour
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() < ownedTile.GetTroopPresent() && tileReasonValue > conquerTileValue)
             {
-                yield return new WaitForSeconds(0.1f);
+                yield return new WaitForSeconds(delay);
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
                 lowestTile.SetTroopPresent(ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent());
                 ownedTile.SetTroopPresent(1);
