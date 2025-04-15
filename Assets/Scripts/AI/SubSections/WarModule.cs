@@ -66,8 +66,8 @@ public class WarModule : MonoBehaviour
     private int rFortBuilt = -40;
     private int rMineBuilt = 40;
     private int rBarracksBuilt = 40;
-    private int rDividePopulationValue = 500;
-    private int rDivideCorruptPopulationValue = 500;
+    private int rDividePopulationValue = 50;
+    private int rDivideCorruptPopulationValue = 10;
 
 
     //Move To tile reasons
@@ -851,8 +851,10 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("TileReplenish", _tile.GetTroopAdding(), thisEmpire);
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
         _tile.ChangeValueInTileReasons("Population", _tile.GetCurrentPopulation() / rDividePopulationValue, thisEmpire);
-        _tile.ChangeValueInTileReasons("CorruptPopulation",  -(_tile.GetCorruptPopulation() / rDivideCorruptPopulationValue), thisEmpire);
-
+        _tile.ChangeValueInTileReasons("CorruptPopulation", -(_tile.GetCorruptPopulation() / rDivideCorruptPopulationValue), thisEmpire);
+        Debug.Log(_tile.GetTileNumber());
+        Debug.Log(_tile.GetCorruptPopulation());
+        Debug.Log(rDivideCorruptPopulationValue);
 
         if (_tile.thisTileType == MapTile.TileType.Mine)
         {
