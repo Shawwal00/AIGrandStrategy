@@ -536,7 +536,7 @@ public class WarModule : MonoBehaviour
                 lowestTile.SetTroopPresent(ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent());
                 ownedTile.SetTroopPresent(1);
                 lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
-                lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 0.9f);
+                lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 1.1f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 UpdateReplinishAmount();
 

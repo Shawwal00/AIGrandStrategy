@@ -9,12 +9,16 @@ public class Cursor : MonoBehaviour
 {
     //Scripts
     [SerializeField] public MapBoard board;
-    
+    [SerializeField] public AIMain aiMain;
+
     //Variables
     private Vector3 mousePosition;
     private GameObject tileCursor;
     private Vector3 tileCursorPosition;
     private int currentTileCount;
+
+    private MapTile lastTile = null;
+
     private void Awake()
     {
         tileCursor = GameObject.Find("TileCursor");
@@ -47,6 +51,23 @@ public class Cursor : MonoBehaviour
                 tileCursorPosition.z = -0.55f; // This is to set it depending on the camera
                 tileCursor.transform.position = tileCursorPosition;
                 currentTileCount = board.ReturnTileList().Count;
+               /* if (lastTile == null)
+                {
+                    lastTile = tiles;
+                }
+                else if (lastTile != tiles)
+                {
+                    tiles.SetUpScreenTileGui();
+                    lastTile = tiles;
+                }*/
+                tiles.SetUpScreenTileGui();
+                foreach (var empire in aiMain.GetAllEmpiresInGame())
+                {
+                    if (empire.GetEmpireNumber() == tiles.GetOwner())
+                    {
+                        empire.SetUpScreenTileGui();
+                    }
+                }
             }
 
             // If the cursor is not on the grid then the tile cursor will go to 0,0,0

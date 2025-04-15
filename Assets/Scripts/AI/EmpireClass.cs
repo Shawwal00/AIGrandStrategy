@@ -1,8 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 /*
  * This script is responsible for the indivigual empires that will be used.
@@ -34,6 +36,15 @@ public class EmpireClass : MonoBehaviour
     private bool populationMigrating = false;
     private bool destoryed = false;
 
+    //EmpireCanvasGui
+    private GameObject canvasEmpireColour;
+    private GameObject canvasTotalTroops;
+    private GameObject canvasIncomeRate;
+    private GameObject canvasTotalSpawnRate;
+    private GameObject canvasTotalMoney;
+    private GameObject canvasTotalPopulation;
+    private GameObject canvasTotalCorruptPopulation;
+
     private void Awake()
     {
         // Lists
@@ -49,7 +60,7 @@ public class EmpireClass : MonoBehaviour
         MapBoardScript = GameManager.GetComponent<MapBoard>();
         AiMain = GameManager.GetComponent<AIMain>();
 
-        //Modules
+        //ModulesT
         DiplomacyModule = this.AddComponent<DiplomacyModule>();
         WarModule = this.AddComponent<WarModule>();
         EconomyModule = this.AddComponent<EconomyModule>();
@@ -59,6 +70,58 @@ public class EmpireClass : MonoBehaviour
         DiplomacyModule.SetThisEmpire(this);
         EconomyModule.SetThisEmpire(this);
         InternalModule.SetThisEmpire(this);
+
+        canvasEmpireColour = GameObject.Find("EmpireGui").transform.Find("Panel").Find("EmpireColour").gameObject;
+        canvasTotalTroops = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalTroops").gameObject;
+        canvasIncomeRate = GameObject.Find("EmpireGui").transform.Find("Panel").Find("IncomeRate").gameObject;
+        canvasTotalSpawnRate = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalTroopReplenish").gameObject;
+        canvasTotalMoney = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalMoney").gameObject;
+        canvasTotalPopulation = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalPopulation").gameObject;
+        canvasTotalCorruptPopulation = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalCorruptPopulation").gameObject;
+    }
+
+    /*
+    * The below function updates the Empire gui for whichever Empire the cursor is currently over
+    */
+    public void SetUpScreenTileGui()
+    {
+        string colour = null;
+        if (empireColor == Color.green)
+        {
+            colour = "Green";
+        }
+        else if (empireColor == Color.red)
+        {
+            colour = "Red";
+        }
+        else if (empireColor == Color.blue)
+        {
+            colour = "Blue";
+        }
+        else 
+        {
+            colour = "Black";
+        }
+        canvasEmpireColour.GetComponent<TextMeshProUGUI>().text = "Empire = " + colour;
+        int totalTroops = 0;
+        int totalIncomeRate = 0;
+        int totalSpawnRate = 0;
+        int totalCorruptPopulation = 0;
+        int totalPopulation = 0;
+        foreach (var tile in ownedTiles)
+        {
+            totalTroops += tile.GetTroopPresent();
+            totalIncomeRate += tile.GetIncome();
+            totalSpawnRate += tile.GetTroopAdding();
+            totalCorruptPopulation += tile.GetCorruptPopulation();
+            totalPopulation += tile.GetCurrentPopulation();
+        }
+        canvasTotalTroops.GetComponent<TextMeshProUGUI>().text = "Total Troops = " + totalTroops;
+        canvasIncomeRate.GetComponent<TextMeshProUGUI>().text = "Income Rate = " + totalIncomeRate;
+        canvasTotalSpawnRate.GetComponent<TextMeshProUGUI>().text = "Total Spawn Rate = " + totalSpawnRate;
+        canvasTotalMoney.GetComponent<TextMeshProUGUI>().text = "Total Money = " + EconomyModule.GetCurrentMoney();
+        canvasTotalPopulation.GetComponent<TextMeshProUGUI>().text = "Population = " + totalPopulation;
+        canvasTotalCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + totalCorruptPopulation;
     }
 
     /*

@@ -38,7 +38,7 @@ public class InternalModule : MonoBehaviour
     }
 
     /*
-     * THe below function is used to update the population of an empire
+     * The below function is used to update the population of an empire
      */
     public void UpdatePopulation()
     {
@@ -50,7 +50,7 @@ public class InternalModule : MonoBehaviour
             totalPopulation += tile.GetCurrentPopulation();
             totalAmeneties += tile.GetAmeneties();
         }
-        if (totalAmeneties * 1000 < totalPopulation)
+        if (totalAmeneties * 100 < totalPopulation)
         {
             if (notEnoughAmeneties == false)
             {

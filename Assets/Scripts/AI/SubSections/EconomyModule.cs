@@ -260,7 +260,7 @@ public class EconomyModule : MonoBehaviour
             {
                 if (tile.GetCorruptPopulation() > 0)
                 {
-                    tile.SetCorruptPopulation((tile.GetCorruptPopulation() * 1.02f) + negativeTime * 20);
+                    tile.SetCorruptPopulation((tile.GetCorruptPopulation() * 1.05f) + negativeTime * 20);
                     totalCorruptPopulation += tile.GetCorruptPopulation();
                 }
             }

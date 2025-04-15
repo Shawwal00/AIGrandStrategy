@@ -22,8 +22,19 @@ public class MapTile : MonoBehaviour
     private TileData TileData;
     private SetUpEmpires SetUpEmpires;
 
+    //OnTile
     private GameObject currentTroopNumber;
     private GameObject currentIncomeNumber;
+
+    //TileCanvasGui
+    private GameObject canvasTroopNumber;
+    private GameObject canvasTroopReplenish;
+    private GameObject canvasIncomeRate;
+    private GameObject canvasPopulation;
+    private GameObject canvasCorruptPopulation;
+    private GameObject canvasTileNumber;
+    private GameObject canvasBuildingBuilt;
+    private GameObject canvasPopulationAdding;
 
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
@@ -60,8 +71,30 @@ public class MapTile : MonoBehaviour
         buildingData = GetComponent<BuildingData>();
         currentTroopNumber = transform.Find("Canvas").Find("CurrentTroopNumber").gameObject;
         currentIncomeNumber = transform.Find("Canvas").Find("CurrentIncomeNumber").gameObject;
+
+        canvasTroopNumber = GameObject.Find("TileGui").transform.Find("Panel").Find("CurrentTroops").gameObject;
+        canvasTroopReplenish = GameObject.Find("TileGui").transform.Find("Panel").Find("TroopReplenish").gameObject;
+        canvasIncomeRate = GameObject.Find("TileGui").transform.Find("Panel").Find("IncomeRate").gameObject;
+        canvasPopulation = GameObject.Find("TileGui").transform.Find("Panel").Find("Population").gameObject;
+        canvasPopulationAdding = GameObject.Find("TileGui").transform.Find("Panel").Find("PopulationAdding").gameObject;
+        canvasCorruptPopulation = GameObject.Find("TileGui").transform.Find("Panel").Find("CorruptPopulation").gameObject;
+        canvasTileNumber = GameObject.Find("TileGui").transform.Find("Panel").Find("TileNumber").gameObject;
+        canvasBuildingBuilt = GameObject.Find("TileGui").transform.Find("Panel").Find("BuildingsBuilt").gameObject;
     }
 
+    /*
+     * The below function updates the tile gui for whichever tile the cursor is currently over
+     */ 
+    public void SetUpScreenTileGui()
+    {
+        canvasTroopNumber.GetComponent<TextMeshProUGUI>().text = "Current Troops = " + troopPresent.ToString();
+        canvasTroopReplenish.GetComponent<TextMeshProUGUI>().text = "Troop Spawn Rate = " + troopAdding.ToString();
+        canvasIncomeRate.GetComponent<TextMeshProUGUI>().text = "Income = " + income.ToString();
+        canvasPopulation.GetComponent<TextMeshProUGUI>().text = "Population " + currentPopulation.ToString();
+        canvasPopulationAdding.GetComponent<TextMeshProUGUI>().text = "Population Adding = " + addingPopulation.ToString();
+        canvasCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + corruptPopulation.ToString();
+        canvasTileNumber.GetComponent<TextMeshProUGUI>().text = "Tile Number = " + tileNumber.ToString();
+    }
 
     /*
     * The below function is used so that when the empires are set up the tiles will set up all the reasons to conquer for each empire
@@ -256,6 +289,7 @@ public class MapTile : MonoBehaviour
             SetAddingPopulation(UnityEngine.Random.Range(10, 15));
             SetIncome(UnityEngine.Random.Range(10, 15));
             SetAmeneties(UnityEngine.Random.Range(1, 3));
+            SetCorruptPopulation(UnityEngine.Random.Range(1, 3));
 
             int tileRandom = UnityEngine.Random.Range(1, 25);
             if (tileRandom <= 15)
@@ -408,9 +442,9 @@ public class MapTile : MonoBehaviour
     public void SetCurrentPopulation(float _newPopulation)
     {
         currentPopulation = (int)_newPopulation;
-        if (corruptPopulation < 0)
+        if (currentPopulation < 0)
         {
-            corruptPopulation = 0;
+            currentPopulation = 0;
         }
     }
 
