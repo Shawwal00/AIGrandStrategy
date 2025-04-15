@@ -576,8 +576,16 @@ public class WarModule : MonoBehaviour
                 //Will not add if already in reached or frontier or the tile is not owned by you
                 if (!reached.Contains(tile) && !frontier.Contains(tile) && tile.GetOwner() == thisEmpire.GetEmpireNumber())
                 {
-                    frontier.Add(tile);
-                    tileCameFrom.Add(tile, currentTile);
+                    if (_destinationTile.transform.position.magnitude - tile.transform.position.magnitude < _destinationTile.transform.position.magnitude - tile.transform.position.magnitude)
+                    {
+                        frontier.Insert(0, tile);
+                        tileCameFrom.Add(tile, currentTile);
+                    }
+                    else
+                    {
+                        frontier.Add(tile);
+                        tileCameFrom.Add(tile, currentTile);
+                    }
                 }
             }
             reached.Add(currentTile);

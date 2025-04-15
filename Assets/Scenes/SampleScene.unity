@@ -2830,8 +2830,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boardPiece: {fileID: 3460017351251522865, guid: 5558655076c0c3e48a0bcdae954b6034, type: 3}
-  boardLengthX: 10
-  boardLengthY: 10
+  boardLengthX: 15
+  boardLengthY: 15
   startLocation: {fileID: 1945516724}
   allMaterials:
   - {fileID: 2100000, guid: 0533c97785a0b31469f221645445726b, type: 2}
@@ -2865,7 +2865,7 @@ MonoBehaviour:
   MapBoardScript: {fileID: 1945516726}
   EmpireMangerPrefab: {fileID: 4897236774969801223, guid: 2cb7e0052a0c73940a887321d5b6564c, type: 3}
   AIMain: {fileID: 1945516730}
-  spawnPositions: 010000000a000000640000005b000000
+  spawnPositions: 010000000f000000e1000000d3000000
 --- !u!114 &1945516730
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -51,6 +51,8 @@ public class MapTile : MonoBehaviour
 
     private int corruptPopulation = 0; // This is the amount of corrupt population that is within this tile
 
+    private Dictionary<MapTile, int> tileDistances = new Dictionary<MapTile, int>(); // These are all the distances of this tile to another tile
+
     public enum TileType { None, Plain, Mine };
     public TileType thisTileType = TileType.None;
 
@@ -80,6 +82,16 @@ public class MapTile : MonoBehaviour
         canvasCorruptPopulation = GameObject.Find("TileGui").transform.Find("Panel").Find("CorruptPopulation").gameObject;
         canvasTileNumber = GameObject.Find("TileGui").transform.Find("Panel").Find("TileNumber").gameObject;
         canvasBuildingBuilt = GameObject.Find("TileGui").transform.Find("Panel").Find("BuildingsBuilt").gameObject;
+    }
+
+    /*
+     * Used to set the tile distance of this tile to another
+     * @param MapTile _tile The tile you are settign the distacne to
+     * @param int _distance This is the distance of this tile 
+     */
+    public void SetTileDistance(MapTile _tile, int _distance)
+    {
+        tileDistances[_tile] = _distance;
     }
 
     /*
