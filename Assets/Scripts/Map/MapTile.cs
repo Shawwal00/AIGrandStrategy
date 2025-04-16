@@ -403,6 +403,10 @@ public class MapTile : MonoBehaviour
      */
     public void SetTroopPresent(int _troopPresent)
     {
+        if (_troopPresent < 0)
+        {
+            _troopPresent = 0;
+        }
         troopPresent = _troopPresent;
         currentTroopNumber.GetComponent<TextMeshProUGUI>().text = _troopPresent.ToString();
     }

@@ -19,12 +19,15 @@ public class InternalModule : MonoBehaviour
 
     private bool notEnoughAmeneties = false;
 
+    private int corruptionDivder = 25;
+
     //Train Troops reasons
     private int rNegative = 50;
     private int rDuration = 20;
     private int rAtWar = 20;
     private int rPositiveIncome = 40;
     private int rSmallEmpire = 80;
+
 
     /*
     * This is so the script knows which empire it is.
@@ -161,13 +164,21 @@ public class InternalModule : MonoBehaviour
 
         if (totalCorruptPopulation > 0)
         {
-            if ((int)thisEmpire.EconomyModule.GetNegativeTime() > 0)
+            foreach (var tile in thisEmpire.GetOwnedTiles())
             {
-                thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - totalCorruptPopulation / 50 - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10); // Take into account negative time
-            }
-            else
-            {
-                thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - totalCorruptPopulation / 50);
+                if ((int)thisEmpire.EconomyModule.GetNegativeTime() > 0)
+                {
+                    Debug.Log(tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
+                    tile.SetTroopPresent(tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
+                    thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
+
+                }
+                else
+                {
+                    Debug.Log(tile.GetCorruptPopulation() / corruptionDivder);
+                    tile.SetTroopPresent(tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder);
+                    thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder);
+                }
             }
         }
 

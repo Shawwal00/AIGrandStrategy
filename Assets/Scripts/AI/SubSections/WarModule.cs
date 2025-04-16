@@ -46,6 +46,7 @@ public class WarModule : MonoBehaviour
     private int warDiplomacyNumber = -5; // This is the number at which a AI will go to war with another Empire
     private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
     private int conquerTileValue = -50; //This is the value the tile has to be at least for this empire to conquer it
+    private float surroundingTileValue = 0.05f; //The value that increases morale for surrounding tiles
 
     //Threat reason values
     private int rThreatBoardering = 40;
@@ -312,6 +313,7 @@ public class WarModule : MonoBehaviour
     public void UpdateAllTroopCount()
     {
       //  updateTroopNumberTime += Time.deltaTime;
+      int totalTroops = 0;
         if (thisEmpire.GetOwnedTiles().Count > 0)
         {
           //  if (updateTroopNumberTime > 1)
@@ -322,10 +324,12 @@ public class WarModule : MonoBehaviour
                     {
                         tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40));
                     }
+                totalTroops += tile.GetTroopPresent();
                 }
             //    updateTroopNumberTime = 0;
            // }
         }
+        SetTroopNumber(totalTroops);
         thisEmpire.FunctionFinished();
     }
 
@@ -598,6 +602,8 @@ public class WarModule : MonoBehaviour
                 lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 1.1f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
                 UpdateReplinishAmount();
+
+                SetTroopNumber(GetTroopNumber() - (int)(lowestTile.GetTroopPresent() * lowestTile.GetTileDefensiveBonus() * lowestTile.GetSurroundingTileBonus()));
 
                 foreach (var empire in allEmpiresInGame)
                 {
@@ -886,7 +892,7 @@ public class WarModule : MonoBehaviour
                 if (_tile.GetOwner() == tile.GetOwner())
                 {
                     surroundingTiles += rSurroundingTileSingle;
-                    _tile.SetSurroundingTileBonus(_tile.GetSurroundingTileBonus() + 0.05f);
+                    _tile.SetSurroundingTileBonus(_tile.GetSurroundingTileBonus() + surroundingTileValue);
                 }
             }
             

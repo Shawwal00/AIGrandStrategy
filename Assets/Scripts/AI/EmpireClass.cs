@@ -122,6 +122,8 @@ public class EmpireClass : MonoBehaviour
         canvasTotalMoney.GetComponent<TextMeshProUGUI>().text = "Total Money = " + EconomyModule.GetCurrentMoney();
         canvasTotalPopulation.GetComponent<TextMeshProUGUI>().text = "Population = " + totalPopulation;
         canvasTotalCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + totalCorruptPopulation;
+
+        WarModule.SetTroopNumber(totalTroops);
     }
 
     /*
