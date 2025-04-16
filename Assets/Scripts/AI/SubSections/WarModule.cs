@@ -69,6 +69,8 @@ public class WarModule : MonoBehaviour
     private int rBarracksBuilt = 40;
     private int rDividePopulationValue = 50;
     private int rDivideCorruptPopulationValue = 10;
+    private int rSurroundingTileSingle = 40;
+    private int rOverwhelmingTroops = 100;
 
     //Move To tile reasons
     private int rImportantTile = 40;
@@ -78,7 +80,7 @@ public class WarModule : MonoBehaviour
     private int mDistance = 3;
     private int rWarEmpire = 40;
 
-    private float delay = 0.1f;
+    private float delay = 0.0f;
 
     private void Awake()
     {
@@ -554,7 +556,7 @@ public class WarModule : MonoBehaviour
                     }
                 }
             }
-            if (lowestTile != null && lowestTile.GetTroopPresent() < ownedTile.GetTroopPresent() && tileReasonValue > conquerTileValue)
+            if (lowestTile != null && lowestTile.GetTroopPresent() * lowestTile.GetTileDefensiveBonus() * lowestTile.GetSurroundingTileBonus() < ownedTile.GetTroopPresent()  && tileReasonValue > conquerTileValue)
             {
                 yield return new WaitForSeconds(delay);
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
@@ -582,7 +584,6 @@ public class WarModule : MonoBehaviour
                 float availableTroops = ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent();
                 if (totalTroops > availableTroops)
                 {
-                    string a = (availableTroops / totalTroops).ToString();
                     float troopMultiplier = availableTroops / totalTroops;
                     lowestTile.SetTroopPresent((int)(goingToTileTroops * troopMultiplier));
                     ownedTile.SetTroopPresent((int)(leavingTileTroops * troopMultiplier));
@@ -738,7 +739,7 @@ public class WarModule : MonoBehaviour
             totalTroopsRequired += totalTroops[empire];
         }
 
-        if (totalTroopsRequired > _tile.GetTroopPresent() * _tile.GetTileDefensiveBonus())
+        if (totalTroopsRequired > _tile.GetTroopPresent() * _tile.GetTileDefensiveBonus() * _tile.GetSurroundingTileBonus())
         {
             _tile.ChangeValueInTileMove("EnoughTroopsWar", rWarTroops, thisEmpire);
 
@@ -876,6 +877,22 @@ public class WarModule : MonoBehaviour
             }
         }
 
+        if (_tile.GetOwner() != 0)
+        {
+            int surroundingTiles = 0;
+            _tile.SetSurroundingTileBonus(1.0f);
+            foreach (var tile in _tile.GetAllConnectedTiles())
+            {
+                if (_tile.GetOwner() == tile.GetOwner())
+                {
+                    surroundingTiles += rSurroundingTileSingle;
+                    _tile.SetSurroundingTileBonus(_tile.GetSurroundingTileBonus() + 0.05f);
+                }
+            }
+            
+            _tile.ChangeValueInTileReasons("SurroundingTiles", -surroundingTiles, thisEmpire);
+        }
+
         if (tileBoardering == true)
         {
             _tile.ChangeValueInTileReasons("Boardering", -rTileBoardering, thisEmpire);
@@ -921,17 +938,19 @@ public class WarModule : MonoBehaviour
 
         if (atWarEmpires.Count > 0)
         {
-            int totalEnemyTroops = _tile.GetTroopPresent();
-            if (totalEnemyTroops > _tile.GetTroopPresent())
+            if (_attackingTile.GetTroopPresent() > _tile.GetTroopPresent())
             {
                 _tile.ChangeValueInTileReasons("YourTroops", -rYourTroops, thisEmpire);
-                Debug.Log(_tile.GetTileNumber());
-                Debug.Log(_attackingTile.GetTileNumber());
             }
             else
             {
                 _tile.ChangeValueInTileReasons("YourTroops", rYourTroops, thisEmpire);
             }
+        }
+
+        if (_attackingTile.GetTroopPresent() > _tile.GetTroopPresent())
+        {
+            _tile.ChangeValueInTileReasons("OverwhelmingTroops", rOverwhelmingTroops, thisEmpire);
         }
 
         //Do a check for if another empire is likely to conquer this tile - must consider if the tile is owned by another empire then check thier troops.

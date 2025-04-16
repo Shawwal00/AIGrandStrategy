@@ -57,12 +57,12 @@ public class EconomyModule : MonoBehaviour
         buildingReasons["Mine"] = new Dictionary<string, int>();
         buildingReasons["Mine"]["Training"] = 0; // This is if you are currently training troops
         buildingReasons["Mine"]["Surplus"] = 0; //This is if you have a large amount of money
-        buildingReasons["Fort"]["CanBuild"] = 0; // This is if there is a tile for you to build this on
+        buildingReasons["Mine"]["CanBuild"] = 0; // This is if there is a tile for you to build this on
 
         buildingReasons["Barracks"] = new Dictionary<string, int>();
         buildingReasons["Barracks"]["AtWar"] = 0; //This is if you are at war with an Empire
         buildingReasons["Barracks"]["Training"] = 0; //This if you are currently training troops
-        buildingReasons["Fort"]["CanBuild"] = 0; // This is if there is a tile for you to build this on
+        buildingReasons["Barracks"]["CanBuild"] = 0; // This is if there is a tile for you to build this on
 
         buildingNames.Add("Barracks");
         buildingNames.Add("Mine");
@@ -121,12 +121,12 @@ public class EconomyModule : MonoBehaviour
         if (trainTroops == true)
         {
             ChangeValueInBuildingReasons("Training", rTraining, "Mine");
-            ChangeValueInBuildingReasons("Training", -rTraining, "Barracks");
+            ChangeValueInBuildingReasons("Training", rTraining, "Barracks");
         }
         else
         {
             ChangeValueInBuildingReasons("Training", -rTraining, "Mine");
-            ChangeValueInBuildingReasons("Training", rTraining, "Barracks");
+            ChangeValueInBuildingReasons("Training", -rTraining, "Barracks");
         }
 
         if (thisEmpire.GetAllTilesWithSpecialBuildings() != null)

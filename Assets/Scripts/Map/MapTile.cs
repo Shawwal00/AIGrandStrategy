@@ -36,7 +36,8 @@ public class MapTile : MonoBehaviour
     private GameObject canvasBuildingBuilt;
     private GameObject canvasPopulationAdding;
 
-    private float defensiveBonus = 1.1f;
+    private float defensiveBonus = 1.05f;
+    private float surroundingTileBonus = 1.0f;
 
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
@@ -221,6 +222,8 @@ public class MapTile : MonoBehaviour
         conquerTileReasons[_otherEmpire]["FortBuilt"] = 0; // This is if there is a fort built on this tile
         conquerTileReasons[_otherEmpire]["Population"] = 0; // This is if there is a high population on this tile
         conquerTileReasons[_otherEmpire]["CorruptPopulation"] = 0; // This is if there is a high corrupt population on this tile
+        conquerTileReasons[_otherEmpire]["SurroundingTiles"] = 0; // This is how many tiles surrounding the tile belong to the same empire
+        conquerTileReasons[_otherEmpire]["OverwhelmingTroops"] = 0; // This is if the tile has 4x as much troops
     }
 
     /*
@@ -244,6 +247,8 @@ public class MapTile : MonoBehaviour
         total += conquerTileReasons[_otherEmpire]["FortBuilt"];
         total += conquerTileReasons[_otherEmpire]["Population"];
         total += conquerTileReasons[_otherEmpire]["CorruptPopulation"];
+        total += conquerTileReasons[_otherEmpire]["SurroundingTiles"];
+        total += conquerTileReasons[_otherEmpire]["OverwhelmingTroops"];
 
         return total;
     }
@@ -379,7 +384,7 @@ public class MapTile : MonoBehaviour
         }
         else if (_buildingName == "Fort")
         {
-            SetTroopPresent(GetTroopPresent() + 50);
+            defensiveBonus += defensiveBonus + 0.4f;
         }
     }
 
@@ -553,8 +558,27 @@ public class MapTile : MonoBehaviour
     }
 
     /*
+     * The below fucntion sets the tile defensive bonus
+    * @param float _newValue The new value that the tile will be set to.
+    */
+    public void SetSurroundingTileBonus(float _newValue)
+    {
+        surroundingTileBonus = _newValue;
+    }
+
+    /*
+     * The below function gets the tile defensive bonus
+     * @return float defensiveBonus This is the tile defensive bonus
+     */
+    public float GetSurroundingTileBonus()
+    {
+        return surroundingTileBonus;
+    }
+
+
+    /*
      * If the tile is safe for a specific empire - so not 0 or at war or threatning
-     */ 
+     */
     public bool IsTileSafe(EmpireClass _empire)
     {
         if (GetOwner() == _empire.GetEmpireNumber())
