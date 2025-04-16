@@ -1,3 +1,4 @@
+using NUnit.Framework;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,11 +43,11 @@ public class WarModule : MonoBehaviour
 
     public bool trainTroops = true;
 
-    private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
+    private int warDiplomacyNumber = -5; // This is the number at which a AI will go to war with another Empire
     private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
     private int conquerTileValue = -50; //This is the value the tile has to be at least for this empire to conquer it
 
-    // Threat reason values
+    //Threat reason values
     private int rThreatBoardering = 40;
     private int rTroops = 50;
     private int rIncome = 10;
@@ -56,7 +57,7 @@ public class WarModule : MonoBehaviour
     private int rMorePopulation = 5;
     private int rMoreCorruptPopulation = 5;
 
-    //Tile reason values
+    //Conquer Tile reason values
     private int rTileBoardering = 30;
     private int rYourTroops = 60;
     private int rOtherEmpireConquer = 20;
@@ -69,7 +70,6 @@ public class WarModule : MonoBehaviour
     private int rDividePopulationValue = 50;
     private int rDivideCorruptPopulationValue = 10;
 
-
     //Move To tile reasons
     private int rImportantTile = 40;
     private int rWarTroops = 60;
@@ -78,7 +78,7 @@ public class WarModule : MonoBehaviour
     private int mDistance = 3;
     private int rWarEmpire = 40;
 
-    float delay = 0.0f;
+    private float delay = 0.1f;
 
     private void Awake()
     {
@@ -558,8 +558,41 @@ public class WarModule : MonoBehaviour
             {
                 yield return new WaitForSeconds(delay);
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
-                lowestTile.SetTroopPresent(ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent());
-                ownedTile.SetTroopPresent(1);
+
+                //Do check in here for many troops you want to remian behind
+                int leavingTileTroops = 0;
+                int goingToTileTroops = 0;
+                foreach (var tile in ownedTile.GetAllConnectedTiles())
+                {
+                    if (tile.GetOwner() != thisEmpire.GetEmpireNumber())
+                    {
+                        leavingTileTroops += tile.GetTroopPresent();
+                    }
+                }
+
+                foreach (var tile in lowestTile.GetAllConnectedTiles())
+                {
+                    if (tile.GetOwner() != thisEmpire.GetEmpireNumber())
+                    {
+                        goingToTileTroops += tile.GetTroopPresent();
+                    }
+                }
+
+                float totalTroops = leavingTileTroops + goingToTileTroops;
+                float availableTroops = ownedTile.GetTroopPresent() - lowestTile.GetTroopPresent();
+                if (totalTroops > availableTroops)
+                {
+                    string a = (availableTroops / totalTroops).ToString();
+                    float troopMultiplier = availableTroops / totalTroops;
+                    lowestTile.SetTroopPresent((int)(goingToTileTroops * troopMultiplier));
+                    ownedTile.SetTroopPresent((int)(leavingTileTroops * troopMultiplier));
+                }
+                else
+                {
+                    lowestTile.SetTroopPresent((int)(availableTroops - leavingTileTroops));
+                    ownedTile.SetTroopPresent((int)(leavingTileTroops));
+                }
+           
                 lowestTile.SetCurrentPopulation(lowestTile.GetCurrentPopulation() * 0.9f);
                 lowestTile.SetCorruptPopulation(lowestTile.GetCorruptPopulation() * 1.1f);
                 thisEmpire.EconomyModule.CalculateMoneyUpdateAmount();
@@ -705,7 +738,7 @@ public class WarModule : MonoBehaviour
             totalTroopsRequired += totalTroops[empire];
         }
 
-        if (totalTroopsRequired > _tile.GetTroopPresent())
+        if (totalTroopsRequired > _tile.GetTroopPresent() * _tile.GetTileDefensiveBonus())
         {
             _tile.ChangeValueInTileMove("EnoughTroopsWar", rWarTroops, thisEmpire);
 
@@ -852,9 +885,6 @@ public class WarModule : MonoBehaviour
         _tile.ChangeValueInTileReasons("Income", _tile.GetIncome(), thisEmpire);
         _tile.ChangeValueInTileReasons("Population", _tile.GetCurrentPopulation() / rDividePopulationValue, thisEmpire);
         _tile.ChangeValueInTileReasons("CorruptPopulation", -(_tile.GetCorruptPopulation() / rDivideCorruptPopulationValue), thisEmpire);
-        Debug.Log(_tile.GetTileNumber());
-        Debug.Log(_tile.GetCorruptPopulation());
-        Debug.Log(rDivideCorruptPopulationValue);
 
         if (_tile.thisTileType == MapTile.TileType.Mine)
         {

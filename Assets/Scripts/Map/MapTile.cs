@@ -36,6 +36,8 @@ public class MapTile : MonoBehaviour
     private GameObject canvasBuildingBuilt;
     private GameObject canvasPopulationAdding;
 
+    private float defensiveBonus = 1.1f;
+
     //Variables
     private List<MapTile> allConnectedTiles; //All the tiles that are adjacent to this tile - can only move up, down and sideways
     private int tileNumber; // This is what tile number the map is.
@@ -529,6 +531,25 @@ public class MapTile : MonoBehaviour
     public int GetCorruptPopulation()
     {
         return corruptPopulation;
+    }
+
+
+    /*
+     * The below fucntion sets the tile defensive bonus
+     * @param float _newValue The new value that the tile will be set to.
+     */ 
+    public void SetTileDfensiveBonus(float _newValue)
+    {
+        defensiveBonus = _newValue;
+    }
+
+    /*
+     * The below function gets the tile defensive bonus
+     * @return float defensiveBonus This is the tile defensive bonus
+     */ 
+    public float GetTileDefensiveBonus()
+    {
+        return defensiveBonus;
     }
 
     /*
