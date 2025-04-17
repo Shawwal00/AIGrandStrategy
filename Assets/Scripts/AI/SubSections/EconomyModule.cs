@@ -274,6 +274,13 @@ public class EconomyModule : MonoBehaviour
                     tile.SetCorruptPopulation((tile.GetCorruptPopulation() * 1.05f) + negativeTime * 20);
                     totalCorruptPopulation += tile.GetCorruptPopulation();
                 }
+                // Disband troops at this point - they add to corruption
+                if (tile.GetTroopPresent() > 0)
+                {
+                    int toReduce = (int)(tile.GetTroopPresent() * 0.99f);
+                    thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - ( tile.GetTroopPresent() - toReduce));
+                    tile.SetTroopPresent(toReduce);
+                }
             }
         }
 

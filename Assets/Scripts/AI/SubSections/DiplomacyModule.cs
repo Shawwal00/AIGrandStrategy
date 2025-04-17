@@ -18,17 +18,20 @@ public class DiplomacyModule : MonoBehaviour
     private Dictionary<EmpireClass, Dictionary<string, int>> allReasons = new Dictionary<EmpireClass, Dictionary<string, int>>(); // These are the reasons that this empire likes or dislikes another empire.
 
     private int makeAllianceNumber = 20;
-    private int breakAllianceNumber = -50;
+    private int breakAllianceNumber = -60;
 
     private int threatDanger = 10;
     private int opinionDanger = 10;
 
-    private int moneyTimes = 1;
+    private int moneyTimes = 10;
 
     //Favour
     private bool gainedFavour = false;
     private float giveFavourTimer = 30;
     private float currentFavourTimer = 0;
+
+    //GivenMoney
+    private bool gaveMoney = false;
 
     private int strongEnough = 40; // This is the value at which this empire will consider another empire to be strong
     private int makePeace = 80; // This is the value at which an empire will make peace if they feel that another empire is stronger then them.
@@ -201,7 +204,8 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void GiftMoney(EmpireClass _empire, int _amount)
     {
-       // Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
+        gaveMoney = true;
+        Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
         thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
         _empire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() + (_amount / moneyTimes));
         _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Gift", _amount/ moneyTimes);
@@ -218,7 +222,11 @@ public class DiplomacyModule : MonoBehaviour
     {
         yield return new WaitForSeconds(0.5f * _amount);
         _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
-        moneyTimes += 1;
+        if (moneyTimes < 100)
+        {
+            moneyTimes += 10;
+        }
+        gaveMoney = false;
     }
 
     /*
@@ -338,22 +346,25 @@ public class DiplomacyModule : MonoBehaviour
         {
             foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
             {
-                if (alliedEmpires.Count == 0) //If not already allied try to make an alliance
+                if (allEmpire.GetEmpireNumber() != thisEmpire.GetEmpireNumber())
                 {
-                    if (empireToImproveRelations == null)
+                    if (alliedEmpires.Count == 0) //If not already allied try to make an alliance
                     {
-                        empireToImproveRelations = allEmpire;
-                        amountToIncrease = empireToImproveRelations.DiplomacyModule.GetMakeAllianceValue() - empireToImproveRelations.DiplomacyModule.thisEmpireOpinions[thisEmpire];
-                    }
-                    else
-                    {
-                        if (empireToImproveRelations.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire)) // Get the empire with the one you have the highest opinion of.
+                        if (empireToImproveRelations == null)
                         {
                             empireToImproveRelations = allEmpire;
                             amountToIncrease = empireToImproveRelations.DiplomacyModule.GetMakeAllianceValue() - empireToImproveRelations.DiplomacyModule.thisEmpireOpinions[thisEmpire];
                         }
-                    }
+                        else
+                        {
+                            if (empireToImproveRelations.DiplomacyModule.GetThisEmpireOpinion(thisEmpire) < allEmpire.DiplomacyModule.GetThisEmpireOpinion(thisEmpire)) // Get the empire with the one you have the highest opinion of.
+                            {
+                                empireToImproveRelations = allEmpire;
+                                amountToIncrease = empireToImproveRelations.DiplomacyModule.GetMakeAllianceValue() - empireToImproveRelations.DiplomacyModule.thisEmpireOpinions[thisEmpire];
+                            }
+                        }
 
+                    }
                 }
             }
         }
@@ -369,7 +380,10 @@ public class DiplomacyModule : MonoBehaviour
                 {
                     if (thisEmpire.EconomyModule.GetCurrentMoney() * 0.5 > amountToIncrease/ moneyTimes)
                     {
-                        GiftMoney(empireToImproveRelations, amountToIncrease * moneyTimes);
+                        if (gaveMoney == false)
+                        {
+                            GiftMoney(empireToImproveRelations, amountToIncrease * moneyTimes);
+                        }
                     }
                 }
             }

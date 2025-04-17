@@ -354,11 +354,14 @@ public class WarModule : MonoBehaviour
                 {
                     bool alliedTrue = false;
                     bool owned = false;
-                    foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                    if (thisEmpire.DiplomacyModule.GetAlliedEmpires().Count != allEmpiresInGame.Count)
                     {
-                        if (expandingConnection.GetOwner() == alliedEmpire.GetEmpireNumber())
+                        foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                         {
-                            alliedTrue = true;
+                            if (expandingConnection.GetOwner() == alliedEmpire.GetEmpireNumber())
+                            {
+                                alliedTrue = true;
+                            }
                         }
                     }
 
