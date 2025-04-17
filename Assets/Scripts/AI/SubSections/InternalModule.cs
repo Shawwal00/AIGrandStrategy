@@ -19,7 +19,7 @@ public class InternalModule : MonoBehaviour
 
     private bool notEnoughAmeneties = false;
 
-    private int corruptionDivder = 25;
+    private int corruptionDivder = 35;
 
     //Train Troops reasons
     private int rNegative = 50;
@@ -168,14 +168,12 @@ public class InternalModule : MonoBehaviour
             {
                 if ((int)thisEmpire.EconomyModule.GetNegativeTime() > 0)
                 {
-                    Debug.Log(tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
                     tile.SetTroopPresent(tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
                     thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder - (int)thisEmpire.EconomyModule.GetNegativeTime() * 10);
 
                 }
                 else
                 {
-                    Debug.Log(tile.GetCorruptPopulation() / corruptionDivder);
                     tile.SetTroopPresent(tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder);
                     thisEmpire.WarModule.SetTroopNumber(thisEmpire.WarModule.GetTroopNumber() - tile.GetTroopPresent() - tile.GetCorruptPopulation() / corruptionDivder);
                 }

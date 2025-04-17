@@ -348,17 +348,40 @@ public class EmpireClass : MonoBehaviour
     {
         List<EmpireClass> atWarEmpires = WarModule.GetAtWarEmpires();
         List<MapTile> allBoarderingTiles = new List<MapTile>();
-        foreach (MapTile tile in ownedTiles)
+        if (atWarEmpires.Count > 0)
         {
-            foreach (var tileBoarder in tile.GetAllConnectedTiles())
+            foreach (MapTile tile in ownedTiles)
             {
-                if (tileBoarder.GetOwner() != GetEmpireNumber())
+                foreach (var tileBoarder in tile.GetAllConnectedTiles())
                 {
-                    if (!(allBoarderingTiles.Contains(tile)))
+                    foreach (var empire in atWarEmpires)
                     {
-                        allBoarderingTiles.Add(tile);
+                        if (tileBoarder.GetOwner() == empire.GetEmpireNumber())
+                        {
+                            if (!(allBoarderingTiles.Contains(tile)))
+                            {
+                                allBoarderingTiles.Add(tile);
+                            }
+                            break;
+                        }
                     }
-                    break;
+                }
+            }
+        }
+        else
+        {
+            foreach (MapTile tile in ownedTiles)
+            {
+                foreach (var tileBoarder in tile.GetAllConnectedTiles())
+                {
+                    if (tileBoarder.GetOwner() != GetEmpireNumber())
+                    {
+                        if (!(allBoarderingTiles.Contains(tile)))
+                        {
+                            allBoarderingTiles.Add(tile);
+                        }
+                        break;
+                    }
                 }
             }
         }
