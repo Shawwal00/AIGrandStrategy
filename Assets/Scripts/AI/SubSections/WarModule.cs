@@ -1451,4 +1451,13 @@ public class WarModule : MonoBehaviour
         }
         return totalTroops;
     }
+
+    /*
+     * Sets a new value for the delay float
+     * @param float _newDelayValue This is the new delay value.
+     */ 
+    public void SetDelayValue(float _newDelayValue)
+    {
+        delay = _newDelayValue;
+    }
 }

@@ -144,6 +144,31 @@ public class EmpireClass : MonoBehaviour
     }
 
     /*
+     * Sets the speed to the normal value
+     */ 
+    public void SetSpeedNormal()
+    {
+        WarModule.SetDelayValue(0.3f);
+    }
+
+    /*
+    * Sets the speed to the slow value
+    */
+    public void SetSpeedSlow ()
+    {
+        WarModule.SetDelayValue(1f);
+    }
+
+    /*
+     * Sets the speed to the fast value
+    */
+    public void SetSpeedFast()
+    {
+        WarModule.SetDelayValue(0.0f);
+    }
+
+
+    /*
      *The below function is used to set a list of all the tiles. 
      *@param _newTileList This is the new list that  will replace the old tile list
      */

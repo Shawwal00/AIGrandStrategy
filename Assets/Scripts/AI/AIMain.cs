@@ -254,4 +254,37 @@ public class AIMain : MonoBehaviour
         return allAIEmpireClasses;
     }
 
+    /*
+     * The below function is used to change the empire speed to normal
+     */ 
+    public void ChangeSpeedNormal()
+    {
+        foreach (EmpireClass empire in allAIEmpireClasses)
+        {
+            empire.SetSpeedNormal();
+        }
+    }
+
+    /*
+    * The below function is used to change the empire speed to slow
+    */
+    public void ChangeSpeedSlow()
+    {
+        foreach (EmpireClass empire in allAIEmpireClasses)
+        {
+            empire.SetSpeedSlow();
+        }
+    }
+
+    /*
+    * The below function is used to change the empire speed to fast
+    */
+    public void ChangeSpeedFast()
+    {
+        foreach (EmpireClass empire in allAIEmpireClasses)
+        {
+            empire.SetSpeedFast();
+        }
+    }
+
 }
