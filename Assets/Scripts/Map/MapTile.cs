@@ -102,9 +102,9 @@ public class MapTile : MonoBehaviour
      */ 
     public void SetUpScreenTileGui()
     {
-        canvasTroopNumber.GetComponent<TextMeshProUGUI>().text = "Current Troops = " + troopPresent.ToString();
-        canvasTroopReplenish.GetComponent<TextMeshProUGUI>().text = "Troop Spawn Rate = " + troopAdding.ToString();
-        canvasIncomeRate.GetComponent<TextMeshProUGUI>().text = "Income = " + income.ToString();
+        canvasTroopNumber.GetComponent<TextMeshProUGUI>().text = "Current Troops = " + troopPresent.ToString(); 
+        canvasTroopReplenish.GetComponent<TextMeshProUGUI>().text = "Troop Spawn Rate = " + (troopAdding + (currentPopulation / 50) - (corruptPopulation / 40));
+        canvasIncomeRate.GetComponent<TextMeshProUGUI>().text = "Income = " + (income + currentPopulation / 20 - corruptPopulation / 15);
         canvasPopulation.GetComponent<TextMeshProUGUI>().text = "Population " + currentPopulation.ToString();
         canvasPopulationAdding.GetComponent<TextMeshProUGUI>().text = "Population Adding = " + addingPopulation.ToString();
         canvasCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + corruptPopulation.ToString();

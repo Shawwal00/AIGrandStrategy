@@ -220,4 +220,13 @@ public class InternalModule : MonoBehaviour
     {
         trainTroopsReasons[_reason] = _newValue;
     }
+
+    /*
+     * The below gets the corruptionDivider int
+     * @return int corruptionDivider this is the rate at which troops will leave.
+     */ 
+    public int GetCorruptionDivider()
+    {
+        return corruptionDivder;
+    }
 }

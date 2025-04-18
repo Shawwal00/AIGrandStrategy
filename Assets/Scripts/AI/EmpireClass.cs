@@ -44,6 +44,8 @@ public class EmpireClass : MonoBehaviour
     private GameObject canvasTotalMoney;
     private GameObject canvasTotalPopulation;
     private GameObject canvasTotalCorruptPopulation;
+    private GameObject canvasTroopsLeaving;
+    private GameObject canvasAmeneties;
 
     private void Awake()
     {
@@ -78,6 +80,8 @@ public class EmpireClass : MonoBehaviour
         canvasTotalMoney = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalMoney").gameObject;
         canvasTotalPopulation = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalPopulation").gameObject;
         canvasTotalCorruptPopulation = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalCorruptPopulation").gameObject;
+        canvasTroopsLeaving = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TroopsLeaving").gameObject;
+        canvasAmeneties = GameObject.Find("EmpireGui").transform.Find("Panel").Find("Ameneties").gameObject;
     }
 
     /*
@@ -108,13 +112,24 @@ public class EmpireClass : MonoBehaviour
         int totalSpawnRate = 0;
         int totalCorruptPopulation = 0;
         int totalPopulation = 0;
+        int totalTroopsLeaving = 0;
+        int totalAmeneties = 0;
         foreach (var tile in ownedTiles)
         {
             totalTroops += tile.GetTroopPresent();
-            totalIncomeRate += tile.GetIncome();
-            totalSpawnRate += tile.GetTroopAdding();
+            totalIncomeRate += tile.GetIncome() + tile.GetCurrentPopulation() / 20 - tile.GetCorruptPopulation() / 15;
+            totalSpawnRate += (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40) + tile.GetTroopAdding();
             totalCorruptPopulation += tile.GetCorruptPopulation();
             totalPopulation += tile.GetCurrentPopulation();
+            if ((int)EconomyModule.GetNegativeTime() > 0)
+            {
+                totalTroopsLeaving += tile.GetCorruptPopulation() / InternalModule.GetCorruptionDivider() - (int)EconomyModule.GetNegativeTime() * 10;
+            }
+            else
+            {
+                totalTroopsLeaving += tile.GetCorruptPopulation() / InternalModule.GetCorruptionDivider();
+            }
+            totalAmeneties += tile.GetAmeneties() * 100;
         }
         canvasTotalTroops.GetComponent<TextMeshProUGUI>().text = "Total Troops = " + totalTroops;
         canvasIncomeRate.GetComponent<TextMeshProUGUI>().text = "Income Rate = " + totalIncomeRate;
@@ -122,6 +137,8 @@ public class EmpireClass : MonoBehaviour
         canvasTotalMoney.GetComponent<TextMeshProUGUI>().text = "Total Money = " + EconomyModule.GetCurrentMoney();
         canvasTotalPopulation.GetComponent<TextMeshProUGUI>().text = "Population = " + totalPopulation;
         canvasTotalCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + totalCorruptPopulation;
+        canvasTroopsLeaving.GetComponent<TextMeshProUGUI>().text = "Troops Leaving = " + totalTroopsLeaving;
+        canvasAmeneties.GetComponent<TextMeshProUGUI>().text = "Total Ameneties = " + totalAmeneties;
 
         WarModule.SetTroopNumber(totalTroops);
     }

@@ -322,7 +322,7 @@ public class WarModule : MonoBehaviour
                 {
                     if (thisEmpire.EconomyModule.GetTrainTroops())
                     {
-                        tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40));
+                        tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40) + tile.GetTroopAdding());
                     }
                 totalTroops += tile.GetTroopPresent();
                 }
@@ -354,7 +354,7 @@ public class WarModule : MonoBehaviour
                 {
                     bool alliedTrue = false;
                     bool owned = false;
-                    if (thisEmpire.DiplomacyModule.GetAlliedEmpires().Count != allEmpiresInGame.Count)
+                    if (thisEmpire.DiplomacyModule.GetAlliedEmpires().Count != allEmpiresInGame.Count - 1)
                     {
                         foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                         {
