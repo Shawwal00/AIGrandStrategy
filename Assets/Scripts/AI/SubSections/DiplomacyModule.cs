@@ -38,7 +38,7 @@ public class DiplomacyModule : MonoBehaviour
 
     //All Value Reasons
     private int rBoardering = 40;
-    private int rWarDecrease = 1;
+    private int rWarExhaustionIncrease = 2;
     private int rStrength = 20;
     private int rComplement = 10;
     private int rMoney = 0;
@@ -79,7 +79,7 @@ public class DiplomacyModule : MonoBehaviour
             EmpireClass otherEmpire = thisEmpire.WarModule.GetBoarderingEmpires()[i];
 
             total += allReasons[otherEmpire]["Boardering"];
-            total += allReasons[otherEmpire]["War"];
+            total += allReasons[otherEmpire]["WarExhaustion"];
             total += allReasons[otherEmpire]["Strength"];
             total += allReasons[otherEmpire]["Complement"];
             total += allReasons[otherEmpire]["Money"];
@@ -110,7 +110,7 @@ public class DiplomacyModule : MonoBehaviour
         thisEmpireOpinions[_otherEmpire] = 0;
         allReasons[_otherEmpire] = new Dictionary<string, int>();
         allReasons[_otherEmpire]["Boardering"] = 0; // This is if the empire is boardering
-        allReasons[_otherEmpire]["War"] = 0; // This is if the empire is at war
+        allReasons[_otherEmpire]["WarExhaustion"] = 0; // This is if the empire is at war
         allReasons[_otherEmpire]["Strength"] = 0; // This if the other empire is stronger or as strong as you or minus if weaker
         allReasons[_otherEmpire]["Complement"] = 0; // This is if the other empire has complemented you
         allReasons[_otherEmpire]["Money"] = 0; //This is if the other empire has the same or more money then you
@@ -404,10 +404,10 @@ public class DiplomacyModule : MonoBehaviour
                 if (allEmpire.GetEmpireNumber() == atWarEmpire.GetEmpireNumber())
                 {
                     //The below will continuosly decrease the diplomacy module until it gets to -50
-                    int warValue = thisEmpire.DiplomacyModule.GetDiplomacyReasonValue(atWarEmpire, "War");
-                    if (warValue > -50)
+                    int warExhaustionValue = thisEmpire.DiplomacyModule.GetDiplomacyReasonValue(atWarEmpire, "WarExhaustion");
+                    if (warExhaustionValue < 200)
                     {
-                        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(atWarEmpire, "War", warValue - rWarDecrease);
+                        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(atWarEmpire, "WarExhaustion", warExhaustionValue + rWarExhaustionIncrease);
                     }
                     break;
                 }

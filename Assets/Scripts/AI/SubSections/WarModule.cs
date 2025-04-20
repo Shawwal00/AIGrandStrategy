@@ -1250,6 +1250,8 @@ public class WarModule : MonoBehaviour
         {
             empiresDefeatedInBattle.Remove(_makePeaceEmpire);
         }
+
+        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_makePeaceEmpire, "WarExhaustion", 0);
     }
 
 
