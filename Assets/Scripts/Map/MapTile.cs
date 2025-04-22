@@ -301,15 +301,20 @@ public class MapTile : MonoBehaviour
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
         if (allTileData.ContainsKey(tileNumber) == false)
         {
-            SetTroopPresent(UnityEngine.Random.Range(15, 25));
-            SetTroopAdding(UnityEngine.Random.Range(3, 5));
-            SetCurrentPopulation(UnityEngine.Random.Range(50, 75));
-            SetAddingPopulation(UnityEngine.Random.Range(10, 15));
-            SetIncome(UnityEngine.Random.Range(20, 25));
-            SetAmeneties(UnityEngine.Random.Range(1, 3));
-            SetCorruptPopulation(UnityEngine.Random.Range(1, 3));
+            //Perlin Noise
+            // Generate perlin noise - brackys then use that to assign everything 
+            // Generate diffrent perlin noise for each? - yes then e.g 0 - 15 and 1 - 25
+            // Generate in MapBoard not in here
 
-            int tileRandom = UnityEngine.Random.Range(1, 25);
+           // SetTroopPresent(UnityEngine.Random.Range(15, 25));
+           // SetTroopAdding(UnityEngine.Random.Range(3, 5));
+           // SetCurrentPopulation(UnityEngine.Random.Range(50, 75));
+            //SetAddingPopulation(UnityEngine.Random.Range(10, 15));
+           // SetIncome(UnityEngine.Random.Range(20, 25));
+          //  SetAmeneties(UnityEngine.Random.Range(1, 3));
+          //  SetCorruptPopulation(UnityEngine.Random.Range(1, 3));
+
+          /*  int tileRandom = UnityEngine.Random.Range(1, 25);
             if (tileRandom <= 15)
             {
                 thisTileType = TileType.None;
@@ -321,7 +326,7 @@ public class MapTile : MonoBehaviour
             else
             {
                 thisTileType = TileType.Mine;
-            }
+            }*/
         }
         else 
         {

@@ -20,6 +20,8 @@ public class MapBoard : MonoBehaviour
   private MapTile copyBoardPiece;
   private int yFirstLimit;
   private int yLastLimit;
+
+  [SerializeField] public float seed = 0; //Assign in Inspector
   
   private void Awake()
   { 
@@ -43,6 +45,14 @@ public class MapBoard : MonoBehaviour
                 startLocation.transform.position.y + boardRenderer.bounds.size.y, startLocation.transform.position.z );
                 allTilePieces.Add(copyBoardPiece);
                 copyBoardPiece.SetTileNumber(tileNumber);
+                copyBoardPiece.SetTroopPresent((int)PerlinNoise(i, j, 5, 40));
+                copyBoardPiece.SetTroopAdding((int)PerlinNoise(i, j, 1, 10));
+                copyBoardPiece.SetCurrentPopulation((int)PerlinNoise(i, j, 30, 100));
+                copyBoardPiece.SetAddingPopulation((int)PerlinNoise(i, j, 5, 20));
+                copyBoardPiece.SetIncome((int)PerlinNoise(i, j, 15, 30));
+                copyBoardPiece.SetAmeneties((int)PerlinNoise(i, j, 1, 7));
+                copyBoardPiece.SetCorruptPopulation((int)PerlinNoise(i, j, 1, 7));
+                // Debug.Log(PerlinNoise(i, j, 10, 25));
 
                 tileNumber++;
             }
@@ -51,6 +61,9 @@ public class MapBoard : MonoBehaviour
             startLocation.transform.position.z);
         }
         AddAllConnections(allTilePieces, boardLengthX, boardLengthY);
+
+
+
 
         /*foreach (var firstTile in allTilePieces)
         {
@@ -117,6 +130,17 @@ public class MapBoard : MonoBehaviour
         }
     }
 
+    public float PerlinNoise(int _x, int _y, int _lowest, int _highest)
+    {
+        float xCord = (float)(_x + seed) / boardLengthX;
+        float yCord = (float)(_y + seed) / boardLengthY;
+
+        float sample = Mathf.PerlinNoise(xCord , yCord);
+
+        int total = _lowest + (int)(sample * (_highest - _lowest));
+        seed += 1;
+        return total;
+    }
     
     /*
      * This returns a list of all the tiles
