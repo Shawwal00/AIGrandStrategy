@@ -54,6 +54,8 @@ public class MapTile : MonoBehaviour
 
     private int corruptPopulation = 0; // This is the amount of corrupt population that is within this tile
 
+    private string buildingBuiltName = "None";
+
     private Dictionary<MapTile, int> tileDistances = new Dictionary<MapTile, int>(); // These are all the distances of this tile to another tile
 
     public enum TileType { None, Plain, Mine };
@@ -109,6 +111,7 @@ public class MapTile : MonoBehaviour
         canvasPopulationAdding.GetComponent<TextMeshProUGUI>().text = "Population Adding = " + addingPopulation.ToString();
         canvasCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + corruptPopulation.ToString();
         canvasTileNumber.GetComponent<TextMeshProUGUI>().text = "Tile Number = " + tileNumber.ToString();
+        canvasBuildingBuilt.GetComponent<TextMeshProUGUI>().text = "Buldings Built = " + buildingBuiltName;
     }
 
     /*
@@ -330,8 +333,8 @@ public class MapTile : MonoBehaviour
         }
         else 
         {
-            SetTroopPresent(allTileData[tileNumber]["Present"]);
-            SetTroopAdding(allTileData[tileNumber]["Replenish"]);
+          //  SetTroopPresent(allTileData[tileNumber]["Present"]);
+           // SetTroopAdding(allTileData[tileNumber]["Replenish"]);
         }
 
     }
@@ -391,6 +394,7 @@ public class MapTile : MonoBehaviour
         {
             defensiveBonus += defensiveBonus + 0.4f;
         }
+        buildingBuiltName = _buildingName;
     }
 
     /*

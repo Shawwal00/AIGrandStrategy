@@ -43,7 +43,7 @@ public class WarModule : MonoBehaviour
 
     public bool trainTroops = true;
 
-    private int warDiplomacyNumber = -15; // This is the number at which a AI will go to war with another Empire
+    private int warDiplomacyNumber = -25; // This is the number at which a AI will go to war with another Empire
     private int threatValue = 20; //This is the number at which the AI will consider another empire to be a threat
     private int conquerTileValue = -50; //This is the value the tile has to be at least for this empire to conquer it
     private float surroundingTileValue = 0.05f; //The value that increases morale for surrounding tiles
@@ -341,7 +341,7 @@ public class WarModule : MonoBehaviour
         //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
         // If at war go to a frontline if less troops
 
-        // thisEmpire.UpdateOwnedTiles();
+         thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
             if (ownedTile.GetTroopPresent() > 10)
@@ -526,70 +526,73 @@ public class WarModule : MonoBehaviour
             foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
             {
                 alliedTile = false;
-                foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                if (expandingConnection.GetOwner() != thisEmpire.GetEmpireNumber())
                 {
-                    if (alliedEmpire.GetEmpireNumber() == expandingConnection.GetOwner())
+                    foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
                     {
-                        alliedTile = true;
-                        break;
-                    }
-                }
-                if (alliedTile == false)
-                {
-                    bool warEmpire = false;
-                    foreach (var empire in atWarEmpires)
-                    {
-                        if (expandingConnection.GetOwner() == empire.GetEmpireNumber())
+                        if (alliedEmpire.GetEmpireNumber() == expandingConnection.GetOwner())
                         {
-                            warEmpire = true;
+                            alliedTile = true;
                             break;
                         }
                     }
-                    if (lowestTile == null)
+                    if (alliedTile == false)
                     {
-                        if (expandingConnection.GetOwner() == 0 || warEmpire == true)
+                        bool warEmpire = false;
+                        foreach (var empire in atWarEmpires)
                         {
-                            CheckTileForReasons(expandingConnection, ownedTile, false);
-                            lowestTile = expandingConnection;
-                            tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                        }
-                    }
-                    else
-                    {
-                        if (expandingConnection.GetOwner() == 0 || warEmpire == true )
-                        {
-                            CheckTileForReasons(expandingConnection, ownedTile, false);
-
-                            if (expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire) > tileReasonValue)
+                            if (expandingConnection.GetOwner() == empire.GetEmpireNumber())
                             {
-                                tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                                lowestTile = expandingConnection;
+                                warEmpire = true;
+                                break;
                             }
-                            ;
-                            foreach (var secondTile in expandingConnection.GetAllConnectedTiles())
+                        }
+                        if (lowestTile == null)
+                        {
+                            if (expandingConnection.GetOwner() == 0 || warEmpire == true)
                             {
-                                if (secondTile.GetOwner() != thisEmpire.GetEmpireNumber())
-                                {
-                                    CheckTileForReasons(secondTile, ownedTile, false);
-                                    int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 2;
+                                CheckTileForReasons(expandingConnection, ownedTile, false);
+                                lowestTile = expandingConnection;
+                                tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                            }
+                        }
+                        else
+                        {
+                            if (expandingConnection.GetOwner() == 0 || warEmpire == true)
+                            {
+                                CheckTileForReasons(expandingConnection, ownedTile, false);
 
-                                    if (secondAverage > tileReasonValue)
-                                    {
-                                        tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
-                                        lowestTile = expandingConnection;
-                                    }
+                                if (expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire) > tileReasonValue)
+                                {
+                                    tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                                    lowestTile = expandingConnection;
                                 }
-                                foreach (var thirdTile in secondTile.GetAllConnectedTiles())
+                                ;
+                                foreach (var secondTile in expandingConnection.GetAllConnectedTiles())
                                 {
-                                    if (thirdTile.GetOwner() != thisEmpire.GetEmpireNumber())
+                                    if (secondTile.GetOwner() != thisEmpire.GetEmpireNumber())
                                     {
-                                        CheckTileForReasons(thirdTile, ownedTile, false);
-                                        int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 3;
+                                        CheckTileForReasons(secondTile, ownedTile, false);
+                                        int secondAverage = (secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 2;
 
-                                        if (thirdAverage > tileReasonValue)
+                                        if (secondAverage > tileReasonValue)
                                         {
                                             tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
                                             lowestTile = expandingConnection;
+                                        }
+                                    }
+                                    foreach (var thirdTile in secondTile.GetAllConnectedTiles())
+                                    {
+                                        if (thirdTile.GetOwner() != thisEmpire.GetEmpireNumber())
+                                        {
+                                            CheckTileForReasons(thirdTile, ownedTile, false);
+                                            int thirdAverage = (thirdTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + secondTile.UpdateTileReasonsOfAllEmpires(thisEmpire) + expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire)) / 3;
+
+                                            if (thirdAverage > tileReasonValue)
+                                            {
+                                                tileReasonValue = expandingConnection.UpdateTileReasonsOfAllEmpires(thisEmpire);
+                                                lowestTile = expandingConnection;
+                                            }
                                         }
                                     }
                                 }

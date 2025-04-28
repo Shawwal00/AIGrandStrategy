@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static MapTile;
 
 public class MapBoard : MonoBehaviour
 {
@@ -49,11 +50,23 @@ public class MapBoard : MonoBehaviour
                 copyBoardPiece.SetTroopAdding((int)PerlinNoise(i, j, 1, 10));
                 copyBoardPiece.SetCurrentPopulation((int)PerlinNoise(i, j, 30, 100));
                 copyBoardPiece.SetAddingPopulation((int)PerlinNoise(i, j, 5, 20));
-                copyBoardPiece.SetIncome((int)PerlinNoise(i, j, 15, 30));
+                copyBoardPiece.SetIncome((int)PerlinNoise(i, j, 15, 45));
                 copyBoardPiece.SetAmeneties((int)PerlinNoise(i, j, 1, 7));
                 copyBoardPiece.SetCorruptPopulation((int)PerlinNoise(i, j, 1, 7));
-                // Debug.Log(PerlinNoise(i, j, 10, 25));
 
+                float tileRandom = PerlinNoise(i, j, 1, 25);
+                if (tileRandom/25 < 0.5)
+                {
+                    copyBoardPiece.thisTileType = TileType.None;
+                }
+                else if (tileRandom/25 >= 0.5 && tileRandom/25 < 0.6)
+                {
+                    copyBoardPiece.thisTileType = TileType.Plain;
+                }
+                else
+                {
+                    copyBoardPiece.thisTileType = TileType.Mine;
+                }
                 tileNumber++;
             }
             startLocation.transform.position = new Vector3(startLocation.transform.position.x + boardRenderer.bounds.size.x,

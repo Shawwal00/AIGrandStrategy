@@ -216,9 +216,9 @@ public class EconomyModule : MonoBehaviour
 
             if (tile != null)
             {
-                if (totalAmountOfMoney > thisEmpire.WarModule.GetTroopNumber() + tile.buildingData.GetBuildingDataPrice(highestName) * 1.5)
+                if (totalAmountOfMoney > thisEmpire.WarModule.GetTroopNumber() + tile.buildingData.GetBuildingDataPrice(highestName) * 1.3)
                 {
-                    //Debug.Log(thisEmpire.GetEmpireNumber().ToString() + highestName + tile.GetTileNumber().ToString());
+                   // Debug.Log(thisEmpire.GetEmpireNumber().ToString() + highestName + tile.GetTileNumber().ToString());
                     if (tile.buildingData.GetBuildingDataOwned(highestName) == 0)
                     {
                         tile.buildingData.ChangeDataOwned(highestName, 1);

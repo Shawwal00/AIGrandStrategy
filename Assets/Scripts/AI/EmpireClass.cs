@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -426,6 +427,28 @@ public class EmpireClass : MonoBehaviour
                     }
                 }
             }
+        }
+
+        List<MapTile> toRemove = new List<MapTile>();
+        foreach (MapTile tile in allBoarderingTiles)
+        {
+            int amount = 0;
+            foreach (var connectedTile in tile.GetAllConnectedTiles())
+            {
+                if (connectedTile.GetOwner() == empireNumber)
+                {
+                    amount += 1;
+                }
+            }
+            if (amount == tile.GetAllConnectedTiles().Count)
+            {
+                toRemove.Add(tile);
+            }
+        }
+
+        foreach (MapTile tile in toRemove)
+        {
+            allBoarderingTiles.Remove(tile);
         }
         return allBoarderingTiles;
     }
