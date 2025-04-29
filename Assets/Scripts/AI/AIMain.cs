@@ -134,7 +134,7 @@ public class AIMain : MonoBehaviour
                 yield return new WaitForSeconds(0.01f);
             }
             EmpireClass warCheck = _currentEmpire.WarModule.GoToWarCheck();
-            if (warCheck != null)
+            if (warCheck != null && warCheck != _currentEmpire)
             {
                 _currentEmpire.WarModule.EmpireAtWarWith(warCheck);
                 warCheck.WarModule.EmpireAtWarWith(_currentEmpire);

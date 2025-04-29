@@ -94,7 +94,7 @@ public class WarModule : MonoBehaviour
         //Lists
         boarderingEmpires = new List<EmpireClass>();
         atWarEmpires = new List<EmpireClass>();
-        empiresDefeatedInBattle = new List<EmpireClass>();
+        allEmpiresInGame = new List<EmpireClass>();
     }
 
     // Update is called once per frame
@@ -118,18 +118,27 @@ public class WarModule : MonoBehaviour
     /*
      * This function is used when all the other empires have been set up and the inital relationships should also be set up
      * @param List<EmpireClass> _allEmpires This is a list of all the empires within the game.
-     */ 
+     */
     public void MeetingAllEmpires(List<EmpireClass> _allEmpires)
     {
         for (int i = 0; i < _allEmpires.Count; i++)
         {
-            thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
-            thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", thisEmpire.DiplomacyModule.GetRBoarderingValue());
-            MetEmpire(_allEmpires[i]);
-            UpdateThreatRatingsOfAllEmpires();
+            if (_allEmpires[i] != thisEmpire)
+            {
+                thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
+                thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", thisEmpire.DiplomacyModule.GetRBoarderingValue());
+                MetEmpire(_allEmpires[i]);
+                UpdateThreatRatingsOfAllEmpires();
+            }
         }
 
-        allEmpiresInGame = _allEmpires;
+        foreach (var empire in _allEmpires)
+        {
+            if (empire != thisEmpire)
+            {
+                allEmpiresInGame.Add(empire);
+            }
+        }
     }
 
     /*
@@ -1098,10 +1107,6 @@ public class WarModule : MonoBehaviour
      */
     public void OtherEmpireDied(EmpireClass _deadEmpire)
     {
-        if (empiresDefeatedInBattle.Contains(_deadEmpire))
-        {
-            empiresDefeatedInBattle.Remove(_deadEmpire);
-        }
         if (atWarEmpires.Contains(_deadEmpire))
         {
             atWarEmpires.Remove(_deadEmpire);
@@ -1124,6 +1129,13 @@ public class WarModule : MonoBehaviour
     {
         //Need to break alliances
         //If they have overlapping alliances then the alliance with the more liked empire will remain or if same with the defender
+
+        if (atWarEmpires.Contains(_empireThatDeclaredWar) || thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(_empireThatDeclaredWar) || _empireThatDeclaredWar == thisEmpire)
+        {
+            return;
+        }
+
+
         List<EmpireClass> yourAllies = thisEmpire.DiplomacyModule.GetAlliedEmpires();
         List<EmpireClass> thierAllies = _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires();
 
@@ -1146,11 +1158,13 @@ public class WarModule : MonoBehaviour
 
             if (yourLiking > thierLiking)
             {
-                _empireThatDeclaredWar.DiplomacyModule.BreakAliiance(yourAlly);
+                _empireThatDeclaredWar.DiplomacyModule.BreakAlliance(yourAlly);
+                yourAlly.DiplomacyModule.BreakAlliance(_empireThatDeclaredWar);
             }
             else //If less or equal as you are the attacking empire
             {
-                thisEmpire.DiplomacyModule.BreakAliiance(yourAlly);
+                thisEmpire.DiplomacyModule.BreakAlliance(yourAlly);
+                yourAlly.DiplomacyModule.BreakAlliance(thisEmpire);
             }
         }
     
@@ -1158,11 +1172,33 @@ public class WarModule : MonoBehaviour
 
         if (!atWarEmpires.Contains(_empireThatDeclaredWar))
         {
-            atWarEmpires.Add(_empireThatDeclaredWar);
-            foreach (EmpireClass Empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
+            if (thisEmpire != _empireThatDeclaredWar)
             {
-                atWarEmpires.Add(Empire);
-                Empire.WarModule.EmpireAtWarWith(_empireThatDeclaredWar);
+                Debug.Log("To War" + thisEmpire.GetEmpireColor() + _empireThatDeclaredWar.GetEmpireColor());
+                atWarEmpires.Add(_empireThatDeclaredWar);
+            }
+            foreach (EmpireClass empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
+            {
+                if (!atWarEmpires.Contains(empire))
+                {
+                    if (thisEmpire != empire)
+                    {
+                        Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
+                        atWarEmpires.Add(empire);
+                        // empire.WarModule.EmpireAtWarWith(empire);
+                    }
+                }
+            }
+        }
+
+        foreach (var warEmpire in atWarEmpires)
+        {
+            foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+            {
+                if (warEmpire == alliedEmpire)
+                {
+                    Debug.Log("123");
+                }
             }
         }
     }
@@ -1192,15 +1228,16 @@ public class WarModule : MonoBehaviour
     {
         foreach (var empire in boarderingEmpires)
         {
-            if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire) && !atWarEmpires.Contains(empire)) // Do not go to war with allies unless alliance is broken first
+            if (empire != thisEmpire)
             {
-                // && GetAllAllianceThreatRating(empire) > empire.WarModule.GetAllAllianceThreatRating(thisEmpire)
-                // Get the diplomacy and check if you have a negative relationship also check the threat rating
-                if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber
-                    ) // Check if you are stronger then them
+                if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire) && !atWarEmpires.Contains(empire)) // Do not go to war with allies unless alliance is broken first
                 {
-                    Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
-                    return empire;
+                    // && GetAllAllianceThreatRating(empire) > empire.WarModule.GetAllAllianceThreatRating(thisEmpire)
+                    // Get the diplomacy and check if you have a negative relationship also check the threat rating
+                    if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber) // Check if you are stronger then them
+                    {
+                        return empire;
+                    }
                 }
             }
         }
@@ -1214,46 +1251,29 @@ public class WarModule : MonoBehaviour
     public void MakePeace(EmpireClass _makePeaceEmpire)
     { 
 
-        Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + _makePeaceEmpire.GetEmpireColor());
         bool removeEmpirePeace = false;
-        bool removeEmpireDefeated = false;
         foreach (var otherEmpire in atWarEmpires)
         {
             if (otherEmpire == _makePeaceEmpire)
             {
                 removeEmpirePeace = true;
-                foreach (var empire in empiresDefeatedInBattle)
-                {
-                    if (empire == _makePeaceEmpire)
-                    {
-                        removeEmpireDefeated = true;
-                    }
-                } 
             }
         }
         if (removeEmpirePeace == true)
         {
+            Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + _makePeaceEmpire.GetEmpireColor());
             atWarEmpires.Remove(_makePeaceEmpire);
 
             foreach (var empire in _makePeaceEmpire.DiplomacyModule.GetAlliedEmpires())
             {
                 if (atWarEmpires.Contains(empire))
                 {
+                    Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                     atWarEmpires.Remove(empire);
-                }
 
-                if (empiresDefeatedInBattle.Contains(empire))
-                {
-                    empiresDefeatedInBattle.Remove(empire);
                 }
             }
         }
-
-        if (removeEmpireDefeated == true)
-        {
-            empiresDefeatedInBattle.Remove(_makePeaceEmpire);
-        }
-
         thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_makePeaceEmpire, "WarExhaustion", 0);
     }
 
@@ -1310,24 +1330,6 @@ public class WarModule : MonoBehaviour
     public List<EmpireClass> GetAtWarEmpires()
     {
         return atWarEmpires;
-    }
-
-    /*
-     * The below function will return all the defeated Empires
-     * @return List<EmpireClass> empiresDefeatedInBattle These are the empires you have defeated
-     */
-    public List<EmpireClass> GetDefeatedEmpires()
-    {
-        return empiresDefeatedInBattle;
-    }
-
-    /*
-     * Removes the empire from the defeated list.
-     * @param EmpireClass _empireToRemove This is that empire that will be removed
-     */
-    public void RemoveEmpireFromeDefeatedList(EmpireClass _empireToRemove)
-    {
-        empiresDefeatedInBattle.Remove(_empireToRemove);
     }
 
     /*
@@ -1438,6 +1440,12 @@ public class WarModule : MonoBehaviour
         totalThreatValue = threatRatings[_otherEmpire];
         foreach (var alliedEmpire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
         {
+           // Debug.Log(_otherEmpire.GetEmpireColor());
+           // Debug.Log(thisEmpire.GetEmpireColor());
+            foreach (var empire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
+            {
+               // Debug.Log(empire.GetEmpireColor());
+            }
             totalThreatValue += threatRatings[alliedEmpire];
         }
 

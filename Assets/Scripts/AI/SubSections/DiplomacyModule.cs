@@ -152,17 +152,36 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void MakeAlliance(EmpireClass _empire)
     {
-        if (!alliedEmpires.Contains(_empire))
+        if (!alliedEmpires.Contains(_empire) && !thisEmpire.WarModule.GetAtWarEmpires().Contains(_empire))
         {
             Debug.Log("Made Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
+            foreach (var empirea in _empire.WarModule.GetAtWarEmpires())
+            {
+               // Debug.Log(empirea.GetEmpireColor());
+            }
             alliedEmpires.Add(_empire);
-            _empire.DiplomacyModule.MakeAlliance(thisEmpire);
+            //_empire.DiplomacyModule.MakeAlliance(thisEmpire);
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", 0);
+
             if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
             {
                 foreach (EmpireClass atWarEmpire in thisEmpire.WarModule.GetAtWarEmpires())
                 {
-                    _empire.WarModule.EmpireAtWarWith(atWarEmpire);
+                    if (atWarEmpire != _empire)
+                    {
+                        _empire.WarModule.EmpireAtWarWith(atWarEmpire);
+                    }
+                }
+            }
+
+            foreach (var warEmpire in thisEmpire.WarModule.GetAtWarEmpires())
+            {
+                foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
+                {
+                    if (warEmpire == alliedEmpire)
+                    {
+                        Debug.Log("123");
+                    }
                 }
             }
         }
@@ -172,13 +191,13 @@ public class DiplomacyModule : MonoBehaviour
     * This will break your alliance with this empire
     * @param EmpireClass _empire The empire you are making an alliance with
     */
-    public void BreakAliiance(EmpireClass _empire)
+    public void BreakAlliance(EmpireClass _empire)
     {
         if (alliedEmpires.Contains(_empire))
         {
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -rBrokeAlliance);
             alliedEmpires.Remove(_empire);
-            _empire.DiplomacyModule.BreakAliiance(thisEmpire);
+           // _empire.DiplomacyModule.BreakAlliance(thisEmpire);
             Debug.Log("Break Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
         }
     }
@@ -221,7 +240,7 @@ public class DiplomacyModule : MonoBehaviour
     private IEnumerator EndGiftBonus(EmpireClass _empire, int _amount)
     {
         yield return new WaitForSeconds(0.5f * _amount);
-        _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
+        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_empire, "Gift", 0);
         if (moneyTimes < 100)
         {
             moneyTimes += 10;
@@ -254,7 +273,7 @@ public class DiplomacyModule : MonoBehaviour
         foreach (var allEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
         {
             ChangeValueInDiplomacyReasons(allEmpire, "Alliances", 0);
-            foreach (var secondAllEmpire in thisEmpire.WarModule.GetAllEmpiresInGame())
+            foreach (var secondAllEmpire in allEmpire.WarModule.GetAllEmpiresInGame())
             {
                 int opinion = allEmpire.DiplomacyModule.GetThisEmpireOpinion(secondAllEmpire);
                 if (opinion > 0)
@@ -426,6 +445,7 @@ public class DiplomacyModule : MonoBehaviour
                 if (atWar == false)
                 {
                     MakeAlliance(allEmpire);
+                    allEmpire.DiplomacyModule.MakeAlliance(thisEmpire);
                 }
             }
 
@@ -440,7 +460,8 @@ public class DiplomacyModule : MonoBehaviour
 
             foreach (var alliance in alliancesToBreak)
             {
-                BreakAliiance(alliance);
+                BreakAlliance(alliance);
+                alliance.DiplomacyModule.BreakAlliance(thisEmpire);
             }
         }
         thisEmpire.FunctionFinished();

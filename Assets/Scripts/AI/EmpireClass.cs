@@ -47,6 +47,8 @@ public class EmpireClass : MonoBehaviour
     private GameObject canvasTotalCorruptPopulation;
     private GameObject canvasTroopsLeaving;
     private GameObject canvasAmeneties;
+    private GameObject canvasAtWarEmpires;
+    private GameObject canvasAlliedEmpires;
 
     private void Awake()
     {
@@ -83,6 +85,8 @@ public class EmpireClass : MonoBehaviour
         canvasTotalCorruptPopulation = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TotalCorruptPopulation").gameObject;
         canvasTroopsLeaving = GameObject.Find("EmpireGui").transform.Find("Panel").Find("TroopsLeaving").gameObject;
         canvasAmeneties = GameObject.Find("EmpireGui").transform.Find("Panel").Find("Ameneties").gameObject;
+        canvasAtWarEmpires = GameObject.Find("EmpireGui").transform.Find("Panel").Find("AtWarEmpires").gameObject;
+        canvasAlliedEmpires = GameObject.Find("EmpireGui").transform.Find("Panel").Find("AlliedEmpires").gameObject;
     }
 
     /*
@@ -90,23 +94,8 @@ public class EmpireClass : MonoBehaviour
     */
     public void SetUpScreenTileGui()
     {
-        string colour = null;
-        if (empireColor == Color.green)
-        {
-            colour = "Green";
-        }
-        else if (empireColor == Color.red)
-        {
-            colour = "Red";
-        }
-        else if (empireColor == Color.blue)
-        {
-            colour = "Blue";
-        }
-        else 
-        {
-            colour = "Black";
-        }
+        string colour = GetOtherEmpireColour(this);
+        
         canvasEmpireColour.GetComponent<TextMeshProUGUI>().text = "Empire = " + colour;
         int totalTroops = 0;
         int totalIncomeRate = 0;
@@ -141,7 +130,45 @@ public class EmpireClass : MonoBehaviour
         canvasTroopsLeaving.GetComponent<TextMeshProUGUI>().text = "Troops Leaving = " + totalTroopsLeaving;
         canvasAmeneties.GetComponent<TextMeshProUGUI>().text = "Total Ameneties = " + totalAmeneties;
 
+        string allAtWarEmpires = string.Empty;
+        foreach (var empire in WarModule.GetAtWarEmpires())
+        {
+            allAtWarEmpires += GetOtherEmpireColour(empire).ToString() + ",";
+        }
+        canvasAtWarEmpires.GetComponent<TextMeshProUGUI>().text = "At War Empires = " + allAtWarEmpires;
+
+        string allAlliedEmpire = string.Empty;
+        foreach (var empire in DiplomacyModule.GetAlliedEmpires())
+        {
+            allAlliedEmpire += GetOtherEmpireColour(empire).ToString() + ",";
+        }
+        canvasAlliedEmpires.GetComponent<TextMeshProUGUI>().text = "Allied Empires = " + allAlliedEmpire;
+
+
         WarModule.SetTroopNumber(totalTroops);
+    }
+
+    public string GetOtherEmpireColour(EmpireClass _empire)
+    {
+        string colour = null;
+        if (_empire.GetEmpireColor() == Color.green)
+        {
+            colour = "Green";
+        }
+        else if (_empire.GetEmpireColor() == Color.red)
+        {
+            colour = "Red";
+        }
+        else if (_empire.GetEmpireColor() == Color.blue)
+        {
+            colour = "Blue";
+        }
+        else
+        {
+            colour = "Black";
+        }
+
+        return colour;
     }
 
     /*
