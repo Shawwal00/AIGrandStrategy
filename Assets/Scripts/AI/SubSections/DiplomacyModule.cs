@@ -224,7 +224,7 @@ public class DiplomacyModule : MonoBehaviour
     private void GiftMoney(EmpireClass _empire, int _amount)
     {
         gaveMoney = true;
-        Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
+        //Debug.Log("Giving Money" + thisEmpire.GetEmpireColor() + "  " + _amount + "To" + _empire.GetEmpireColor());
         thisEmpire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() - (_amount / moneyTimes));
         _empire.EconomyModule.SetCurrentMoney(thisEmpire.EconomyModule.GetCurrentMoney() + (_amount / moneyTimes));
         _empire.DiplomacyModule.ChangeValueInDiplomacyReasons(thisEmpire, "Gift", _amount/ moneyTimes);

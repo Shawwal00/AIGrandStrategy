@@ -493,7 +493,6 @@ public class WarModule : MonoBehaviour
 
         foreach (MapTile tile in tileMovementList)
         {
-            yield return new WaitForSeconds(delay);
             List<MapTile> path = new List<MapTile>();
             MapTile currentPathTile = null;
             path.Add(tileMovementRefrecnes[tile]);
@@ -513,8 +512,15 @@ public class WarModule : MonoBehaviour
 
             }
             MapTile tileToGoTo = path[path.Count - 2];
+            tile.GetComponent<MeshRenderer>().material.color = Color.yellow;
+            tileToGoTo.GetComponent<MeshRenderer>().material.color = Color.grey;
+            yield return new WaitForSeconds(delay);
             tileToGoTo.SetTroopPresent(tileToGoTo.GetTroopPresent() + tileTroopMovement[tile]);
             tile.SetTroopPresent(tile.GetTroopPresent()  - tileTroopMovement[tile]);
+
+
+            tile.SetOwner(tile.GetOwner());
+            tileToGoTo.SetOwner(tileToGoTo.GetOwner());
         }
         tileMovementList.Clear();
         tileMovementPathfinding.Clear();
@@ -612,6 +618,8 @@ public class WarModule : MonoBehaviour
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() * lowestTile.GetTileDefensiveBonus() * lowestTile.GetSurroundingTileBonus() < ownedTile.GetTroopPresent()  && tileReasonValue > conquerTileValue)
             {
+                ownedTile.GetComponent<MeshRenderer>().material.color = Color.cyan;
+                lowestTile.GetComponent<MeshRenderer>().material.color = Color.magenta;
                 yield return new WaitForSeconds(delay);
                 lowestTile.SetOwner(thisEmpire.GetEmpireNumber());
 
@@ -659,6 +667,9 @@ public class WarModule : MonoBehaviour
                 {
                     CheckAllEmpireBoarders();
                 }
+
+                ownedTile.SetOwner(ownedTile.GetOwner());
+                lowestTile.SetOwner(lowestTile.GetOwner());
             }
         }
 
@@ -1174,7 +1185,7 @@ public class WarModule : MonoBehaviour
         {
             if (thisEmpire != _empireThatDeclaredWar)
             {
-                Debug.Log("To War" + thisEmpire.GetEmpireColor() + _empireThatDeclaredWar.GetEmpireColor());
+               // Debug.Log("To War" + thisEmpire.GetEmpireColor() + _empireThatDeclaredWar.GetEmpireColor());
                 atWarEmpires.Add(_empireThatDeclaredWar);
             }
             foreach (EmpireClass empire in _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires())
@@ -1183,44 +1194,14 @@ public class WarModule : MonoBehaviour
                 {
                     if (thisEmpire != empire)
                     {
-                        Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
+                      //  Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                         atWarEmpires.Add(empire);
                         // empire.WarModule.EmpireAtWarWith(empire);
                     }
                 }
             }
         }
-
-        foreach (var warEmpire in atWarEmpires)
-        {
-            foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
-            {
-                if (warEmpire == alliedEmpire)
-                {
-                    Debug.Log("123");
-                }
-            }
-        }
     }
-
-    /*
-     * The below function will update the threat rating of another empire
-     * @param EmpireClass _otherEmpire The empires whos threat rating you are updating
-     */
-    //public void UpdateThreatRating(EmpireClass _otherEmpire)
-    //{
-    //    int newThreatRating = 0;
-    //    if (_otherEmpire.WarModule.troopNumber * 1.1 > troopNumber)
-    //    {
-    //        newThreatRating = 1;
-    //    }
-    //    else
-    //    {
-    //        newThreatRating = -1;
-    //    }
-    //    threatRatings[_otherEmpire] = newThreatRating;
-    //}
-
     /*
      * The below function is used to check if the AI should go to war with a neighbouring faction
      */
@@ -1261,14 +1242,14 @@ public class WarModule : MonoBehaviour
         }
         if (removeEmpirePeace == true)
         {
-            Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + _makePeaceEmpire.GetEmpireColor());
+           // Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + _makePeaceEmpire.GetEmpireColor());
             atWarEmpires.Remove(_makePeaceEmpire);
 
             foreach (var empire in _makePeaceEmpire.DiplomacyModule.GetAlliedEmpires())
             {
                 if (atWarEmpires.Contains(empire))
                 {
-                    Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
+                  //  Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                     atWarEmpires.Remove(empire);
                     empire.WarModule.MakePeace(thisEmpire);
 
