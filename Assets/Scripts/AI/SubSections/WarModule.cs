@@ -1270,6 +1270,7 @@ public class WarModule : MonoBehaviour
                 {
                     Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                     atWarEmpires.Remove(empire);
+                    empire.WarModule.MakePeace(thisEmpire);
 
                 }
             }
