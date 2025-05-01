@@ -11,8 +11,6 @@ public class MapBoard : MonoBehaviour
   [SerializeField] public int boardLengthX;
   [SerializeField] public int boardLengthY;
   [SerializeField] public GameObject startLocation;
-
-  [SerializeField] public List<Material> allMaterials;
   
   //Used in Other Scripts
   private List<MapTile>  allTilePieces;
@@ -126,6 +124,13 @@ public class MapBoard : MonoBehaviour
         }
     }
 
+    /*
+     * The below is a using the Perlin Noise function to return a pseudo random value
+     * @param int _x This is the x cord that will go into the perlin noise.
+     * @param int _y This is the y cord that will go into the perlin noise.
+     * @param int _loweset This is the lowest value that can be returned.
+     * @param int _highest This is the highest value that could be returned.
+     */ 
     public float PerlinNoise(int _x, int _y, int _lowest, int _highest)
     {
         float xCord = (float)(_x + seed) / boardLengthX;
