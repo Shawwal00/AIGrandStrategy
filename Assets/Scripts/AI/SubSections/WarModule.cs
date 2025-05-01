@@ -1360,7 +1360,10 @@ public class WarModule : MonoBehaviour
         totalThreatValue = threatRatings[_otherEmpire];
         foreach (var alliedEmpire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
         {
-            totalThreatValue += threatRatings[alliedEmpire];
+            if (alliedEmpire != thisEmpire)
+            {
+                totalThreatValue += threatRatings[alliedEmpire];
+            }
         }
 
         return totalThreatValue;

@@ -486,24 +486,6 @@ public class DiplomacyModule : MonoBehaviour
         thisEmpire.FunctionFinished();
     }
 
-    private void IncreaseThisEmpireOpinion(EmpireClass _empire, int _increaseBy)
-    {
-        if (_increaseBy > 0)
-        {
-            if (thisEmpireOpinions[_empire] < 100)
-            {
-                thisEmpireOpinions[_empire] = thisEmpireOpinions[_empire] + _increaseBy;
-            }
-        }
-        else if (_increaseBy < 0)
-        {
-            if (thisEmpireOpinions[_empire] > -100)
-            {
-                thisEmpireOpinions[_empire] = thisEmpireOpinions[_empire] + _increaseBy;
-            }
-        }
-    }
-
     /*
      * The below function will specifically set your opinion of an empire to a number
      * @param EmpireClass _empire This is the empire whos opinion you will be inceasing

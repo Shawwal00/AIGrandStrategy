@@ -4512,9 +4512,7 @@ MonoBehaviour:
   boardLengthX: 10
   boardLengthY: 10
   startLocation: {fileID: 1945516724}
-  allMaterials:
-  - {fileID: 2100000, guid: 0533c97785a0b31469f221645445726b, type: 2}
-  seed: 20000
+  seed: 21000
 --- !u!4 &1945516728
 Transform:
   m_ObjectHideFlags: 0
