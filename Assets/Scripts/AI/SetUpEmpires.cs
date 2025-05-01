@@ -14,6 +14,8 @@ public class SetUpEmpires : MonoBehaviour
     [SerializeField] public EmpireClass EmpireMangerPrefab;
     [SerializeField] public AIMain AIMain;
 
+    public List<EmpireClass.EmpireType> empireTypes;
+
     //Variables
     [SerializeField] public List<int> spawnPositions; //This is the spawn positions for the empires - it will also be how many empires you want to spawn.
     private List<EmpireClass> empiresInGame;
@@ -64,6 +66,7 @@ public class SetUpEmpires : MonoBehaviour
 
         for (int j = 0; j < empiresInGame.Count; j++)
         {
+            empiresInGame[j].SetEmpireType(empireTypes[j]);
             empiresInGame[j].WarModule.MeetingAllEmpires(empiresInGame);
         }
     }

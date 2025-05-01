@@ -68,6 +68,26 @@ public class DiplomacyModule : MonoBehaviour
         }
     }
 
+    public void SetMakeAllianceNumber(int _newValue)
+    {
+        makeAllianceNumber = _newValue;
+    }
+
+    public void SetBreakAllianceNumber(int _newValue)
+    {
+        breakAllianceNumber = _newValue;
+    }
+
+    public void SetMakePeaceNumber(int _newValue)
+    {
+        makePeace = _newValue;
+    }
+
+    public void SetWarExhaustionNumber(int _newValue)
+    {
+        rWarExhaustionIncrease = _newValue;
+    }
+
     /*
      * The below will loop through all the reasons and update the diplomacy of all the empires
      */
@@ -152,15 +172,15 @@ public class DiplomacyModule : MonoBehaviour
      */
     private void MakeAlliance(EmpireClass _empire)
     {
-        if (!alliedEmpires.Contains(_empire) && !thisEmpire.WarModule.GetAtWarEmpires().Contains(_empire))
+        if (alliedEmpires.Contains(_empire) == false && thisEmpire.WarModule.GetAtWarEmpires().Contains(_empire) == false)
         {
-            Debug.Log("Made Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
+           // Debug.Log("Made Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
             foreach (var empirea in _empire.WarModule.GetAtWarEmpires())
             {
                // Debug.Log(empirea.GetEmpireColor());
             }
             alliedEmpires.Add(_empire);
-            //_empire.DiplomacyModule.MakeAlliance(thisEmpire);
+           // _empire.DiplomacyModule.MakeAlliance(thisEmpire);
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", 0);
 
             if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
@@ -170,17 +190,7 @@ public class DiplomacyModule : MonoBehaviour
                     if (atWarEmpire != _empire)
                     {
                         _empire.WarModule.EmpireAtWarWith(atWarEmpire);
-                    }
-                }
-            }
-
-            foreach (var warEmpire in thisEmpire.WarModule.GetAtWarEmpires())
-            {
-                foreach (var alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
-                {
-                    if (warEmpire == alliedEmpire)
-                    {
-                        Debug.Log("123");
+                        atWarEmpire.WarModule.EmpireAtWarWith(_empire);
                     }
                 }
             }
@@ -198,7 +208,7 @@ public class DiplomacyModule : MonoBehaviour
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -rBrokeAlliance);
             alliedEmpires.Remove(_empire);
            // _empire.DiplomacyModule.BreakAlliance(thisEmpire);
-            Debug.Log("Break Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
+           // Debug.Log("Break Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
         }
     }
 
@@ -329,7 +339,7 @@ public class DiplomacyModule : MonoBehaviour
 
             if (thisEmpireOpinions[atWarEmpire] > makePeace  && atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire] > makePeace )
             {
-                Debug.Log(thisEmpireOpinions[atWarEmpire].ToString() + "  " + makePeace.ToString() + "  " + EmpireInDanger() + "  " + atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire].ToString() + "  " + atWarEmpire.DiplomacyModule.EmpireInDanger().ToString());
+              //  Debug.Log(thisEmpireOpinions[atWarEmpire].ToString() + "  " + makePeace.ToString() + "  " + EmpireInDanger() + "  " + atWarEmpire.DiplomacyModule.thisEmpireOpinions[thisEmpire].ToString() + "  " + atWarEmpire.DiplomacyModule.EmpireInDanger().ToString());
                 empiresToMakePeaceWith.Add(atWarEmpire);
             }
 
@@ -440,9 +450,10 @@ public class DiplomacyModule : MonoBehaviour
                     if (atWarEmpire == allEmpire)
                     {
                         atWar = true;
+                        break;
                     }
                 }
-                if (atWar == false)
+                if (atWar == false && !alliedEmpires.Contains(allEmpire))
                 {
                     MakeAlliance(allEmpire);
                     allEmpire.DiplomacyModule.MakeAlliance(thisEmpire);

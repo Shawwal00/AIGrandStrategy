@@ -49,6 +49,11 @@ public class EmpireClass : MonoBehaviour
     private GameObject canvasAmeneties;
     private GameObject canvasAtWarEmpires;
     private GameObject canvasAlliedEmpires;
+    private GameObject canvasEmpireType;
+
+    public enum EmpireType { Passive, Normal, Aggressive };
+    public EmpireType thisEmpireType = EmpireType.Normal;
+    
 
     private void Awake()
     {
@@ -87,6 +92,33 @@ public class EmpireClass : MonoBehaviour
         canvasAmeneties = GameObject.Find("EmpireGui").transform.Find("Panel").Find("Ameneties").gameObject;
         canvasAtWarEmpires = GameObject.Find("EmpireGui").transform.Find("Panel").Find("AtWarEmpires").gameObject;
         canvasAlliedEmpires = GameObject.Find("EmpireGui").transform.Find("Panel").Find("AlliedEmpires").gameObject;
+        canvasEmpireType = GameObject.Find("EmpireGui").transform.Find("Panel").Find("EmpireType").gameObject;
+    }
+
+
+    public void SetEmpireType(EmpireType _newEmpireType)
+    {
+        thisEmpireType = _newEmpireType;
+        if (thisEmpireType == EmpireType.Passive)
+        {
+            WarModule.SetThreatValue(50);
+            WarModule.SetConquerTileValue(-30);
+            WarModule.SetWarDiplomacyValue(-50);
+            DiplomacyModule.SetMakePeaceNumber(60);
+            DiplomacyModule.SetMakeAllianceNumber(10);
+            DiplomacyModule.SetBreakAllianceNumber(-80);
+            DiplomacyModule.SetWarExhaustionNumber(5);
+        }
+        else if (thisEmpireType == EmpireType.Aggressive)
+        {
+            WarModule.SetThreatValue(20);
+            WarModule.SetConquerTileValue(-10);
+            WarModule.SetWarDiplomacyValue(-20);
+            DiplomacyModule.SetMakePeaceNumber(90);
+            DiplomacyModule.SetMakeAllianceNumber(60);
+            DiplomacyModule.SetBreakAllianceNumber(-30);
+            DiplomacyModule.SetWarExhaustionNumber(1);
+        }
     }
 
     /*
@@ -143,6 +175,8 @@ public class EmpireClass : MonoBehaviour
             allAlliedEmpire += GetOtherEmpireColour(empire).ToString() + ",";
         }
         canvasAlliedEmpires.GetComponent<TextMeshProUGUI>().text = "Allied Empires = " + allAlliedEmpire;
+
+        canvasEmpireType.GetComponent<TextMeshProUGUI>().text = "Empire Type = " + thisEmpireType.ToString();
 
 
         WarModule.SetTroopNumber(totalTroops);

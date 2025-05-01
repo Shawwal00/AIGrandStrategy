@@ -115,6 +115,22 @@ public class WarModule : MonoBehaviour
         }*/
     }
 
+    public void SetWarDiplomacyValue(int _newValue)
+    {
+        warDiplomacyNumber = _newValue;
+    }
+
+    public void SetThreatValue(int _newValue)
+    {
+        threatValue = _newValue;
+    }
+
+    public void SetConquerTileValue(int _newValue)
+    {
+        conquerTileValue = _newValue;
+    }
+
+
     /*
      * This function is used when all the other empires have been set up and the inital relationships should also be set up
      * @param List<EmpireClass> _allEmpires This is a list of all the empires within the game.
@@ -1130,6 +1146,10 @@ public class WarModule : MonoBehaviour
         {
             allEmpiresInGame.Remove(_deadEmpire);
         }
+        if (thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(_deadEmpire))
+        {
+            thisEmpire.DiplomacyModule.GetAlliedEmpires().Remove(_deadEmpire);
+        }
     }
 
     /*
@@ -1194,7 +1214,7 @@ public class WarModule : MonoBehaviour
                 {
                     if (thisEmpire != empire)
                     {
-                      //  Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
+                       // Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                         atWarEmpires.Add(empire);
                         // empire.WarModule.EmpireAtWarWith(empire);
                     }
@@ -1249,22 +1269,27 @@ public class WarModule : MonoBehaviour
             {
                 if (atWarEmpires.Contains(empire))
                 {
-                  //  Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
+                   // Debug.Log("MakePeace" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                     atWarEmpires.Remove(empire);
                     empire.WarModule.MakePeace(thisEmpire);
 
                 }
             }
         }
-        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_makePeaceEmpire, "WarExhaustion", 0);
+        StartCoroutine(WarExhaustionEnd(_makePeaceEmpire));
     }
 
+    private IEnumerator WarExhaustionEnd(EmpireClass _makePeaceEmpire)
+    {
+        yield return new WaitForSeconds(100f * delay + 1f);
+        thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_makePeaceEmpire, "WarExhaustion", 0);
+    }
 
     /*
      * The below function should be used when a battle with allies has taken place so that the casulaties can be spread evenly amongst all the empires
      * @param int _casualtyAmount This is how many troops have been lost in the battle
      * @param int _totalTroops This is the total amount of troops that took part in the battle
-     */ 
+     */
     public void AlliedBattleTookPlace(int _casualtyAmount, int _totalTroops)
     {
         if (_casualtyAmount >= _totalTroops)
@@ -1426,7 +1451,7 @@ public class WarModule : MonoBehaviour
            // Debug.Log(thisEmpire.GetEmpireColor());
             foreach (var empire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
             {
-               // Debug.Log(empire.GetEmpireColor());
+            //    Debug.Log(empire.GetEmpireColor());
             }
             totalThreatValue += threatRatings[alliedEmpire];
         }
