@@ -138,7 +138,6 @@ public class DiplomacyModule : MonoBehaviour
         allReasons[_otherEmpire]["Alliances"] = 0; // This is if the other empire has alliances that you do not like.
         allReasons[_otherEmpire]["BrokeAlliance"] = 0; // This is if the other empire has broken an alliance with you
         allReasons[_otherEmpire]["Ameneties"] = 0; //This is if the empire has ameneties that you need.
-        // opinionsOfYou[_empire] = 0;
 
         allMetEmpires.Add(_otherEmpire);
     }
@@ -180,7 +179,6 @@ public class DiplomacyModule : MonoBehaviour
                // Debug.Log(empirea.GetEmpireColor());
             }
             alliedEmpires.Add(_empire);
-           // _empire.DiplomacyModule.MakeAlliance(thisEmpire);
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", 0);
 
             if (thisEmpire.WarModule.GetAtWarEmpires().Count > 0)
@@ -207,7 +205,6 @@ public class DiplomacyModule : MonoBehaviour
         {
             ChangeValueInDiplomacyReasons(_empire, "BrokeAlliance", -rBrokeAlliance);
             alliedEmpires.Remove(_empire);
-           // _empire.DiplomacyModule.BreakAlliance(thisEmpire);
            // Debug.Log("Break Alliance" + thisEmpire.GetEmpireColor() + _empire.GetEmpireColor());
         }
     }

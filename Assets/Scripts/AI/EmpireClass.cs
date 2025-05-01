@@ -356,8 +356,6 @@ public class EmpireClass : MonoBehaviour
      */
     public MapTile GetBoarderTilesWithThreateningEmpire()
     {
-        
-        // Maybe change this so that it will protect tiles around important buildings first
         int amonuntOfTilesProtected = 0;
         int highestAmountOfTilesProtected = 0;
         MapTile bestTile = null;
@@ -497,6 +495,7 @@ public class EmpireClass : MonoBehaviour
             }
         }
 
+        // For some wrong tiles can be added so doing a check to remove them
         List<MapTile> toRemove = new List<MapTile>();
         foreach (MapTile tile in allBoarderingTiles)
         {
@@ -567,7 +566,6 @@ public class EmpireClass : MonoBehaviour
     {
         // Migrate to boardering empires
         // Migrate 0.01 % of your owned tiles to each other empire assuming that they have enough ameneties - split between all the tiles - so split between 0.3%
-
         //Migrate if no ameneties
 
         if (populationMigrating == true)
@@ -733,12 +731,6 @@ public class EmpireClass : MonoBehaviour
     public bool GetPopulationMigrating()
     {
         return populationMigrating; 
-    }
-
-
-    public IEnumerator DelayAction(int _delayTime)
-    {
-        yield return new WaitForSeconds(_delayTime);
     }
 
     /*

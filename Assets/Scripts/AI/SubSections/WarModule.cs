@@ -77,7 +77,7 @@ public class WarModule : MonoBehaviour
     private int mDistance = 3;
     private int rWarEmpire = 60;
 
-    private float delay = 0.0f;
+    private float delay = 0.0f; // This is the speed of the game
 
     private void Awake()
     {
@@ -91,12 +91,6 @@ public class WarModule : MonoBehaviour
         boarderingEmpires = new List<EmpireClass>();
         atWarEmpires = new List<EmpireClass>();
         allEmpiresInGame = new List<EmpireClass>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
     }
 
     /*
@@ -137,7 +131,6 @@ public class WarModule : MonoBehaviour
             if (_allEmpires[i] != thisEmpire)
             {
                 thisEmpire.DiplomacyModule.MetEmpire(_allEmpires[i]);
-                thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_allEmpires[i], "Boardering", thisEmpire.DiplomacyModule.GetRBoarderingValue());
                 MetEmpire(_allEmpires[i]);
                 UpdateThreatRatingsOfAllEmpires();
             }
@@ -147,7 +140,7 @@ public class WarModule : MonoBehaviour
         {
             if (empire != thisEmpire)
             {
-                allEmpiresInGame.Add(empire);
+                allEmpiresInGame.Add(empire); //Adds every empire except your own
             }
         }
     }
@@ -349,22 +342,20 @@ public class WarModule : MonoBehaviour
     }
 
     /*
-     * The below function is used to check if the AI should conquer any available tiles or not
+     * The below function is used to move the troops around the empire and then to attack any tiles.
      */
     public IEnumerator ConquerTerritory()
     {
-        //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
-        // If at war go to a frontline if less troops
-
         thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
-            if (ownedTile.GetTroopPresent() > 10)
+            if (ownedTile.GetTroopPresent() > 10) // For performance
             {
                 int tilesSafeCount = 0;
                 int totalOpposingTroops = 0;
                 bool tooManyTroops = false;
 
+                // Check to see if the troops on the tile should be moved or not
                 foreach (var expandingConnection in ownedTile.GetAllConnectedTiles())
                 {
                     bool alliedTrue = false;
@@ -410,7 +401,7 @@ public class WarModule : MonoBehaviour
                     }
                 }
 
-                // Do a check to see if too many troops are on the tile 
+                // Do a check to see if too many troops are on the tile if so then move only some of the troops
                 int troopsToMove = ownedTile.GetTroopPresent() - 1;
                 int troopsToLeaveBehind = 1;
                 if (ownedTile.GetAllConnectedTiles().Count != tilesSafeCount)
@@ -425,10 +416,9 @@ public class WarModule : MonoBehaviour
 
                 if (ownedTile.GetAllConnectedTiles().Count == tilesSafeCount || tooManyTroops == true) // Move troops all connections to this tile are safe
                 {
-                    //Check all boardering tiles 
+                    //Check all tile edges 
                     //Check tile reasons on why to move to this tile
                     // Pick the tile with the highest reason
-                    // For reasons check indivigual tile and if a hostile force is connected to it on another tile
 
                     List<MapTile> tileEdges = thisEmpire.GetTileAtEdge();
                     if (tileEdges.Count == 0)
@@ -448,7 +438,6 @@ public class WarModule : MonoBehaviour
                             {
                                 if (highestReason == null)
                                 {
-                                    //Check if the unit can reach there
                                     highestReason = tile;
                                     UpdateTileMoveReasons(highestReason, ownedTile);
                                     reasonNumber = tile.UpdateTileMoveForAllTile(thisEmpire);
@@ -467,10 +456,11 @@ public class WarModule : MonoBehaviour
                         //Pathfinding check
                         List<MapTile> reachedTiles = null;
 
-                        tileCameFrom = ExpandingBFS(ownedTile, highestReason, out reachedTiles);
+                        tileCameFrom = GreedysBestFirstSearch(ownedTile, highestReason, out reachedTiles);
 
                         if (reachedTiles.Contains(highestReason))
                         {
+                            //Check if the unit can reach there if not then add to ignore list.
                             foundTile = true;
                         }
                         else
@@ -478,14 +468,14 @@ public class WarModule : MonoBehaviour
                             ignoreTiles.Add(highestReason);
                         }
 
-                        if (tileEdges.Count == ignoreTiles.Count)
+                        if (tileEdges.Count == ignoreTiles.Count) // Tile is compleatly surrounded by other Empires
                         {
                             break;
                         }
 
                     }
 
-                    //Move to first value in tilecamefrom
+                    // Make a list of all the important information then do the movement after
                     if (foundTile == true)
                     {
                         tileMovementList.Add(ownedTile);
@@ -497,6 +487,7 @@ public class WarModule : MonoBehaviour
             }
         }
 
+        //Movement occurs below outside the for loop so that troops only move once and not multiple times
         foreach (MapTile tile in tileMovementList)
         {
             List<MapTile> path = new List<MapTile>();
@@ -539,7 +530,6 @@ public class WarModule : MonoBehaviour
         // for each of those geet expanding tiles 
         // If expanding greater then - then do reason check to see if you should conquer the tile
 
-
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
             MapTile lowestTile = null;
@@ -579,6 +569,7 @@ public class WarModule : MonoBehaviour
                         }
                         else
                         {
+                            // The below is inspired by Monte Carlo Tree Search - the code witll look at 3 tiles in advance and go for the tile with the highest values averaged
                             if (expandingConnection.GetOwner() == 0 || warEmpire == true)
                             {
                                 CheckTileForReasons(expandingConnection, ownedTile, false);
@@ -624,6 +615,7 @@ public class WarModule : MonoBehaviour
             }
             if (lowestTile != null && lowestTile.GetTroopPresent() * lowestTile.GetTileDefensiveBonus() * lowestTile.GetSurroundingTileBonus() < ownedTile.GetTroopPresent()  && tileReasonValue > conquerTileValue)
             {
+                //Conquer the tile
                 ownedTile.GetComponent<MeshRenderer>().material.color = Color.cyan;
                 lowestTile.GetComponent<MeshRenderer>().material.color = Color.magenta;
                 yield return new WaitForSeconds(delay);
@@ -688,7 +680,7 @@ public class WarModule : MonoBehaviour
      * @param MapTile _destinationTile This is the tile that the unit will move towards
      * @return Dictionary<MapTile, MapTile> tileCameFrom This is the order of tiles that the unit should move to
      */
-    public Dictionary<MapTile, MapTile> ExpandingBFS(MapTile _currentTile, MapTile _destinationTile, out List<MapTile> reached)
+    public Dictionary<MapTile, MapTile> GreedysBestFirstSearch(MapTile _currentTile, MapTile _destinationTile, out List<MapTile> reached)
     {
         List<MapTile> frontier = new List<MapTile>();
         reached = new List<MapTile>();
@@ -833,7 +825,7 @@ public class WarModule : MonoBehaviour
         }
 
         List<MapTile> reachedTiles = null;
-        ExpandingBFS(_currentTile, _tile, out reachedTiles);
+        GreedysBestFirstSearch(_currentTile, _tile, out reachedTiles);
 
         int rDistance = reachedTiles.Count * mDistance;
         if (rDistance > neededTroops)
@@ -914,7 +906,6 @@ public class WarModule : MonoBehaviour
      */
     public void CheckTileForReasons(MapTile _tile, MapTile _attackingTile, bool _notCheckOtherEmpire)
     {
-        // Do reasons here
         bool tileBoardering = false;
         foreach (var boarderingTile in _tile.GetAllConnectedTiles())
         {
@@ -1148,14 +1139,13 @@ public class WarModule : MonoBehaviour
      */
     public void EmpireAtWarWith(EmpireClass _empireThatDeclaredWar)
     {
-        //Need to break alliances
-        //If they have overlapping alliances then the alliance with the more liked empire will remain or if same with the defender
-
         if (atWarEmpires.Contains(_empireThatDeclaredWar) || thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(_empireThatDeclaredWar) || _empireThatDeclaredWar == thisEmpire)
         {
             return;
         }
 
+        //Need to break alliances
+        //If they have overlapping alliances then the alliance with the more liked empire will remain or if same with the defender
 
         List<EmpireClass> yourAllies = thisEmpire.DiplomacyModule.GetAlliedEmpires();
         List<EmpireClass> thierAllies = _empireThatDeclaredWar.DiplomacyModule.GetAlliedEmpires();
@@ -1188,8 +1178,6 @@ public class WarModule : MonoBehaviour
                 yourAlly.DiplomacyModule.BreakAlliance(thisEmpire);
             }
         }
-    
-    
 
         if (!atWarEmpires.Contains(_empireThatDeclaredWar))
         {
@@ -1206,7 +1194,6 @@ public class WarModule : MonoBehaviour
                     {
                        // Debug.Log("To War" + thisEmpire.GetEmpireColor() + empire.GetEmpireColor());
                         atWarEmpires.Add(empire);
-                        // empire.WarModule.EmpireAtWarWith(empire);
                     }
                 }
             }
@@ -1223,7 +1210,6 @@ public class WarModule : MonoBehaviour
             {
                 if (!thisEmpire.DiplomacyModule.GetAlliedEmpires().Contains(empire) && !atWarEmpires.Contains(empire)) // Do not go to war with allies unless alliance is broken first
                 {
-                    // && GetAllAllianceThreatRating(empire) > empire.WarModule.GetAllAllianceThreatRating(thisEmpire)
                     // Get the diplomacy and check if you have a negative relationship also check the threat rating
                     if (thisEmpire.DiplomacyModule.GetThisEmpireOpinion(empire) <= warDiplomacyNumber) // Check if you are stronger then them
                     {
@@ -1273,32 +1259,6 @@ public class WarModule : MonoBehaviour
     {
         yield return new WaitForSeconds(100f * delay + 1f);
         thisEmpire.DiplomacyModule.ChangeValueInDiplomacyReasons(_makePeaceEmpire, "WarExhaustion", 0);
-    }
-
-    /*
-     * The below function should be used when a battle with allies has taken place so that the casulaties can be spread evenly amongst all the empires
-     * @param int _casualtyAmount This is how many troops have been lost in the battle
-     * @param int _totalTroops This is the total amount of troops that took part in the battle
-     */
-    public void AlliedBattleTookPlace(int _casualtyAmount, int _totalTroops)
-    {
-        if (_casualtyAmount >= _totalTroops)
-        {
-            SetTroopNumber(0);
-            foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
-            {
-                alliedEmpire.WarModule.SetTroopNumber(0);
-            }
-        }
-        else
-        {
-            float percentageTroopLost = ((_totalTroops - _casualtyAmount) / _totalTroops) * 100;
-            SetTroopNumber((int)(GetTroopNumber() / percentageTroopLost));
-            foreach (EmpireClass alliedEmpire in thisEmpire.DiplomacyModule.GetAlliedEmpires())
-            {
-                alliedEmpire.WarModule.SetTroopNumber((int)(alliedEmpire.WarModule.GetTroopNumber() / percentageTroopLost));
-            }
-        }
     }
 
     /*

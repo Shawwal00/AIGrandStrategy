@@ -35,6 +35,7 @@ public class MapTile : MonoBehaviour
     private GameObject canvasTileNumber;
     private GameObject canvasBuildingBuilt;
     private GameObject canvasPopulationAdding;
+    private GameObject canvasTileType;
 
     private float defensiveBonus = 1.05f;
     private float surroundingTileBonus = 1.0f;
@@ -87,6 +88,7 @@ public class MapTile : MonoBehaviour
         canvasCorruptPopulation = GameObject.Find("TileGui").transform.Find("Panel").Find("CorruptPopulation").gameObject;
         canvasTileNumber = GameObject.Find("TileGui").transform.Find("Panel").Find("TileNumber").gameObject;
         canvasBuildingBuilt = GameObject.Find("TileGui").transform.Find("Panel").Find("BuildingsBuilt").gameObject;
+        canvasTileType = GameObject.Find("TileGui").transform.Find("Panel").Find("TileType").gameObject;
     }
 
     /*
@@ -112,6 +114,7 @@ public class MapTile : MonoBehaviour
         canvasCorruptPopulation.GetComponent<TextMeshProUGUI>().text = "Corrupt Population = " + corruptPopulation.ToString();
         canvasTileNumber.GetComponent<TextMeshProUGUI>().text = "Tile Number = " + tileNumber.ToString();
         canvasBuildingBuilt.GetComponent<TextMeshProUGUI>().text = "Buldings Built = " + buildingBuiltName;
+        canvasTileType.GetComponent<TextMeshProUGUI>().text = "Tile Type = " + thisTileType.ToString();
     }
 
     /*
