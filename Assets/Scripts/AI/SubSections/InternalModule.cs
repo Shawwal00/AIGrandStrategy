@@ -139,7 +139,7 @@ public class InternalModule : MonoBehaviour
             thisEmpire.EconomyModule.SetTrainTroops(false);
         }
 
-        if (updatePopulationTime == 0)
+       /* if (updatePopulationTime == 0)
         {
             UpdatePopulation();
         }
@@ -150,7 +150,9 @@ public class InternalModule : MonoBehaviour
             {
                 updatePopulationTime = 0;
             }
-        }
+        }*/
+
+        UpdatePopulation();
 
         int totalCorruptPopulation = 0;
         foreach (var tile in thisEmpire.GetOwnedTiles())

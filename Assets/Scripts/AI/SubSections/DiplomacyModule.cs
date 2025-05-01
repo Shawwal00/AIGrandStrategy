@@ -27,7 +27,7 @@ public class DiplomacyModule : MonoBehaviour
 
     //Favour
     private bool gainedFavour = false;
-    private float giveFavourTimer = 30;
+    private float giveFavourTimer = 20;
     private float currentFavourTimer = 0;
 
     //GivenMoney
@@ -59,7 +59,7 @@ public class DiplomacyModule : MonoBehaviour
         //Rests the favour after a set amount of time
         if (gainedFavour == true)
         {
-            currentFavourTimer += Time.deltaTime;
+            currentFavourTimer += 1;
         }
 
         if (currentFavourTimer > giveFavourTimer)

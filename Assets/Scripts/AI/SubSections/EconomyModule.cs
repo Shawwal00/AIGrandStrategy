@@ -253,7 +253,7 @@ public class EconomyModule : MonoBehaviour
 
         if (totalAmountOfMoney <= 0)
         {
-            negativeTime += Time.deltaTime;
+            negativeTime += 1;
         }
         else
         {
