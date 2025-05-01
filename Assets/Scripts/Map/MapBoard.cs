@@ -74,23 +74,6 @@ public class MapBoard : MonoBehaviour
             startLocation.transform.position.z);
         }
         AddAllConnections(allTilePieces, boardLengthX, boardLengthY);
-
-
-
-
-        /*foreach (var firstTile in allTilePieces)
-        {
-            foreach (var secondTile in allTilePieces)
-            {
-                if (firstTile != secondTile)
-                {
-                    firstTile.SetTileDistance(secondTile, FindTileDistnaces(firstTile, secondTile));
-                    Debug.Log(firstTile.GetTileNumber());
-                    Debug.Log(secondTile.GetTileNumber());
-                    Debug.Log(FindTileDistnaces(firstTile, secondTile));
-                }
-            }
-        }*/
     }
 
     /*
@@ -171,65 +154,5 @@ public class MapBoard : MonoBehaviour
     public Renderer ReturnRenderer()
     {
         return boardRenderer;
-    }
-
-    /*
-    * The below is used to get the distance between 2 tiles
-    * @param MapTile _currentTile This is the current tile the unit is on
-    * @param MapTile _destinationTile This is the tile that the unit will move towards
-    */
-    public int FindTileDistnaces(MapTile _currentTile, MapTile _destinationTile)
-    {
-        List<MapTile> frontier = new List<MapTile>();
-        List<MapTile> reached = new List<MapTile>();
-        Dictionary<MapTile, MapTile> tileCameFrom = new Dictionary<MapTile, MapTile>();
-        MapTile currentTile = null;
-
-        frontier.Add(_currentTile);
-        tileCameFrom.Add(_currentTile, null);
-
-        //While will check every tile
-        while (frontier.Count > 0)
-        {
-            currentTile = frontier[0];
-
-            foreach (var tile in currentTile.GetAllConnectedTiles())
-            {
-                //Will not add if already in reached or frontier or the tile is not owned by you
-                if (!reached.Contains(tile) && !frontier.Contains(tile))
-                {
-                    frontier.Add(tile);
-                    tileCameFrom.Add(tile, currentTile);
-                }
-            }
-            reached.Add(currentTile);
-            frontier.Remove(currentTile);
-
-            if (reached.Contains(_destinationTile))
-            {
-                break;
-            }
-        }
-        reached.Remove(reached[0]); // Remove the starting tile
-
-        List<MapTile> path = new List<MapTile>();
-        MapTile currentPathTile = null;
-        path.Add(_destinationTile);
-        bool tileFound = false;
-        currentPathTile = _destinationTile;
-        while (tileFound == false)
-        {
-            currentPathTile = tileCameFrom[currentPathTile];
-            if (currentPathTile == null)
-            {
-                tileFound = true;
-            }
-            else
-            {
-                path.Add(currentPathTile);
-            }
-        }
-
-        return path.Count - 1;
     }
 }

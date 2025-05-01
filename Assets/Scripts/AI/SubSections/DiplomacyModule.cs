@@ -50,39 +50,39 @@ public class DiplomacyModule : MonoBehaviour
     {
         //Lists
         alliedEmpires = new List<EmpireClass>();
-
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        //Rests the favour after a set amount of time
-        if (gainedFavour == true)
-        {
-            currentFavourTimer += 1;
-        }
-
-        if (currentFavourTimer > giveFavourTimer)
-        {
-            gainedFavour = false;
-        }
-    }
-
+    /*
+    * The below function sets a new value for the makeAllianceNumber
+    * @param int _newValue The new value assigned to the makeAllianceNumber
+     */
     public void SetMakeAllianceNumber(int _newValue)
     {
         makeAllianceNumber = _newValue;
     }
 
+    /*
+    * The below function sets a new value for the breakAllianceNumber
+    * @param int _newValue The new value assigned to the breakAllianceNumber
+     */
     public void SetBreakAllianceNumber(int _newValue)
     {
         breakAllianceNumber = _newValue;
     }
 
+    /*
+    * The below function sets a new value for the makePeaceNumber
+    * @param int _newValue The new value assigned to the makePeaceNumber
+     */
     public void SetMakePeaceNumber(int _newValue)
     {
         makePeace = _newValue;
     }
 
+    /*
+    * The below function sets a new value for the warExhaustionNumber
+    * @param int _newValue The new value assigned to the warExhaustionNumber
+    */
     public void SetWarExhaustionNumber(int _newValue)
     {
         rWarExhaustionIncrease = _newValue;
@@ -313,6 +313,17 @@ public class DiplomacyModule : MonoBehaviour
      */
     public void UpdateDiplomacy()
     {
+        //Rests the favour after a set amount of time
+        if (gainedFavour == true)
+        {
+            currentFavourTimer += 1;
+        }
+
+        if (currentFavourTimer > giveFavourTimer)
+        {
+            gainedFavour = false;
+        }
+
         CheckOtherAllEmpiresAlliances();
         EmpireClass empireToImproveRelations = null;
         int amountToIncrease = 0;

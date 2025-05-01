@@ -304,11 +304,6 @@ public class MapTile : MonoBehaviour
         Dictionary<int, Dictionary<string, int>> allTileData = TileData.GetTileData();
         if (allTileData.ContainsKey(tileNumber) == false)
         {
-            //Perlin Noise
-            // Generate perlin noise - brackys then use that to assign everything 
-            // Generate diffrent perlin noise for each? - yes then e.g 0 - 15 and 1 - 25
-            // Generate in MapBoard not in here
-
            // SetTroopPresent(UnityEngine.Random.Range(15, 25));
            // SetTroopAdding(UnityEngine.Random.Range(3, 5));
            // SetCurrentPopulation(UnityEngine.Random.Range(50, 75));

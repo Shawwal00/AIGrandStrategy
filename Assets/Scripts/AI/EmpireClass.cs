@@ -95,7 +95,10 @@ public class EmpireClass : MonoBehaviour
         canvasEmpireType = GameObject.Find("EmpireGui").transform.Find("Panel").Find("EmpireType").gameObject;
     }
 
-
+    /*
+     * This sets the empire type at the beginning of the game and changes the values so that the AI can have diffrent personalities.
+     * @param EmpireType _newEmpireType this is the new empire type
+     */ 
     public void SetEmpireType(EmpireType _newEmpireType)
     {
         thisEmpireType = _newEmpireType;
@@ -182,6 +185,10 @@ public class EmpireClass : MonoBehaviour
         WarModule.SetTroopNumber(totalTroops);
     }
 
+    /*
+     * Gets the colour of an empire
+     * @param EmpireClass _empire This is the empire you are getting the colour of.
+     */ 
     public string GetOtherEmpireColour(EmpireClass _empire)
     {
         string colour = null;

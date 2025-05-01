@@ -33,10 +33,6 @@ public class WarModule : MonoBehaviour
     private Dictionary<MapTile, int> tileTroopMovement = new Dictionary<MapTile, int>();
     private List<MapTile> tileMovementList = new List<MapTile>();
 
-    //private bool empireDefeated = false;
-    // private float armyDestroyedTime = 0; // How long it has been since the enemy army was destroyed
-    // private EmpireClass empireThatDefeatedYou; // This is the empire that defeated you
-
     private int troopNumber = 0; 
     private float updateTroopNumberTime = 0;
     private int troopReplenishAmount = 0;
@@ -100,36 +96,35 @@ public class WarModule : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //UpdateAllTroopCount();
 
-        //The below is if you have been defeated then check to see if your army can be restored
-       /* if (empireDefeated == true)
-        {
-            armyDestroyedTime += Time.deltaTime;
-            if (armyDestroyedTime > 3)
-            {
-                empireDefeated = false;
-                armyDestroyedTime = 0;
-                empireThatDefeatedYou.WarModule.RemoveEmpireFromeDefeatedList(thisEmpire);
-            }
-        }*/
     }
 
+    /*
+     * The below function sets a new value for the warDiplomacyValue
+     * @param int _newValue The new value assigned to the warDiplomacyNumber
+     */ 
     public void SetWarDiplomacyValue(int _newValue)
     {
         warDiplomacyNumber = _newValue;
     }
 
+    /*
+    * The below function sets a new value for the threatValue
+    * @param int _newValue The new value assigned to the threatValue
+    */
     public void SetThreatValue(int _newValue)
     {
         threatValue = _newValue;
     }
 
+    /*
+    * The below function sets a new value for the conquerValue
+    * @param int _newValue The new value assigned to the conquerValue
+    */
     public void SetConquerTileValue(int _newValue)
     {
         conquerTileValue = _newValue;
     }
-
 
     /*
      * This function is used when all the other empires have been set up and the inital relationships should also be set up
@@ -337,22 +332,17 @@ public class WarModule : MonoBehaviour
      */
     public void UpdateAllTroopCount()
     {
-      //  updateTroopNumberTime += Time.deltaTime;
       int totalTroops = 0;
         if (thisEmpire.GetOwnedTiles().Count > 0)
         {
-          //  if (updateTroopNumberTime > 1)
-           // {
-                foreach (var tile in thisEmpire.GetOwnedTiles())
+            foreach (var tile in thisEmpire.GetOwnedTiles())
+            {
+                if (thisEmpire.EconomyModule.GetTrainTroops())
                 {
-                    if (thisEmpire.EconomyModule.GetTrainTroops())
-                    {
-                        tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40) + tile.GetTroopAdding());
-                    }
-                totalTroops += tile.GetTroopPresent();
+                    tile.SetTroopPresent(tile.GetTroopPresent() + (tile.GetCurrentPopulation() / 50) - (tile.GetCorruptPopulation() / 40) + tile.GetTroopAdding());
                 }
-            //    updateTroopNumberTime = 0;
-           // }
+                totalTroops += tile.GetTroopPresent();
+            }
         }
         SetTroopNumber(totalTroops);
         thisEmpire.FunctionFinished();
@@ -366,7 +356,7 @@ public class WarModule : MonoBehaviour
         //Loop through all owned tiles - if not any connecting tiles that are not owned then go to nearest boarder
         // If at war go to a frontline if less troops
 
-         thisEmpire.UpdateOwnedTiles();
+        thisEmpire.UpdateOwnedTiles();
         foreach (var ownedTile in thisEmpire.GetOwnedTiles())
         {
             if (ownedTile.GetTroopPresent() > 10)
@@ -1312,16 +1302,6 @@ public class WarModule : MonoBehaviour
     }
 
     /*
-     * Set the empireDefeated variable to true when the ai has lost a fight and set the empire that has defeated you.
-     * @param EmpireClass _newEmpireThatDefeatedYou This is the empire that defeated you in battle
-     */
-    public void SetEmpireDefeatedTrue(EmpireClass _newEmpireThatDefeatedYou)
-    {
-        //empireDefeated = true;
-        //empireThatDefeatedYou = _newEmpireThatDefeatedYou;
-    }
-
-    /*
      * The below function will return the boardering empire value
      * @return List<EmpireClass> boarderingEmpires This is a list of all boardering empires
      */
@@ -1338,24 +1318,6 @@ public class WarModule : MonoBehaviour
     {
         return atWarEmpires;
     }
-
-    /*
-     * The below function is for when you have defeated an empire in battle allowing you to occupy thier territory
-     * @param EmpireClass _defeatedEmpire This is the empire that you have defeated in battle
-     */
-    public void AddToDefeatedEmpires(EmpireClass _defeatedEmpire)
-    {
-        empiresDefeatedInBattle.Add(_defeatedEmpire);
-    }
-
-    /*
-     * This will add to the empires troop number
-     * @param int _addTroopNumber The amount of new troops you will be adding
-     */
-   // public void AddToTroopNumber(int _addTroopNumber)
-   // {
-   //     troopNumber += _addTroopNumber;
-   // }
 
     /*
      * The below will set the empires troop number
@@ -1381,16 +1343,6 @@ public class WarModule : MonoBehaviour
     {
         return troopNumber;
     }
-
-    /*
-     * Returns if the empire has been defeated
-     * @return bool empireDefeated This will return if you have been defeated in battle or not
-     */
-     
-    //public bool GetEmpireDefeated()
-    //{
-        //return empireDefeated;
-   //}
 
     /*
      * This function will return the replenish amount of the empire
@@ -1447,12 +1399,6 @@ public class WarModule : MonoBehaviour
         totalThreatValue = threatRatings[_otherEmpire];
         foreach (var alliedEmpire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
         {
-           // Debug.Log(_otherEmpire.GetEmpireColor());
-           // Debug.Log(thisEmpire.GetEmpireColor());
-            foreach (var empire in _otherEmpire.DiplomacyModule.GetAlliedEmpires())
-            {
-            //    Debug.Log(empire.GetEmpireColor());
-            }
             totalThreatValue += threatRatings[alliedEmpire];
         }
 

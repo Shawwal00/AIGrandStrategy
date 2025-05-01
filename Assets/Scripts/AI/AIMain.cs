@@ -153,31 +153,6 @@ public class AIMain : MonoBehaviour
         inFunction = _value;
     }
 
-    /*
-     * The below function will attempt to conquer a region on the map
-     * @param EmpireClass _currentEmpire This is the empire conquering
-     */
-    private void ConquerRegion(EmpireClass _currentEmpire)
-    {
-        _currentEmpire.WarModule.ConquerTerritory();
-        //for (int j = 0; j < allAIEmpireClasses.Count; j++)
-        //{
-        //    allAIEmpireClasses[j].SetAllTilesList(MapBoardScript.ReturnTileList());
-        //}
-    }
-
-    /*
-     * The below function will update all the threat ratings of the empires
-     * @param EmpireClass _currentEmpire This is the empire which is updating its threat ratings
-     */
-    //private void UpdateAllThreatRatings(EmpireClass _currentEmpire)
-    //{
-    //   foreach (var empire in _currentEmpire.WarModule.GetBoarderingEmpires())
-    //    {
-    //        _currentEmpire.WarModule.UpdateThreatRating(empire);
-    //    }
-    //}
-
    /*
    * The below function will destroy an empire and let the other empires know
    * @param EmpireClass _destroyedEmpire This is the empire which has been destroyed
@@ -186,65 +161,6 @@ public class AIMain : MonoBehaviour
     {
         toDestroy.Add(_destroyedEmpire);
     }
-
-    /*
-     * The below function is used to fight another enemy empire AI
-     * param EmpireClass _currentEmpire This is the empire who is attacking
-     */
-    /*private void FightOtherEmpire(EmpireClass _currentEmpire)
-    {
-        if (_currentEmpire.WarModule.GetAtWarEmpires().Count > 0) // Only occur if at war with an empire
-        {
-            foreach (var empire in _currentEmpire.WarModule.GetAtWarEmpires())
-            {
-                if (empire.WarModule.GetEmpireDefeated() == false)
-                {
-                    bool empireAlreadyDefeated = false;
-                    if (_currentEmpire.WarModule.GetDefeatedEmpires().Count > 0)
-                    {
-                        foreach (var defeatedEmpire in _currentEmpire.WarModule.GetDefeatedEmpires())
-                        {
-                            if (defeatedEmpire == empire)
-                            {
-                                empireAlreadyDefeated = true;
-                            }
-                        }
-                    }
-
-                    if (empire.WarModule.GetDefeatedEmpires().Count > 0)
-                    {
-                        foreach (var defeatedEmpire in empire.WarModule.GetDefeatedEmpires())
-                        {
-                            if (defeatedEmpire == _currentEmpire)
-                            {
-                                empireAlreadyDefeated = true;
-                            }
-                        }
-                    }
-
-                    if (empireAlreadyDefeated == false)
-                    {
-                        Debug.Log("Empires Fighting" + _currentEmpire.GetEmpireColor().ToString() + empire.GetEmpireColor().ToString() + "Troops" + _currentEmpire.WarModule.GetTroopNumber().ToString() + "  " + empire.WarModule.GetTroopNumber().ToString());
-                        int currentTroopNumber = _currentEmpire.WarModule.GetAllTroopsIncludingAlliances();
-                        int otherEmpireTroopNumber = empire.WarModule.GetAllTroopsIncludingAlliances();
-
-                        if (currentTroopNumber > otherEmpireTroopNumber)
-                        {
-                            _currentEmpire.WarModule.AddToDefeatedEmpires(empire);
-                            empire.WarModule.SetEmpireDefeatedTrue(_currentEmpire);
-                        }
-                        else
-                        {
-                            empire.WarModule.AddToDefeatedEmpires(_currentEmpire);
-                            _currentEmpire.WarModule.SetEmpireDefeatedTrue(empire);
-                        }
-                        _currentEmpire.WarModule.AlliedBattleTookPlace(otherEmpireTroopNumber, currentTroopNumber);
-                        empire.WarModule.AlliedBattleTookPlace(currentTroopNumber, otherEmpireTroopNumber);
-                    }
-                }
-            }
-        }
-    }*/
 
     /*
      * The below function can be used to return a list of all of the empires

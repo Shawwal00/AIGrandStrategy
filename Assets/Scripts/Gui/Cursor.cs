@@ -51,15 +51,7 @@ public class Cursor : MonoBehaviour
                 tileCursorPosition.z = -0.55f; // This is to set it depending on the camera
                 tileCursor.transform.position = tileCursorPosition;
                 currentTileCount = board.ReturnTileList().Count;
-               /* if (lastTile == null)
-                {
-                    lastTile = tiles;
-                }
-                else if (lastTile != tiles)
-                {
-                    tiles.SetUpScreenTileGui();
-                    lastTile = tiles;
-                }*/
+
                 tiles.SetUpScreenTileGui();
                 foreach (var empire in aiMain.GetAllEmpiresInGame())
                 {

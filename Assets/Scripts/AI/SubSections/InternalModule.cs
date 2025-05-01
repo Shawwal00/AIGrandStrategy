@@ -139,19 +139,6 @@ public class InternalModule : MonoBehaviour
             thisEmpire.EconomyModule.SetTrainTroops(false);
         }
 
-       /* if (updatePopulationTime == 0)
-        {
-            UpdatePopulation();
-        }
-        else
-        {
-            updatePopulationTime += Time.deltaTime;
-            if (updatePopulationTime > 2)
-            {
-                updatePopulationTime = 0;
-            }
-        }*/
-
         UpdatePopulation();
 
         int totalCorruptPopulation = 0;
